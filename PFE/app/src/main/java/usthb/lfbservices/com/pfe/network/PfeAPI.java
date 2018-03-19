@@ -15,25 +15,41 @@ import usthb.lfbservices.com.pfe.models.Product;
 
 /**
  * Created by ryadh on 29/01/18.
+ * A class used by Retrofit to execute network calls.
  */
 
-public class PfeAPI
-{
+public class PfeAPI {
+    /**
+     * The url of the Web Service to use.
+     */
     private static final String BASE_URL = "http://192.168.1.5:8080/PFE/api/";
 
+    /**
+     * A Retrofit object to instantiate the interface representing the exposed methods of the
+     * Web Service.
+     */
     private Retrofit retrofit = null;
+    /**
+     * A {@link PfeService} object containing the exposed methods of the Web Service to
+     * instantiate with Retrofit.
+     */
     private PfeService pfeService;
 
-    public PfeAPI()
-    {
+    /**
+     * A constructor.
+     */
+    public PfeAPI() {
         retrofit = this.getClient();
         pfeService = retrofit.create(PfeService.class);
     }
 
-    public Retrofit getClient()
-    {
-        if (retrofit == null)
-        {
+    /**
+     * Instantiate the {@link Retrofit} object if it is null, and setting {@link Gson} to handle
+     * automatic conversion of JSON responses and {@link RxJava2CallAdapterFactory} to handle
+     * RxAndroid's Observable type.
+     */
+    public Retrofit getClient() {
+        if (retrofit == null) {
             Gson gson = new GsonBuilder()
                     .setLenient()
                     .create();
@@ -56,6 +72,12 @@ public class PfeAPI
         return pfeService.search(value);
     }
 
+    /**
+     * Operates a network call to the Web Server to obtain a List of {@link Product} corresponding
+     * to the specified {@link usthb.lfbservices.com.pfe.models.Category}
+     * @param category The Category id used for the network call to filter the Products.
+     * @return An {@link Observable} List of {@link Product} to use with AndroidRx
+     */
     public Observable<List<Product>> searchCategory(final int category) {
         return pfeService.searchCategory(category);
     }

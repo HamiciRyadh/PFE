@@ -24,11 +24,17 @@ import usthb.lfbservices.com.pfe.utils.DisposableManager;
 
 /**
  * Created by ryadh on 29/01/18.
+ * A class exposing static methods to interact with Retrofit that handles the network calls
+ * and the associated handling.
  */
 
 public class PfeRx
 {
     private static final String TAG = PfeRx.class.getName();
+
+    /**
+     * The object used for the network calls.
+     */
     private static PfeAPI pfeAPI = new PfeAPI();
 
     public static void getProducts(final Activity activity, final int layoutResourceId)
@@ -115,6 +121,15 @@ public class PfeRx
                 });
     }
 
+    /**
+     * Searches for the Products corresponding to the specified Category, displays the results
+     * if there are any, or an appropriate message in the case where there are no corresponding
+     * results or an error occurred.
+     * @param activity The activity in which to display the results of the network call, or the
+     *                 appropriate message.
+     * @param layoutResourceId The layout id used by{@link ProductsAdapter} the Adapter to display the results.
+     * @param category The Category id used for the network call to filter the Products.
+     */
     public static void searchCategory(final Activity activity, final int layoutResourceId, final int category)
     {
         final ArrayList<Product> products = new ArrayList<Product>();
@@ -124,6 +139,11 @@ public class PfeRx
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Observer<List<Product>>() {
+                    /**
+                     * This method is called before we start the network call.
+                     * Activates the PorgressBar to show the user that there is a background
+                     * activity.
+                     */
                     @Override
                     public void onSubscribe(Disposable d)
                     {
@@ -134,19 +154,32 @@ public class PfeRx
                         if (progressBar != null) progressBar.setVisibility(View.VISIBLE);
                     }
 
+                    /**
+                     * This method is called when the results of the network call are received,
+                     * Adds all the results to the {@link ProductsAdapter} before setting it to the
+                     * ListView in addition to an EmptyView to display a content for the case of
+                     * 0 corresponding results or the occurrence of an error.
+                     * @param list The List of Products received from the network call.
+                     */
                     @Override
                     public void onNext(List<Product> list) {
                         Log.e(TAG, "Search Category : onNext");
                         Log.e(TAG, list.toString());
 
+                        productsAdapter.addAll(list);
+
                         ListView listView = activity.findViewById(R.id.list_view_products);
                         TextView emptyTextView = activity.findViewById(R.id.empty_list_products);
                         listView.setAdapter(productsAdapter);
                         listView.setEmptyView(emptyTextView);
-
-                        productsAdapter.addAll(list);
                     }
 
+                    /**
+                     * This method is called if an error occurred during the network call.
+                     * Disables the ProgressBar, sets the {@link ProductsAdapter} to the
+                     * ListView and and EmptyView to display an error message.
+                     * @param e A Throwable corresponding to the error.
+                     */
                     @Override
                     public void onError(Throwable e) {
                         Log.e(TAG, "Search Category : onError " + e.toString());
@@ -162,6 +195,11 @@ public class PfeRx
                         if (emptyTextView != null) emptyTextView.setText(activity.getString(R.string.error_occured));
                     }
 
+                    /**
+                     * This method is called when the network call ended successfully.
+                     * Disables the ProgressBar and in the case of 0 corresponding results (empty
+                     * ListView) sets a corresponding message in the EmptyView.
+                     */
                     @Override
                     public void onComplete() {
                         Log.e(TAG, "Search Category : onComplete");
