@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/fragment_search"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/color_background">
+
+    <GridView
+    android:id="@+id/category_grid_view"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="@dimen/categories_grid_layout_margin"
+    android:columnWidth="@dimen/categories_grid_column_width"
+    android:gravity="center"
+    android:numColumns="auto_fit"
+    android:stretchMode="columnWidth"
+    android:background="@color/color_white"
+    android:layout_below="@id/search_view"
+    />
+
+    <ListView
+    android:id="@+id/list_view_history"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_margin="@dimen/history_list_view_margin"
+    android:layout_below="@id/category_grid_view"
+    android:background="@color/color_white"
+    />
+
+</RelativeLayout>

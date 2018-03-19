@@ -1,0 +1,68 @@
+package usthb.lfbservices.com.pfe.adapters;
+
+import android.app.Activity;
+import android.content.Context;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
+import android.widget.ImageView;
+import android.widget.SearchView;
+import android.widget.TextView;
+
+import java.util.ArrayList;
+
+import usthb.lfbservices.com.pfe.R;
+import usthb.lfbservices.com.pfe.models.Category;
+import usthb.lfbservices.com.pfe.models.Product;
+
+/**
+ * Created by root on 09/03/18.
+ */
+
+public class HistoryAdapter extends ArrayAdapter<String> {
+
+    private static String TAG = HistoryAdapter.class.getName();
+
+    private Context context;
+    int layoutResourceId;
+
+    public HistoryAdapter(Context context, int layoutResourceId, ArrayList<String> data) {
+        super(context, layoutResourceId, data);
+        this.layoutResourceId = layoutResourceId;
+        this.context = context;
+//        this.data = data;
+    }
+
+
+    @NonNull
+    @Override
+    public View getView(final int position, @Nullable View convertView, @NonNull ViewGroup parent) {
+        View listItemView = convertView;
+        if(listItemView == null) {
+            listItemView = LayoutInflater.from(getContext()).inflate(
+                    layoutResourceId, parent, false);
+        }
+
+        String history = getItem(position);
+
+        final TextView historyElement = listItemView.findViewById(R.id.history_element);
+        historyElement.setText(history);
+
+        final SearchView searchView = ((Activity)context).findViewById(R.id.search_view);
+
+        final ImageView imageView = listItemView.findViewById(R.id.history_to_search_view);
+        imageView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.e(TAG, "ImageView OnClickListener");
+                searchView.setQuery(getItem(position), false);
+            }
+        });
+
+        return listItemView;
+    }
+}

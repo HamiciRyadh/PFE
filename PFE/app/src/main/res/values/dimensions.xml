@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="categories_grid_column_width">80dp</dimen>
+    <dimen name="categories_grid_layout_margin">5dp</dimen>
+    <dimen name="category_image_width">60dp</dimen>
+    <dimen name="category_image_height">60dp</dimen>
+    <dimen name="category_image_margin">10dp</dimen>
+    <dimen name="category_text_size">12sp</dimen>
+    <dimen name="category_name_margin">5dp</dimen>
+
+    <dimen name="history_list_view_margin">5dp</dimen>
+    <dimen name="search_view_padding">30dp</dimen>
+
+    <dimen name="history_elements_layout_margin">10dp</dimen>
+    <dimen name="history_elements_padding">15dp</dimen>
+
+    <dimen name="history_text_size">20sp</dimen>
+</resources>

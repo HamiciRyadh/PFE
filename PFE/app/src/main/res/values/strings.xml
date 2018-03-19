@@ -1,0 +1,20 @@
+<resources>
+    <string name="app_name">PFE</string>
+    <string name="title_activity_maps">Map</string>
+    <string name="more">Plus</string>
+    <string name="less">Moins</string>
+    <string name="hint_search">Rechercher un produit.</string>
+    <string name="empty_history">Aucun élément.</string>
+    <string name="no_internet">Aucun accès internet.</string>
+    <string name="error_occured">Une erreur est survenue.</string>
+    <string name="no_corresponding_product">Aucun produit ne correspond à votre recherche.</string>
+
+    <string-array name="categories_array">
+        <item>Electronique</item>
+        <item>Vétements</item>
+        <item>Nourriture</item>
+        <item>Jouets</item>
+        <item>Médicaments</item>
+        <item>Cuisine</item>
+    </string-array>
+</resources>
