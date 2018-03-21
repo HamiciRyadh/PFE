@@ -10,7 +10,6 @@ import android.widget.RelativeLayout;
 
 
 /**
- * Created by ryadh on 31/01/18.
  * List of public and static constants and methods
  */
 

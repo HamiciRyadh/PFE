@@ -14,7 +14,6 @@ import retrofit2.converter.gson.GsonConverterFactory;
 import usthb.lfbservices.com.pfe.models.Product;
 
 /**
- * Created by ryadh on 29/01/18.
  * A class used by Retrofit to execute network calls.
  */
 

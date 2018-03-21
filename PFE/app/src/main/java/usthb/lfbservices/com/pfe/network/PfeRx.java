@@ -23,7 +23,6 @@ import usthb.lfbservices.com.pfe.models.Product;
 import usthb.lfbservices.com.pfe.utils.DisposableManager;
 
 /**
- * Created by ryadh on 29/01/18.
  * A class exposing static methods to interact with Retrofit that handles the network calls
  * and the associated handling.
  */
@@ -37,15 +36,13 @@ public class PfeRx
      */
     private static PfeAPI pfeAPI = new PfeAPI();
 
-    public static void getProducts(final Activity activity, final int layoutResourceId)
-    {
+    public static void getProducts(final Activity activity, final int layoutResourceId) {
         pfeAPI.getProducts()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Observer<JsonArray>() {
                     @Override
-                    public void onSubscribe(Disposable d)
-                    {
+                    public void onSubscribe(Disposable d) {
                         Log.e(TAG, "getProduits : onSubscribe");
                         DisposableManager.add(d);
                     }
@@ -58,8 +55,7 @@ public class PfeRx
                         ArrayList<Product> products = new ArrayList<Product>();
                         Product product;
                         //JsonArray jsonArray = jsonObject.getAsJsonArray("products");
-                        for (int i = 0; i < jsonArray.size(); i++)
-                        {
+                        for (int i = 0; i < jsonArray.size(); i++) {
                             JsonObject object = jsonArray.get(i).getAsJsonObject();
 
                             product = new Product();
@@ -130,8 +126,7 @@ public class PfeRx
      * @param layoutResourceId The layout id used by{@link ProductsAdapter} the Adapter to display the results.
      * @param category The Category id used for the network call to filter the Products.
      */
-    public static void searchCategory(final Activity activity, final int layoutResourceId, final int category)
-    {
+    public static void searchCategory(final Activity activity, final int layoutResourceId, final int category) {
         final ArrayList<Product> products = new ArrayList<Product>();
         final ProductsAdapter productsAdapter = new ProductsAdapter(activity, layoutResourceId, products);
 

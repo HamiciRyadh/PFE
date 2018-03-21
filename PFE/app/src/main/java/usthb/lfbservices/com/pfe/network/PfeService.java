@@ -12,7 +12,6 @@ import retrofit2.http.Query;
 import usthb.lfbservices.com.pfe.models.Product;
 
 /**
- * Created by ryadh on 29/01/18.
  * An interface that is used by Retrofit to interact with the exposed methods of the Web Service
  */
 

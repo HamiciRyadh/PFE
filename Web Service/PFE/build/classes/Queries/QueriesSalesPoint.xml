@@ -1,0 +1,22 @@
+<?xml version = "1.0" encoding = "UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"   "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="QueriesSalesPoint">
+
+<resultMap id = "result" type = "model.SalesPoint">
+   <result property = "salespointId" column = "salespoint_id"/>
+   <result property = "salespointLat" column = "salespoint_lat"/>
+   <result property = "salespointLong" column = "salespoint_long"/>
+   <result property = "salespointName" column = "salespoint_name"/>
+   <result property = "salespointAddress" column = "salespoint_address"/>
+</resultMap>
+
+
+<select id = "getSalesPointById" resultMap = "result">
+  SELECT * FROM  ${db.schema}."SalesPoint" 
+                        WHERE  salesPoint_id = #{salespointId};
+</select>
+
+
+</mapper>

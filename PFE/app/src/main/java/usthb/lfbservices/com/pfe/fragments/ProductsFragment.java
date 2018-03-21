@@ -17,17 +17,25 @@ import usthb.lfbservices.com.pfe.models.Product;
 import usthb.lfbservices.com.pfe.network.PfeRx;
 
 /**
- * Created by root on 12/03/18.
+ *
  */
 
 public class ProductsFragment extends Fragment {
 
     private static final String TAG = ProductsFragment.class.getName();
 
+    /**
+     * An instance of {@link ProductsFragmentActions} interface used to update the UI when actions
+     * are performed.
+     */
     private ProductsFragmentActions implementation;
 
 
     private View rootView;
+
+    /**
+     * An instance of the Activity using the SearchFragment.
+     */
     private FragmentActivity fragmentBelongActivity;
 
     private ListView listView;
@@ -57,6 +65,12 @@ public class ProductsFragment extends Fragment {
         return rootView;
     }
 
+    /**
+     * This method is executed when we attach the Fragment to an Activity, that Activity will be
+     * stored in a {@link ProductsFragmentActions} reference and thus must implement the interface
+     * so that it will update its UI according to the actions performed.
+     * @param context The Context of the Activity using the Fragment.
+     */
     @Override
     public void onAttach(Context context) {
         Log.e(TAG, "onAttach");
@@ -70,6 +84,11 @@ public class ProductsFragment extends Fragment {
         }
     }
 
+    /**
+     * This interface contains the methods that the activity using this fragment has to implement
+     * so that it will be able to act accordingly and updates its UI in response to the actions
+     * performed in the {@link ProductsFragment}.
+     */
     public interface ProductsFragmentActions {
 
         void onProductSelected(int productId);

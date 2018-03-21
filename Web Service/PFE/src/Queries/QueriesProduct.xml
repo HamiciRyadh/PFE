@@ -1,0 +1,62 @@
+<?xml version = "1.0" encoding = "UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"   "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="QueriesProduct">
+
+<resultMap id = "result" type = "model.Product">
+   <result property = "productId" column = "product_id"/>
+   <result property = "productName" column = "product_name"/>
+   <result property = "productType" column = "product_type"/>
+   <result property = "productCategory" column = "product_category"/>
+   <result property = "productTradeMark" column = "product_trade_mark"/>
+</resultMap>
+
+<select id = "getAllProducts" resultMap = "result">
+   SELECT * FROM ${db.schema}."Product"; 
+</select>
+
+
+<select id = "getProductById" parameterType = "int" resultMap = "result">
+   SELECT * FROM ${db.schema}."Product" WHERE product_id = #{id};
+</select>
+
+
+<select id = "getProductByCategory" parameterType = "int" resultMap = "result">
+  SELECT product_id, product_name, product_type, product_trade_mark
+  FROM ${db.schema}."Product" product INNER JOIN ${db.schema}."Type" type ON (product.product_type = type.type_id)
+  WHERE   type.category_id =#{productCategory} ;
+</select>
+
+
+<select id = "getProductByName" parameterType = "String" resultMap = "result">
+
+  SELECT * FROM ${db.schema}."Product" WHERE product_name LIKE #{value}
+                                        OR product_trade_mark LIKE #{value};                                                                                          
+</select>
+
+
+
+<insert id = "insertProduct" parameterType = "model.Product">
+  INSERT INTO ${db.schema}."Product" 
+           (product_id,product_name,product_type,product_category,product_trade_mark) 
+  VALUES (#{productId},#{productName}, #{productType}, #{productCategory}, #{productTradeMark});    
+</insert>
+
+<update id = "updateProductById" parameterType = "model.Product">
+   UPDATE ${db.schema}."Product" SET 
+  
+   product_name = #{productName},
+   product_type = #{productType},
+   product_category = #{productCategory},
+   product_trade_mark =#{productTradeMark} 
+   
+   WHERE  product_id = #{productId};
+</update>
+
+<delete id = "deleteProductById" parameterType = "int">
+   DELETE from ${db.schema}."Product" WHERE product_id = #{productId};
+</delete>
+
+
+</mapper>
