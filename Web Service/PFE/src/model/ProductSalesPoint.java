@@ -18,7 +18,7 @@ package model;
 public class ProductSalesPoint {
 
 	private int productId;
-	private String salespointId;
+	private String salesPointId;
 	private  int productQuantity;
 	private double productPrice ;
 	
@@ -26,35 +26,35 @@ public class ProductSalesPoint {
 		this(0,"",0,0.0);
 	}
 	
-	public ProductSalesPoint(int productId, String salespointId, int productQuantity, double productPrice) {
+	public ProductSalesPoint(int productId, String salesPointId, int productQuantity, double productPrice) {
 		super();
 		this.productId = productId;
-		this.salespointId = salespointId;
+		this.salesPointId = salesPointId;
 		this.productQuantity = productQuantity;
 		this.productPrice = productPrice;
 	}
 	public int getProductId() {
 		return productId;
 	}
-	public String getSalespointId() {
-		return salespointId;
+	public String getSalesPointId() {
+		return salesPointId;
 	}
-	public int getproductQuantity() {
+	public int getProductQuantity() {
 		return productQuantity;
 	}
-	public double getproductPrice() {
+	public double getProductPrice() {
 		return productPrice;
 	}
 	public void setProductId(int productId) {
 		this.productId = productId;
 	}
-	public void setSalespointId(String salespointId) {
-		this.salespointId = salespointId;
+	public void setSalesPointId(String salesPointId) {
+		this.salesPointId = salesPointId;
 	}
-	public void setproductQuantity(int productQuantity) {
+	public void setProductQuantity(int productQuantity) {
 		this.productQuantity = productQuantity;
 	}
-	public void setproductPrice(double productPrice) {
+	public void setProductPrice(double productPrice) {
 		this.productPrice = productPrice;
 	}
 	

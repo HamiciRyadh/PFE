@@ -10,108 +10,114 @@ import model.Product;
 import model.ProductSalesPoint;
 
 public class Access {
+	
+	/********************************	Queries for Products		*************************************/
 
-	public List<Product> getProducts() throws SQLException, IOException {
+	public static List<Product> getProducts() throws SQLException, IOException {
 
 		SqlSession session = DBConnectionFactory.getNewSession();
 
-		List<Product> products = session.selectList("QueriesProduct.getAllProducts");
+		List<Product> listProducts = session.selectList("QueriesProduct.getAllProducts");
 
 		session.commit();
 		session.close();
 
-		return products;
+		return listProducts;
 
 	}
 
-	public List<Product> getProductCategory(int category) throws Exception {
+	public static List<Product> getProductsByCategory(final int categoryId) throws Exception {
 		SqlSession session = DBConnectionFactory.getNewSession();
 
-		List<Product> products = session.selectList("QueriesProduct.getProductByCategory", category);
+		List<Product> listProducts = session.selectList("QueriesProduct.getProductsByCategory", categoryId);
 
 		session.commit();
 		session.close();
 
-		return products;
+		return listProducts;
 	}
 
-	public Product getProductId(int id) throws Exception {
+	public static Product getProductById(final int id) throws Exception {
 		SqlSession session = DBConnectionFactory.getNewSession();
 
-		Product prod = session.selectOne("QueriesProduct.getProductById", id);
+		Product product = session.selectOne("QueriesProduct.getProductById", id);
 
 		session.commit();
 		session.close();
 
-		return prod;
+		return product;
 	}
 
-	public List<Product> getProductByName(String value) throws Exception {
+	public static List<Product> getProductsByName(final String value) throws Exception {
 		SqlSession session = DBConnectionFactory.getNewSession();
 
-		List<Product> products = session.selectList("QueriesProduct.getProductByName", value);
+		List<Product> listProducts = session.selectList("QueriesProduct.getProductsByName", value);
 
 		session.commit();
 		session.close();
 
-		return products;
+		return listProducts;
 	}
-
-	public List<ProductSalesPoint> getSalesPointQte(int idProduct) throws Exception {
+	
+	public static void insertProduct(final Product product) throws Exception {
 		SqlSession session = DBConnectionFactory.getNewSession();
 
-		List<ProductSalesPoint> salespointsQte = session.selectList("QueriesProductSalesPoint.getPointAndQte",
-				idProduct);
-
-		session.commit();
-		session.close();
-
-		return salespointsQte;
-	}
-
-	public SalesPoint getSalesPointById(String idSalespoint) throws Exception {
-		SqlSession session = DBConnectionFactory.getNewSession();
-
-		SalesPoint salespoint = session.selectOne("QueriesSalesPoint.getSalesPointById", idSalespoint);
-
-		session.commit();
-		session.close();
-
-		return salespoint;
-	}
-
-	public void insertProduct(Product prod) throws Exception {
-		SqlSession session = DBConnectionFactory.getNewSession();
-
-		session.insert("QueriesProduct.insertProduct", prod);
+		session.insert("QueriesProduct.insertProduct", product);
 
 		session.commit();
 		session.close();
 
 	}
 
-	public void updateProduct(Product prod) throws Exception {
+	public static void updateProduct(final Product product) throws Exception {
 
 		SqlSession session = DBConnectionFactory.getNewSession();
 
-		session.update("QueriesProduct.updateProductById", prod);
+		session.update("QueriesProduct.updateProductById", product);
 
 		session.commit();
 		session.close();
 
 	}
 
-	public void deleteProduct(int id) throws Exception {
+	public static void deleteProduct(final int productId) throws Exception {
 		SqlSession session = DBConnectionFactory.getNewSession();
 
-		session.delete("QueriesProduct.deleteProductById", id);
+		session.delete("QueriesProduct.deleteProductById", productId);
 
 		session.commit();
 		session.close();
 
 	}
 
-	public void updateSalespoint(SalesPoint salesPoint) throws Exception {
+	/********************************	Queries for SalesPoints		*************************************/
+
+	
+	public static List<ProductSalesPoint> getSalesPointQte(final int productId) throws Exception {
+		SqlSession session = DBConnectionFactory.getNewSession();
+
+		List<ProductSalesPoint> listProductSalesPoint = session.selectList("QueriesProductSalesPoint.getSalesPointsAndQte",
+				productId);
+
+		session.commit();
+		session.close();
+
+		return listProductSalesPoint;
+	}
+
+	public static SalesPoint getSalesPointById(final String salesPointId) throws Exception {
+		SqlSession session = DBConnectionFactory.getNewSession();
+
+		SalesPoint salesPoint = session.selectOne("QueriesSalesPoint.getSalesPointById", salesPointId);
+
+		session.commit();
+		session.close();
+
+		return salesPoint;
+	}
+
+
+	public static void updateSalesPoint(final SalesPoint salesPoint) throws Exception {
 
 		SqlSession session = DBConnectionFactory.getNewSession();
 

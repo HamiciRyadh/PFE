@@ -5,11 +5,11 @@
 <mapper namespace="QueriesSalesPoint">
 
 <resultMap id = "result" type = "model.SalesPoint">
-   <result property = "salespointId" column = "salespoint_id"/>
-   <result property = "salespointLat" column = "salespoint_lat"/>
-   <result property = "salespointLong" column = "salespoint_long"/>
-   <result property = "salespointName" column = "salespoint_name"/>
-   <result property = "salespointAddress" column = "salespoint_address"/>
+   <result property = "salesPointId" column = "salespoint_id"/>
+   <result property = "salesPointLat" column = "salespoint_lat"/>
+   <result property = "salesPointLong" column = "salespoint_long"/>
+   <result property = "salesPointName" column = "salespoint_name"/>
+   <result property = "salesPointAddress" column = "salespoint_address"/>
 </resultMap>
 
 

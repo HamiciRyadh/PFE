@@ -1,7 +1,7 @@
 package model;
 
 /**
-* <b> SalesPoint est la classe qui represente un point de vente </b>
+* <b> salesPoint est la classe qui represente un point de vente </b>
 * <p>
 * un point de vente est caracterise par les informations suivantes :
 * <ul>
@@ -21,110 +21,118 @@ package model;
 
 public class SalesPoint {
 	
-	private String salespointId;
-	private double salespointLat;
-    private double salespointLong;
-	private  String salespointName;
-	private  String salespointAddress;
-	private String salespointPhoneNumber;
-	private String salespointWebSite; 
-	private float salespointRating;
+	private String salesPointId;
+	private double salesPointLat;
+    private double salesPointLong;
+	private  String salesPointName;
+	private  String salesPointAddress;
+	private String salesPointPhoneNumber;
+	private String salesPointWebSite; 
+	private float salesPointRating;
 	
 	//photo, les horaires d'ouvertures , et les commentaires de clients.
 	
 	
-	public SalesPoint(String salespointId, double salespointLat, double salespointLong, String salespointName,
-			String salespointAddress){
+	public SalesPoint(String salesPointId, double salesPointLat, double salesPointLong, String salesPointName,
+			String salesPointAddress){
 		super();
-		this.salespointId = salespointId;
-		this.salespointLat = salespointLat;
-		this.salespointLong = salespointLong;
-		this.salespointName = salespointName;
-		this.salespointAddress = salespointAddress;
+		this.salesPointId = salesPointId;
+		this.salesPointLat = salesPointLat;
+		this.salesPointLong = salesPointLong;
+		this.salesPointName = salesPointName;
+		this.salesPointAddress = salesPointAddress;
 
 	}
 	
 	
-	public SalesPoint(String salespointId, String salespointPhoneNumber, String salespointWebSite, float salespointRating) {
+	public SalesPoint(String salesPointId, String salesPointPhoneNumber, String salesPointWebSite, float salesPointRating) {
 		super();
-		this.salespointId = salespointId;
-		this.salespointPhoneNumber = salespointPhoneNumber;
-		this.salespointWebSite = salespointWebSite;
-		this.salespointRating = salespointRating;
+		this.salesPointId = salesPointId;
+		this.salesPointPhoneNumber = salesPointPhoneNumber;
+		this.salesPointWebSite = salesPointWebSite;
+		this.salesPointRating = salesPointRating;
 	}
 
-	public String getSalespointId() {
-		return salespointId;
+
+	public String getSalesPointId() {
+		return salesPointId;
 	}
 
-	public double getSalespointLat() {
-		return salespointLat;
+
+	public void setSalesPointId(String salesPointId) {
+		this.salesPointId = salesPointId;
 	}
 
-	public double getSalespointLong() {
-		return salespointLong;
+
+	public double getSalesPointLat() {
+		return salesPointLat;
 	}
 
-	public String getSalespointName() {
-		return salespointName;
+
+	public void setSalesPointLat(double salesPointLat) {
+		this.salesPointLat = salesPointLat;
 	}
 
-	public String getSalespointAddress() {
-		return salespointAddress;
+
+	public double getSalesPointLong() {
+		return salesPointLong;
 	}
 
-	public String getSalespointPhoneNumber() {
-		return salespointPhoneNumber;
+
+	public void setSalesPointLong(double salesPointLong) {
+		this.salesPointLong = salesPointLong;
 	}
 
-	public String getSalespointWebSite() {
-		return salespointWebSite;
+
+	public String getSalesPointName() {
+		return salesPointName;
 	}
 
-	public float getSalespointRating() {
-		return salespointRating;
+
+	public void setSalesPointName(String salesPointName) {
+		this.salesPointName = salesPointName;
 	}
 
-	public void setSalespointId(String salespointId) {
-		this.salespointId = salespointId;
+
+	public String getSalesPointAddress() {
+		return salesPointAddress;
 	}
 
-	public void setSalespointLat(double salespointLat) {
-		this.salespointLat = salespointLat;
+
+	public void setSalesPointAddress(String salesPointAddress) {
+		this.salesPointAddress = salesPointAddress;
 	}
 
-	public void setSalespointLong(double salespointLong) {
-		this.salespointLong = salespointLong;
+
+	public String getSalesPointPhoneNumber() {
+		return salesPointPhoneNumber;
 	}
 
-	public void setSalespointName(String salespointName) {
-		this.salespointName = salespointName;
+
+	public void setSalesPointPhoneNumber(String salesPointPhoneNumber) {
+		this.salesPointPhoneNumber = salesPointPhoneNumber;
 	}
 
-	public void setSalespointAddress(String salespointAddress) {
-		this.salespointAddress = salespointAddress;
+
+	public String getSalesPointWebSite() {
+		return salesPointWebSite;
 	}
 
-	public void setSalespointPhoneNumber(String salespointPhoneNumber) {
-		this.salespointPhoneNumber = salespointPhoneNumber;
+
+	public void setSalesPointWebSite(String salesPointWebSite) {
+		this.salesPointWebSite = salesPointWebSite;
 	}
 
-	public void setSalespointWebSite(String salespointWebSite) {
-		this.salespointWebSite = salespointWebSite;
+
+	public float getSalesPointRating() {
+		return salesPointRating;
 	}
 
-	public void setSalespointRating(float salespointRating) {
-		this.salespointRating = salespointRating;
+
+	public void setSalesPointRating(float salesPointRating) {
+		this.salesPointRating = salesPointRating;
 	}
 	
 	
 	
-	
-	
-	 
-
-  
-	
-	
-
 }

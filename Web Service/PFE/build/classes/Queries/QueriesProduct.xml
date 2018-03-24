@@ -22,14 +22,14 @@
 </select>
 
 
-<select id = "getProductByCategory" parameterType = "int" resultMap = "result">
+<select id = "getProductsByCategory" parameterType = "int" resultMap = "result">
   SELECT product_id, product_name, product_type, product_trade_mark
   FROM ${db.schema}."Product" product INNER JOIN ${db.schema}."Type" type ON (product.product_type = type.type_id)
   WHERE   type.category_id =#{productCategory} ;
 </select>
 
 
-<select id = "getProductByName" parameterType = "String" resultMap = "result">
+<select id = "getProductsByName" parameterType = "String" resultMap = "result">
 
   SELECT * FROM ${db.schema}."Product" WHERE product_name LIKE #{value}
                                         OR product_trade_mark LIKE #{value};                                                                                          

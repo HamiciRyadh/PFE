@@ -1,6 +1,7 @@
 package model;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
 * <b> Result est la classe qui represente le resultat retroune suite a une recherche </b>
@@ -19,42 +20,44 @@ import java.util.ArrayList;
 public class Result {
 	
 	
-	ArrayList<Product> products ;
-	ArrayList<SalesPoint> SalesPoints;
-	ArrayList<ProductSalesPoint> productSalesPoints ;
+	//List<Product> products ;
+	List<SalesPoint> salesPoints;
+	List<ProductSalesPoint> productSalesPoints ;
 	
 	
-    public Result() {
-    	this(null,null,null);
-    }
-	
-	public Result(ArrayList<Product> products, ArrayList<SalesPoint> salesPoints,
-			ArrayList<ProductSalesPoint> productSalesPoints) {
+	public Result(List<SalesPoint> salesPoints, List<ProductSalesPoint> productSalesPoints) {
 		super();
-		this.products = products;
-		SalesPoints = salesPoints;
+		this.salesPoints = salesPoints;
 		this.productSalesPoints = productSalesPoints;
 	}
 	
 	
-	public ArrayList<Product> getProducts() {
-		return products;
-	}
-	public ArrayList<SalesPoint> getSalesPoints() {
-		return SalesPoints;
-	}
-	public ArrayList<ProductSalesPoint> getProductSalesPoints() {
-		return productSalesPoints;
-	}
-	public void setProducts(ArrayList<Product> products) {
-		this.products = products;
-	}
-	public void setSalesPoints(ArrayList<SalesPoint> salesPoints) {
-		SalesPoints = salesPoints;
-	}
-	public void setProductSalesPoints(ArrayList<ProductSalesPoint> productSalesPoints) {
-		this.productSalesPoints = productSalesPoints;
+	public Result() {
+		this(new ArrayList<SalesPoint>(), new ArrayList<ProductSalesPoint>());
 	}
 
+
+
+	public List<SalesPoint> getSalesPoints() {
+		return salesPoints;
+	}
+
+
+	public void setSalesPoints(List<SalesPoint> salesPoints) {
+		this.salesPoints = salesPoints;
+	}
+
+
+	public List<ProductSalesPoint> getProductSalesPoints() {
+		return productSalesPoints;
+	}
+
+
+	public void setProductSalesPoints(List<ProductSalesPoint> productSalesPoints) {
+		this.productSalesPoints = productSalesPoints;
+	}
+	
+	
+    
    
 }
