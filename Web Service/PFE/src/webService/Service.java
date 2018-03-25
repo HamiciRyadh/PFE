@@ -1,9 +1,12 @@
 package webService;
 
+import java.net.HttpURLConnection;
 import java.util.ArrayList;
 import java.util.List;
+
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
+import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
@@ -11,9 +14,11 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
-import dao.*;
+import dao.Access;
 import model.Product;
 import model.ProductSalesPoint;
 import model.Result;
@@ -36,8 +41,15 @@ public class Service {
 	@Path("/product/{product_id}")
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
-	public Product getProductById(@PathParam("product_id") int productId) throws Exception {
+	public Product getProductById(@DefaultValue("-1") @PathParam("product_id") int productId) throws Exception {
 		//TODO: Verify all the parameters
+		if (productId == -1) {
+		    throw new WebApplicationException(
+		      Response.status(HttpURLConnection.HTTP_BAD_REQUEST)
+		        .entity("productId parameter is mandatory.")
+		        .build()
+		    );
+		}
 		return Access.getProductById(productId);
 	}
 	
@@ -48,8 +60,15 @@ public class Service {
 	@Path("/Search")
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
-	public List<Product> search(@QueryParam("value") String value) throws Exception {
+	public List<Product> search(@DefaultValue("") @QueryParam("value") String value) throws Exception {
 		//TODO: Verify all the parameters
+		if (value == null || value.trim().equals("")) {
+		    throw new WebApplicationException(
+		      Response.status(HttpURLConnection.HTTP_BAD_REQUEST)
+		        .entity("value parameter is mandatory.")
+		        .build()
+		    );
+		}
 		return Access.getProductsByName(value);
 	}
 	
@@ -59,8 +78,15 @@ public class Service {
 	@Path("/Search/{product_id}")
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
-	public Result getProductSalesPointsQte(@PathParam("value") int productId) throws Exception {
+	public Result getProductSalesPointsQte(@DefaultValue("-1") @PathParam("product_id") int productId) throws Exception {
 		//TODO: Verify all the parameters
+		if (productId == -1) {
+		    throw new WebApplicationException(
+		      Response.status(HttpURLConnection.HTTP_BAD_REQUEST)
+		        .entity("productId parameter is mandatory.")
+		        .build()
+		    );
+		}
 		List<SalesPoint> listSalesPoints = new ArrayList<SalesPoint>();
 
 		List<ProductSalesPoint> listProductSalesPoints = Access.getSalesPointQte(productId);
@@ -79,8 +105,15 @@ public class Service {
 	@Path("/category/{product_Category}")
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
-	public List<Product> getProductsByCategory(@PathParam("product_Category") int categoryId) throws Exception {
+	public List<Product> getProductsByCategory(@DefaultValue("-1") @PathParam("product_Category") int categoryId) throws Exception {
 		//TODO: Verify all the parameters
+		if (categoryId == -1) {
+		    throw new WebApplicationException(
+		      Response.status(HttpURLConnection.HTTP_BAD_REQUEST)
+		        .entity("categoryId parameter is mandatory.")
+		        .build()
+		    );
+		}
 		return Access.getProductsByCategory(categoryId);
 	}
 	
@@ -91,13 +124,30 @@ public class Service {
 	@Path("/add")
 	@PUT
 	@Consumes(MediaType.APPLICATION_JSON)
-	public void insertProduct(@QueryParam("id") int productId, 
-			@QueryParam("name") String productName, 
-			@QueryParam("type") int productType,
-			@QueryParam("category") int productCategory, 
-			@QueryParam("tradeMark") String productTradeMark) throws Exception {
+	public void insertProduct(
+			@DefaultValue("-1") @QueryParam("id") int productId, 
+			@DefaultValue("") @QueryParam("name") String productName, 
+			@DefaultValue("-1") @QueryParam("type") int productType,
+			@DefaultValue("-1") @QueryParam("category") int productCategory, 
+			@DefaultValue("") @QueryParam("tradeMark") String productTradeMark) throws Exception {
 		
 		//TODO: Verify all the parameters
+		List<String> missingParameters = new ArrayList<String>();
+		
+		if (productId == -1) missingParameters.add("productId");
+		if (productName == null || productName.trim().equals("")) missingParameters.add("productName");
+		if (productType == -1) missingParameters.add("productType");
+		if (productCategory == -1) missingParameters.add("productCategory");
+		if (productTradeMark == null || productTradeMark.trim().equals("")) missingParameters.add("productTradeMark");
+		
+		if (missingParameters.size() != 0) {
+		    throw new WebApplicationException(
+		      Response.status(HttpURLConnection.HTTP_BAD_REQUEST)
+		        .entity("Missing parameters : " + missingParameters)
+		        .build()
+		    );
+		}
+		
 		Product product = new Product(productId, productName, productType, productCategory, productTradeMark);
 		Access.insertProduct(product);
 	}
@@ -110,13 +160,30 @@ public class Service {
 	@POST
 	@Produces(MediaType.APPLICATION_JSON)
 	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
-	public void updateProduct(@PathParam("product_id") int productId, 
-			@QueryParam("name") String productName,
-			@QueryParam("type") int productType, 
-			@QueryParam("category") int productCategory, 
-			@QueryParam("tradeMark") String productTradeMark) throws Exception {
+	public void updateProduct(
+			@DefaultValue("-1") @PathParam("product_id") int productId, 
+			@DefaultValue("") @QueryParam("name") String productName,
+			@DefaultValue("-1") @QueryParam("type") int productType, 
+			@DefaultValue("-1") @QueryParam("category") int productCategory, 
+			@DefaultValue("") @QueryParam("tradeMark") String productTradeMark) throws Exception {
 		
 		//TODO: Verify all the parameters
+		List<String> missingParameters = new ArrayList<String>();
+		
+		if (productId == -1) missingParameters.add("productId");
+		if (productName == null || productName.trim().equals("")) missingParameters.add("productName");
+		if (productType == -1) missingParameters.add("productType");
+		if (productCategory == -1) missingParameters.add("productCategory");
+		if (productTradeMark == null || productTradeMark.trim().equals("")) missingParameters.add("productTradeMark");
+		
+		if (missingParameters.size() != 0) {
+		    throw new WebApplicationException(
+		      Response.status(HttpURLConnection.HTTP_BAD_REQUEST)
+		        .entity("Missing parameters : " + missingParameters)
+		        .build()
+		    );
+		}
+		
 		Product product = this.getProductById(productId);
 		product.setProductName(productName);
 		product.setProductType(productType);
@@ -132,8 +199,16 @@ public class Service {
 	@Path("/delete/{product_id}")
 	@DELETE
 	@Consumes(MediaType.APPLICATION_JSON)
-	public void deleteProduct(@PathParam("product_id") int productId) throws Exception {
+	public void deleteProduct(@DefaultValue("-1") @PathParam("product_id") int productId) throws Exception {
 		//TODO: Verify all the parameters
+		if (productId == -1) {
+		    throw new WebApplicationException(
+		      Response.status(HttpURLConnection.HTTP_BAD_REQUEST)
+		        .entity("productId parameter is mandatory.")
+		        .build()
+		    );
+		}
+		
 		Access.deleteProduct(productId);
 	}
 
