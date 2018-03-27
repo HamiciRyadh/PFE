@@ -3,11 +3,13 @@ package dao;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Map;
+
 import org.apache.ibatis.session.SqlSession;
 
-import model.SalesPoint;
 import model.Product;
 import model.ProductSalesPoint;
+import model.SalesPoint;
 
 public class Access {
 	
@@ -48,9 +50,10 @@ public class Access {
 		return product;
 	}
 
-	public static List<Product> getProductsByName(final String value) throws Exception {
+	public static List<Product> getProductsByName(final Map<String,Object> value) throws Exception {
 		SqlSession session = DBConnectionFactory.getNewSession();
 
+		
 		List<Product> listProducts = session.selectList("QueriesProduct.getProductsByName", value);
 
 		session.commit();

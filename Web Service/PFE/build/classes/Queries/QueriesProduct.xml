@@ -29,10 +29,12 @@
 </select>
 
 
-<select id = "getProductsByName" parameterType = "String" resultMap = "result">
+<select id = "getProductsByName" parameterType = "map" resultMap = "result">
 
-  SELECT * FROM ${db.schema}."Product" WHERE product_name LIKE #{value}
-                                        OR product_trade_mark LIKE #{value};                                                                                          
+  SELECT * FROM ${db.schema}."Product" WHERE (product_name LIKE #{value} OR product_trade_mark LIKE #{value}) 
+  <if test='tradeMark != null'>AND product_trade_mark LIKE #{tradeMark}</if>
+  <if test='type != null'>AND product_type = #{type}</if>
+  ;                                                                                       
 </select>
 
 

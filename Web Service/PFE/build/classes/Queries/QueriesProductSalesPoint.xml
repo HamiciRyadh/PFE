@@ -13,7 +13,7 @@
 
 
 <select id = "getSalesPointsAndQte" parameterType = "int" resultMap = "result">
-   SELECT *  FROM  ${db.schema}."ProductSalesPoint" WHERE product_id  =  #{productId}; 
+   SELECT *  FROM  ${db.schema}."ProductSalesPoint" WHERE product_id  =  #{productId} ; 
 </select>
 
 

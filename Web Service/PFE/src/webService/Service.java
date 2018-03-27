@@ -2,7 +2,9 @@ package webService;
 
 import java.net.HttpURLConnection;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -60,26 +62,44 @@ public class Service {
 	@Path("/Search")
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
-	public List<Product> search(@DefaultValue("") @QueryParam("value") String value) throws Exception {
+	public List<Product> search(@DefaultValue("") @QueryParam("value") String value,
+			@DefaultValue("") @QueryParam("tradeMark") String tradeMark,
+			@DefaultValue("-1") @QueryParam("type") int type) throws Exception {
 		//TODO: Verify all the parameters
-		if (value == null || value.trim().equals("")) {
+		if (value.trim().equals("")) {
 		    throw new WebApplicationException(
 		      Response.status(HttpURLConnection.HTTP_BAD_REQUEST)
 		        .entity("value parameter is mandatory.")
 		        .build()
 		    );
 		}
-		return Access.getProductsByName(value);
+		Map<String, Object> extraParameters = new HashMap<String, Object>();
+		extraParameters.put("value", value);
+		
+		if (!tradeMark.trim().equals("")) extraParameters.put("tradeMark", "%"+tradeMark+"%");
+		if (type != -1) extraParameters.put("type", new Integer(type));
+		
+		return Access.getProductsByName(extraParameters);
 	}
 	
 	
 	
 	// http://localhost:8080/PFE/api/Products/Search/1
+	// http://localhost:8080/PFE/api/Products/Search/1?city=Ouled%20Fayet&latitudeSearchPosition=36.7332852&longitudeSearchPosition=2.955659199999999&searchDiametre=10
+	// La même en modifiant un peut les coordonnées de recherche
+	// http://localhost:8080/PFE/api/Products/Search/1?city=Ouled%20Fayet&latitudeSearchPosition=33.7332852&longitudeSearchPosition=2.955659199999999&searchDiametre=10
 	@Path("/Search/{product_id}")
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
-	public Result getProductSalesPointsQte(@DefaultValue("-1") @PathParam("product_id") int productId) throws Exception {
-		//TODO: Verify all the parameters
+	public Result getProductSalesPointsQte(
+			@DefaultValue("-1") @PathParam("product_id") int productId,
+			@DefaultValue("") @QueryParam("wilaya") String wilaya,
+			@DefaultValue("") @QueryParam("city") String city,
+			//-3 -125 est une position au milieu de l'océan pour être
+			@DefaultValue("-3") @QueryParam("latitudeSearchPosition") double latitudeSearchPosition,
+			@DefaultValue("-125") @QueryParam("longitudeSearchPosition") double longitudeSearchPosition,
+			@DefaultValue("0") @QueryParam("searchDiametre") int searchDiametre) throws Exception {
+		
 		if (productId == -1) {
 		    throw new WebApplicationException(
 		      Response.status(HttpURLConnection.HTTP_BAD_REQUEST)
@@ -87,13 +107,64 @@ public class Service {
 		        .build()
 		    );
 		}
+		
+		double minLatitude = latitudeSearchPosition;
+		double maxLatitude = latitudeSearchPosition;
+		double minLongitude = longitudeSearchPosition;
+		double maxLongitude = longitudeSearchPosition;
+		
+		boolean positionSpecified = false;
+		
+		if (latitudeSearchPosition != -3.0 && longitudeSearchPosition != -125.0 && searchDiametre > 0) 
+			{
+				double offsetLatitude = searchDiametre/111110;
+				double oneLongitudeDegree = 111110 * Math.cos(latitudeSearchPosition * Math.PI/180);
+				double offsetLongitude = searchDiametre/oneLongitudeDegree;
+				
+				minLatitude = latitudeSearchPosition - offsetLatitude;
+				maxLatitude = latitudeSearchPosition + offsetLatitude;
+				minLongitude = longitudeSearchPosition - offsetLongitude;
+				maxLongitude = longitudeSearchPosition + offsetLongitude;
+				
+				positionSpecified = true;
+			}		
+		
+		SalesPoint salesPoint;
 		List<SalesPoint> listSalesPoints = new ArrayList<SalesPoint>();
 
 		List<ProductSalesPoint> listProductSalesPoints = Access.getSalesPointQte(productId);
+		List<ProductSalesPoint> listProductSalesPointsToRemove = new ArrayList<ProductSalesPoint>();
 
 		for (ProductSalesPoint productSalesPoint : listProductSalesPoints) {
-			listSalesPoints.add(GoogleAPI.details(productSalesPoint.getSalesPointId()));
+			salesPoint = GoogleAPI.details(productSalesPoint.getSalesPointId());
+			
+			if (salesPoint.getSalesPointAddress().toUpperCase().contains(wilaya.toUpperCase()) && 
+					salesPoint.getSalesPointAddress().toUpperCase().contains(city.toUpperCase())) {
+				//Si wilaya et city correspondent
+						if (positionSpecified) {
+							//Si la position a été spécifiée
+							if (salesPoint.getSalesPointLat() >= minLatitude && salesPoint.getSalesPointLat() <= maxLatitude && 
+					salesPoint.getSalesPointLong() >= minLongitude && salesPoint.getSalesPointLong() <= maxLongitude) {
+								//Si la position spécifiée est dans le rayon
+								listSalesPoints.add(salesPoint);
+							}
+							else {
+								//Si la position spécifiée n'est pas dans le rayon
+								listProductSalesPointsToRemove.add(productSalesPoint);
+							}
+						}
+						else {
+							// Si wilaya et city correspondent mais que position n'a pas été spécifiée
+							listSalesPoints.add(salesPoint);
+						}
+					}
+			else {
+				//Si rien ne correspond
+				listProductSalesPointsToRemove.add(productSalesPoint);
+			}
 		}
+		
+		listProductSalesPoints.removeAll(listProductSalesPointsToRemove);
 
 		return new Result(listSalesPoints, listProductSalesPoints);
 	}
@@ -135,10 +206,10 @@ public class Service {
 		List<String> missingParameters = new ArrayList<String>();
 		
 		if (productId == -1) missingParameters.add("productId");
-		if (productName == null || productName.trim().equals("")) missingParameters.add("productName");
+		if (productName.trim().equals("")) missingParameters.add("productName");
 		if (productType == -1) missingParameters.add("productType");
 		if (productCategory == -1) missingParameters.add("productCategory");
-		if (productTradeMark == null || productTradeMark.trim().equals("")) missingParameters.add("productTradeMark");
+		if (productTradeMark.trim().equals("")) missingParameters.add("productTradeMark");
 		
 		if (missingParameters.size() != 0) {
 		    throw new WebApplicationException(
@@ -171,10 +242,10 @@ public class Service {
 		List<String> missingParameters = new ArrayList<String>();
 		
 		if (productId == -1) missingParameters.add("productId");
-		if (productName == null || productName.trim().equals("")) missingParameters.add("productName");
+		if (productName.trim().equals("")) missingParameters.add("productName");
 		if (productType == -1) missingParameters.add("productType");
 		if (productCategory == -1) missingParameters.add("productCategory");
-		if (productTradeMark == null || productTradeMark.trim().equals("")) missingParameters.add("productTradeMark");
+		if (productTradeMark.trim().equals("")) missingParameters.add("productTradeMark");
 		
 		if (missingParameters.size() != 0) {
 		    throw new WebApplicationException(
@@ -211,5 +282,4 @@ public class Service {
 		
 		Access.deleteProduct(productId);
 	}
-
 }
