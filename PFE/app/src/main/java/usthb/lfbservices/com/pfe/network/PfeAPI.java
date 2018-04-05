@@ -12,6 +12,8 @@ import retrofit2.Retrofit;
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
 import retrofit2.converter.gson.GsonConverterFactory;
 import usthb.lfbservices.com.pfe.models.Product;
+import usthb.lfbservices.com.pfe.models.Result;
+import usthb.lfbservices.com.pfe.models.SalesPoint;
 
 /**
  * A class used by Retrofit to execute network calls.
@@ -62,13 +64,16 @@ public class PfeAPI {
         return retrofit;
     }
 
-    public Observable<JsonArray> getProducts()
-    {
-        return pfeService.getProducts();
+    public Observable<SalesPoint> getPlaceDetails(String salesPointId) {
+        return pfeService.getPlaceDetails(salesPointId);
     }
 
-    public Observable<JsonObject> search(final String value) {
-        return pfeService.search(value);
+    public Observable<Result> searchFromProductId(final int productId) {
+        return pfeService.searchFromProductId(productId);
+    }
+
+    public Observable<List<Product>> searchFromQuery(final String value) {
+        return pfeService.searchFromQuery(value);
     }
 
     /**

@@ -7,14 +7,66 @@
     <string name="empty_history">Aucun élément.</string>
     <string name="no_internet">Aucun accès internet.</string>
     <string name="error_occured">Une erreur est survenue.</string>
-    <string name="no_corresponding_product">Aucun produit ne correspond à votre recherche.</string>
+    <string name="no_corresponding_product"> Aucun produit ne correspond à votre recherche.</string>
+    <string name="not_available">Non disponible</string>
+    <string name="show">Afficher</string>
+    <string name="sales_points_show_list">Afficher la liste des points de vente.</string>
+    <string name="reduce">Diminuer</string>
 
     <string-array name="categories_array">
+        <item>Electromenager</item>
+        <item>Vêtements</item>
+        <item>Informatique</item>
+        <item>Téléphones et Tablettes</item>
+        <item>Fournitures de maisons</item>
         <item>Electronique</item>
-        <item>Vétements</item>
-        <item>Nourriture</item>
-        <item>Jouets</item>
-        <item>Médicaments</item>
-        <item>Cuisine</item>
     </string-array>
+
+    <string-array name="icon_array">
+        <item>@drawable/phone</item>
+        <item>@drawable/website</item>
+        <item>@drawable/address</item>
+        <item>@drawable/arrow</item>
+        <item>@drawable/common_full_open_on_phone</item>
+        <item>@drawable/phone</item>
+    </string-array>
+
+
+    <string name="dialog_title_Wilaya">Filtrer par Wilaya</string>
+    <string name="dialog_title_Ville">Filtrer par Ville</string>
+    <string name="dialog_title_Marque">Filtrer par Marque</string>
+    <string name="ok_label">OK</string>
+    <string name="dismiss_label">Annuler</string>
+    <string name="clear_all_label">Tout Décocher</string>
+    <string-array name="wilaya_item">
+        <item>Alger</item>
+        <item>Annaba</item>
+        <item>Sétif</item>
+        <item>Oran</item>
+    </string-array>
+
+    <string-array name="Annaba_item">
+        <item>ElBouni</item>
+        <item>Seraidi</item>
+        <item>ElHadjar</item>
+    </string-array>
+
+
+    <string-array name="Algiers_item">
+        <item>Baba Hassen</item>
+        <item>Ben Aknoun</item>
+        <item>Douera</item>
+        <item>Draria</item>
+    </string-array>
+
+    <string name="rayon_de_recherche">Choisir Rayon de Recherche</string>
+
+    <string-array name="country_arrays">
+        <item>10km</item>
+        <item>20km</item>
+        <item>50km</item>
+        <item>100km</item>
+    </string-array>
+
+
 </resources>

@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:padding="20dp">
+
+
+    <TextView
+        android:id="@+id/sales_point_name_marker"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="#581845"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        tools:text="LFB Services" />
+
+    <TextView
+        android:id="@+id/sales_point_address_marker"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_below="@id/sales_point_name_marker"
+        android:ellipsize="end"
+        android:lines="2"
+        android:textColor="#900C3F"
+        android:textSize="16sp"
+        tools:text="Ben Aknoun " />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@id/product_qte_marker"
+        android:layout_alignBottom="@id/product_qte_marker"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:text="Quantité :"
+        android:textSize="15sp" />
+
+    <TextView
+        android:id="@+id/product_qte_marker"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@id/product_price_marker"
+        android:layout_alignStart="@id/product_price_marker"
+        android:layout_below="@+id/textView3"
+        android:layout_marginLeft="38dp"
+        android:layout_marginStart="38dp"
+        android:ellipsize="end"
+        android:lines="3"
+        android:textColor="#581845"
+        android:textSize="25sp"
+        tools:text="50" />
+
+    <TextView
+        android:id="@+id/textView3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_below="@+id/sales_point_address_marker"
+        android:text="Prix : "
+        android:textSize="18sp" />
+
+    <TextView
+        android:id="@+id/product_price_marker"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_alignTop="@+id/textView3"
+        android:layout_marginLeft="46dp"
+        android:layout_marginStart="46dp"
+        android:lines="4"
+        android:textColor="@android:color/black"
+        android:textSize="18sp"
+        tools:text="19585 DA" />
+
+</RelativeLayout>

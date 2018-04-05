@@ -6,6 +6,7 @@ import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
 
 /**
+ * Created by root on 06/03/18.
  * A static class that is used to dispose of Disposable objects that are used with RxAndroid
  * to avoid memory leaks
  */
