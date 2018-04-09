@@ -15,17 +15,14 @@ import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.ProgressBar;
-import android.widget.Spinner;
 
-import java.security.ProtectionDomain;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import usthb.lfbservices.com.pfe.R;
 import usthb.lfbservices.com.pfe.adapters.ProductsAdapter;
-import usthb.lfbservices.com.pfe.models.CustomOnItemSelectedListener;
 import usthb.lfbservices.com.pfe.models.Product;
+import usthb.lfbservices.com.pfe.models.Singleton;
 
 /**
  *
@@ -44,22 +41,21 @@ public class ProductsFragment extends Fragment {
     private List<Product> savedListProducts = null;
     private ProductsAdapter savedProductsAdapter = null;
 
-    private Button btn_wilaya;
-    private Button btn_ville;
-    private Button btn_marque;
-    private String[] listItemsWilaya;
-    private ArrayList<String> listItemsVille = new ArrayList<>();
+
+    private Button btn_Marque;
+    private ArrayList<String> listCheckedTradeMarks = new ArrayList<String>();
     private ArrayList<String> listItemsMarque = new ArrayList<>();
-    private boolean[] checkedItemsWilaya;
-    private boolean[] checkedItemsVille;
     private boolean[] checkedItemsMarque;
-    private ArrayList<Integer> mUserItemsWilaya = new ArrayList<>();
-    private ArrayList<Integer> mUserItemsVille = new ArrayList<>();
-    private ArrayList<Integer> mUserItemsMarque = new ArrayList<>();
-    private Spinner searchPerimeter;
+
+    private Button btn_Type;
+    private ArrayList<String> listItemsType = new ArrayList<>();
+    private boolean[] checkedItemsType;
+    private ArrayList<Integer> mUserItemsType = new ArrayList<>();
+
 
     public ProductsFragment() {
     }
+
 
     @Nullable
     @Override
@@ -80,10 +76,8 @@ public class ProductsFragment extends Fragment {
         }
 
         initVariables();
-        initWilayaButton();
-        initVillesButton();
         initMarquesButton();
-        addListenerOnSpinnerItemSelection();
+        initTypeButton();
 
         return rootView;
     }
@@ -127,35 +121,37 @@ public class ProductsFragment extends Fragment {
         super.onPause();
     }
 
+
     public void initVariables() {
-        btn_wilaya = rootView.findViewById(R.id.btn_wilaya);
-        btn_ville = rootView.findViewById(R.id.btn_ville);
-        btn_marque = rootView.findViewById(R.id.btn_marque);
         progressBar = rootView.findViewById(R.id.products_progress_bar);
-        listItemsWilaya = getResources().getStringArray(R.array.wilaya_item);
-        checkedItemsWilaya = new boolean[listItemsWilaya.length];
+        btn_Marque = rootView.findViewById(R.id.btn_Marque);
+        btn_Type = rootView.findViewById(R.id.btn_Type);
     }
 
 
-    public void addListenerOnSpinnerItemSelection() {
-        searchPerimeter = rootView.findViewById(R.id.spinner_rayon);
-        searchPerimeter.setOnItemSelectedListener(new CustomOnItemSelectedListener());
-    }
 
     public void initMarquesButton() {
-        btn_marque.setOnClickListener(new View.OnClickListener() {
+        btn_Marque.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                for (int i=1; i<= listView.getAdapter().getCount(); i++ ){
 
-                    String marque =  ((Product)listView.getAdapter().getItem(i)).getProductTradeMark();
+                final List<Product> productsList = Singleton.getInstance().getProductList();
+                for (int i = 0; i < productsList.size(); i++) {
+                    String marque =  productsList.get(i).getProductTradeMark();
 
-                    if (! listItemsMarque.contains("marque"))
-                        listItemsMarque.add(marque);
+                    if (!listItemsMarque.contains(marque)) listItemsMarque.add(marque);
                 }
 
                 final String[] listMarque = listItemsMarque.toArray(new String[listItemsMarque.size()]);
+
                 checkedItemsMarque = new boolean[listMarque.length];
+
+                //Préserver les cases cochées
+                for (int i = 0; i < checkedItemsMarque.length; i++) {
+                    if (listCheckedTradeMarks.contains(listMarque[i])) {
+                        checkedItemsMarque[i] = true;
+                    }
+                }
 
                 AlertDialog.Builder mBuilder = new AlertDialog.Builder(fragmentBelongActivity);
                 mBuilder.setTitle(R.string.dialog_title_Marque);
@@ -165,9 +161,94 @@ public class ProductsFragment extends Fragment {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int position, boolean isChecked) {
                         if (isChecked) {
-                            mUserItemsMarque.add(position);
+                            listCheckedTradeMarks.add(listItemsMarque.get(position));
                         } else {
-                            mUserItemsMarque.remove((Integer.valueOf(position)));
+                            listCheckedTradeMarks.remove(listItemsMarque.get(position));
+                        }
+                    }
+
+                });
+
+                mBuilder.setCancelable(false);
+                mBuilder.setPositiveButton(R.string.ok_label, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int which) {
+
+                        List<Product> temporaryProductsList;
+                        ((ProductsAdapter) listView.getAdapter()).clear();
+
+                        if (listCheckedTradeMarks.size() == 0 || listCheckedTradeMarks.size() == listItemsMarque.size()) {
+                            temporaryProductsList = Singleton.getInstance().getProductList();
+                        }
+
+                        else {
+                            temporaryProductsList = new ArrayList<Product>();
+                            for (Product product : productsList) {
+                                for (String tradeMark : listCheckedTradeMarks) {
+                                    if (product.getProductTradeMark().equals(tradeMark)) {
+                                        temporaryProductsList.add(product);
+                                    }
+                                }
+                            }
+                        }
+
+                        ((ProductsAdapter) listView.getAdapter()).addAll(temporaryProductsList);
+                    }
+                });
+
+                mBuilder.setNegativeButton(R.string.dismiss_label, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        dialogInterface.dismiss();
+                    }
+                });
+
+                mBuilder.setNeutralButton(R.string.clear_all_label, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int which) {
+                        listCheckedTradeMarks.clear();
+                        ((ProductsAdapter) listView.getAdapter()).clear();
+                        ((ProductsAdapter) listView.getAdapter()).addAll(Singleton.getInstance().getProductList());
+                    }
+                });
+
+                AlertDialog mDialog = mBuilder.create();
+                mDialog.show();
+            }
+        });
+    }
+
+
+    //TODO: Tout refaire comme avec les marques
+    public void initTypeButton() {
+        btn_Type.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                for (int i=0; i< listView.getAdapter().getCount(); i++ ){
+
+                    int Type =  ((Product)listView.getAdapter().getItem(i)).getProductType();
+
+                    //Web Service
+                    // type en string !!
+
+                    if (! listItemsType.contains(""+Type))
+                        listItemsType.add(""+Type);
+                }
+
+                final String[] listType = listItemsType.toArray(new String[listItemsType.size()]);
+                checkedItemsType = new boolean[listType.length];
+
+                AlertDialog.Builder mBuilder = new AlertDialog.Builder(fragmentBelongActivity);
+                mBuilder.setTitle(R.string.dialog_title_Type);
+
+
+                mBuilder.setMultiChoiceItems(listType, checkedItemsType, new DialogInterface.OnMultiChoiceClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int position, boolean isChecked) {
+                        if (isChecked) {
+                            mUserItemsType.add(position);
+                        } else {
+                            mUserItemsType.remove((Integer.valueOf(position)));
                         }
                     }
 
@@ -179,15 +260,15 @@ public class ProductsFragment extends Fragment {
                     public void onClick(DialogInterface dialogInterface, int which) {
 
                         String item = "";
-                        for (int i = 0; i < mUserItemsMarque.size(); i++) {
-                            item = item + listMarque[mUserItemsMarque.get(i)];
-                            if (i != mUserItemsMarque.size() - 1) {
+                        for (int i = 0; i < mUserItemsType.size(); i++) {
+                            item = item + listType[mUserItemsType.get(i)];
+                            if (i != mUserItemsType.size() - 1) {
                                 item = item + ", ";
                             }
                         }
 
                         //ICII APPEL
-                      //  mItemSelected.setText(item);
+                        //  mItemSelected.setText(item);
                     }
                 });
 
@@ -201,12 +282,12 @@ public class ProductsFragment extends Fragment {
                 mBuilder.setNeutralButton(R.string.clear_all_label, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int which) {
-                        for (int i = 0; i < checkedItemsVille.length; i++) {
-                            checkedItemsMarque[i] = false;
-                            mUserItemsMarque.clear();
+                        for (int i = 0; i < checkedItemsType.length; i++) {
+                            checkedItemsType[i] = false;
+                            mUserItemsType.clear();
 
                             //CHANGEMENT
-                          //  mItemSelected.setText("");
+                            //  mItemSelected.setText("");
                         }
                     }
                 });
@@ -217,149 +298,7 @@ public class ProductsFragment extends Fragment {
         });
     }
 
-    public void initVillesButton() {
-        btn_ville.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                AlertDialog.Builder mBuilder = new AlertDialog.Builder(fragmentBelongActivity);
-                mBuilder.setTitle(R.string.dialog_title_Ville);
 
-                final String[] listVille = listItemsVille.toArray(new String[listItemsVille.size()]);
-                checkedItemsVille = new boolean[listVille.length];
-
-
-                mBuilder.setMultiChoiceItems(listVille, checkedItemsVille, new DialogInterface.OnMultiChoiceClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int position, boolean isChecked) {
-                        if (isChecked) {
-                            mUserItemsVille.add(new Integer(position));
-                        } else {
-                            mUserItemsVille.remove(new Integer(position));
-                        }
-                    }
-
-                });
-
-                mBuilder.setCancelable(false);
-                mBuilder.setPositiveButton(R.string.ok_label, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int which) {
-
-                        String item = "";
-                        for (int i = 0; i < mUserItemsVille.size(); i++) {
-                            item = item + listVille[mUserItemsVille.get(i)];
-                            if (i != mUserItemsVille.size() - 1) {
-                                item = item + ", ";
-                            }
-                        }
-
-                        //ICII APPEL
-                        //mItemSelected.setText(item);
-                    }
-                });
-
-                mBuilder.setNegativeButton(R.string.dismiss_label, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        dialogInterface.dismiss();
-                    }
-                });
-
-                mBuilder.setNeutralButton(R.string.clear_all_label, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int which) {
-                        for (int i = 0; i < checkedItemsVille.length; i++) {
-                            checkedItemsVille[i] = false;
-                            mUserItemsVille.clear();
-
-                            //CHANGEMENT
-                          //  mItemSelected.setText("");
-                        }
-                    }
-                });
-
-                AlertDialog mDialog = mBuilder.create();
-                mDialog.show();
-            }
-        });
-    }
-
-    public void initWilayaButton() {
-        btn_wilaya.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                AlertDialog.Builder mBuilder = new AlertDialog.Builder(fragmentBelongActivity);
-                mBuilder.setTitle(R.string.dialog_title_Wilaya);
-                mBuilder.setMultiChoiceItems(listItemsWilaya, checkedItemsWilaya, new DialogInterface.OnMultiChoiceClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int position, boolean isChecked) {
-                        Log.e("", "Position : " + position);
-                        Log.e("", "IsChecked : " + isChecked);
-                        if (isChecked) {
-                            mUserItemsWilaya.add(new Integer(position));
-                        } else {
-                            mUserItemsWilaya.remove(new Integer(position));
-                        }
-                    }
-                });
-
-                mBuilder.setCancelable(false);
-                mBuilder.setPositiveButton(R.string.ok_label, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int which) {
-
-                        listItemsVille.clear();
-
-                        for (int i = 0; i < mUserItemsWilaya.size(); i++) {
-
-                            String element = listItemsWilaya[mUserItemsWilaya.get(i).intValue()];
-
-                            if (element.equals("Alger")) {
-
-                                listItemsVille.addAll(Arrays.asList(getResources().getStringArray(R.array.Algiers_item)));
-                            }
-
-                            if (element.equals("Annaba")) {
-                                listItemsVille.addAll(Arrays.asList(getResources().getStringArray(R.array.Annaba_item)));
-                            }
-
-
-                        }
-
-                        //ICI APPEL ! avec element
-                        if (mUserItemsWilaya.size() != 0) btn_ville.setVisibility(View.VISIBLE);
-
-                    }
-                });
-
-
-                mBuilder.setNegativeButton(R.string.dismiss_label, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        dialogInterface.dismiss();
-                    }
-                });
-
-                mBuilder.setNeutralButton(R.string.clear_all_label, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int which) {
-                        for (int i = 0; i < checkedItemsWilaya.length; i++) {
-                            checkedItemsWilaya[i] = false;
-                            mUserItemsWilaya.clear();
-
-                            btn_ville.setVisibility(View.GONE);
-                            listItemsVille.clear();
-
-                          //  appel ancienne initial
-                        }
-                    }
-                });
-
-                AlertDialog mDialog = mBuilder.create();
-                mDialog.show();
-            }
-        });
-    }
 
 
     public interface ProductsFragmentActions {

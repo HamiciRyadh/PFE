@@ -1,34 +1,56 @@
 package usthb.lfbservices.com.pfe.activities;
 
+import android.Manifest;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.location.Location;
+import android.location.LocationManager;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomSheetBehavior;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
+import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.RatingBar;
 import android.widget.SearchView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.squareup.picasso.Picasso;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 import usthb.lfbservices.com.pfe.R;
+import usthb.lfbservices.com.pfe.adapters.ProductsAdapter;
+import usthb.lfbservices.com.pfe.adapters.SalesPointsAdapter;
 import usthb.lfbservices.com.pfe.fragments.ProductsFragment;
 import usthb.lfbservices.com.pfe.fragments.SearchFragment;
 import usthb.lfbservices.com.pfe.models.BottomSheetDataSetter;
+import usthb.lfbservices.com.pfe.models.Product;
+import usthb.lfbservices.com.pfe.models.ProductSalesPoint;
 import usthb.lfbservices.com.pfe.models.SalesPoint;
 import usthb.lfbservices.com.pfe.models.Singleton;
 import usthb.lfbservices.com.pfe.network.PfeRx;
@@ -49,10 +71,33 @@ public class MapsActivity extends FragmentActivity implements SearchFragment.Sea
     private SupportMapFragment mapFragment;
     private BottomSheetBehavior sheetBehavior;
     private Button showButton;
+    private ListView listViewSalesPoints;
+
+    private Button btn_Wilaya;
+    private Button btn_searchPerimeter;
+    private Button btn_Ville;
+
+    private String[] listItemsWilaya;
+    private ArrayList<String> listItemsVille = new ArrayList<>();
+    private boolean[] checkedItemsWilaya;
+    private boolean[] checkedItemsVille;
+    private ArrayList<Integer> mUserItemsWilaya = new ArrayList<>();
+    private ArrayList<Integer> mUserItemsVille = new ArrayList<>();
+    private Integer mUserItemRayon;
+    private String[] listVille = null;
+
+    private double latitudeSearchPosition ;
+    private  double longitudeSearchPosition;
 
     private boolean hasData = false;
 
 
+    private FusedLocationProviderClient mFusedLocationClient;
+
+
+
+
+    //TODO: Activer GPS Dès le début et mettre un Marker sur sa position actuelle
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -69,12 +114,43 @@ public class MapsActivity extends FragmentActivity implements SearchFragment.Sea
             productsFragment = new ProductsFragment();
         }
 
+        mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+
+            mFusedLocationClient.getLastLocation()
+                    .addOnSuccessListener(this, new OnSuccessListener<Location>() {
+                        @Override
+                        public void onSuccess(Location location) {
+                            // Got last known location. In some rare situations this can be null.
+                            if (location != null) {
+                                // Logic to handle location object
+                              latitudeSearchPosition =  location.getLongitude();
+                              longitudeSearchPosition =  location.getLatitude();
+                                Log.e(TAG, "POSITION" + latitudeSearchPosition +longitudeSearchPosition);
+                            }
+                        }
+                    });
+        }
+
+
         this.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
 
         initVariables();
+        initWilayaButton();
+        initVillesButton();
+        initSearchPerimeterButton();
         initSearchView();
         initBottomSheet();
     }
+
 
 
     @Override
@@ -109,6 +185,21 @@ public class MapsActivity extends FragmentActivity implements SearchFragment.Sea
         if (showButton.getVisibility() == View.VISIBLE) {
             showButton.setVisibility(View.GONE);
         }
+        if (listViewSalesPoints.getVisibility() == View.VISIBLE) {
+            listViewSalesPoints.setVisibility(View.GONE);
+        }
+        if (sheetBehavior != null) {
+            sheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
+        }
+        if (btn_Wilaya.getVisibility() == View.VISIBLE) {
+            btn_Wilaya.setVisibility(View.GONE);
+        }
+        if (btn_Ville.getVisibility() == View.VISIBLE) {
+            btn_Ville.setVisibility(View.GONE);
+        }
+        if (btn_searchPerimeter.getVisibility() == View.VISIBLE) {
+            btn_searchPerimeter.setVisibility(View.GONE);
+        }
         super.onBackPressed();
     }
 
@@ -131,6 +222,7 @@ public class MapsActivity extends FragmentActivity implements SearchFragment.Sea
         else {
             Toast.makeText(this, getString(R.string.no_internet), Toast.LENGTH_LONG).show();
         }
+
     }
 
     @Override
@@ -141,6 +233,10 @@ public class MapsActivity extends FragmentActivity implements SearchFragment.Sea
                 .addToBackStack(null)
                 .commit();
         PfeRx.searchFromProductId(this, productId);
+
+
+        btn_Wilaya.setVisibility(View.VISIBLE);
+        btn_searchPerimeter.setVisibility(View.VISIBLE);
     }
 
     @Override
@@ -176,7 +272,6 @@ public class MapsActivity extends FragmentActivity implements SearchFragment.Sea
     }
 
     public void onMapSelected() {
-        ListView listViewSalesPoints = findViewById(R.id.list_view_sales_points);
         if (showButton.getVisibility() == View.VISIBLE) this.hasData = true;
         if (searchView.getVisibility() == View.VISIBLE) {
             searchView.animate()
@@ -184,8 +279,11 @@ public class MapsActivity extends FragmentActivity implements SearchFragment.Sea
                     .alpha(0.0f)
                     .setDuration(300);
             searchView.setVisibility(View.GONE);
-            if (listViewSalesPoints != null) listViewSalesPoints.setVisibility(View.GONE);
+            if (sheetBehavior != null) sheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
             if (showButton != null) showButton.setVisibility(View.GONE);
+            if (btn_Wilaya != null) btn_Wilaya.setVisibility(View.GONE);
+            if (btn_Ville != null) btn_Ville.setVisibility(View.GONE);
+            if (btn_searchPerimeter != null) btn_searchPerimeter.setVisibility(View.GONE);
         } else {
             searchView.animate()
                     .translationY(0)
@@ -195,6 +293,10 @@ public class MapsActivity extends FragmentActivity implements SearchFragment.Sea
             if (this.hasData) {
                 if (showButton != null) showButton.setVisibility(View.VISIBLE);
                 showButton.setText(getResources().getString(R.string.sales_points_show_list));
+                if (btn_Wilaya != null) btn_Wilaya.setVisibility(View.VISIBLE);
+                //TODO:Faire en sorte qu'il réaparraise seulement dans le cas où une ville à été sélectionnée
+                // if (btn_Ville != null) btn_Ville.setVisibility(View.VISIBLE);
+                if (btn_searchPerimeter != null) btn_searchPerimeter.setVisibility(View.VISIBLE);
             }
         }
     }
@@ -203,10 +305,20 @@ public class MapsActivity extends FragmentActivity implements SearchFragment.Sea
         searchView = findViewById(R.id.search_view);
         sheetBehavior = BottomSheetBehavior.from(findViewById(R.id.layout_bottom_sheet));
         showButton = findViewById(R.id.show_list_button);
+        listViewSalesPoints = findViewById(R.id.list_view_sales_points);
+
+        btn_Wilaya = findViewById(R.id.btn_Wilaya);
+        btn_Ville =findViewById(R.id.btn_Ville);
+        btn_searchPerimeter=findViewById(R.id.btn_Rayon_Recherche);
+        listItemsWilaya = getResources().getStringArray(R.array.wilaya_item);
+        checkedItemsWilaya = new boolean[listItemsWilaya.length];
     }
 
     public void initSearchView() {
         //searchView.setBackgroundColor(Color.TRANSPARENT);
+        //TODO:WTF
+        btn_Wilaya.setVisibility(View.GONE);
+        btn_searchPerimeter.setVisibility(View.GONE);
 
         searchView.setOnQueryTextFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
@@ -214,8 +326,11 @@ public class MapsActivity extends FragmentActivity implements SearchFragment.Sea
                 Log.e(TAG, "SearchView : OnQueryTextFocusChange");
                 //DisposableManager.dispose();
                 if (hasFocus) {
-                    if (showButton.getVisibility() != View.GONE)
-                        showButton.setVisibility(View.GONE);
+                    if (showButton.getVisibility() != View.GONE) showButton.setVisibility(View.GONE);
+                    if (btn_Wilaya != null) btn_Wilaya.setVisibility(View.GONE);
+                    if (btn_Ville != null) btn_Ville.setVisibility(View.GONE);
+                    if (btn_searchPerimeter != null) btn_searchPerimeter.setVisibility(View.GONE);
+                    if (sheetBehavior != null) sheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
                     if (productsFragment.isAdded()) {
                         getSupportFragmentManager()
                                 .beginTransaction()
@@ -303,24 +418,342 @@ public class MapsActivity extends FragmentActivity implements SearchFragment.Sea
         }
     }
 
-    //Probably to remove
-    public void refreshDisplay() {
-        if (showButton.getVisibility() != View.GONE) showButton.setVisibility(View.GONE);
-        if (getSupportFragmentManager().findFragmentByTag(Utils.FRAGMENT_SEARCH) == null) {
-            Log.e(TAG, "Setting SearchFragment");
-            getSupportFragmentManager()
-                    .beginTransaction()
-                    .add(R.id.map_frame_layout, searchFragment, Utils.FRAGMENT_SEARCH)
-                    .commit();
-            if (getSupportFragmentManager().findFragmentByTag(Utils.FRAGMENT_SEARCH) != null)
-                searchFragment.refreshHistory();
-        } else {
-            Log.e(TAG, "Removing SearchFragment");
-            getSupportFragmentManager()
-                    .beginTransaction()
-                    .remove(searchFragment)
-                    .commit();
+
+    public void refreshMap(List<SalesPoint> temporarySalespointList) {
+        mMap.clear();
+
+        for (SalesPoint salesPoint : temporarySalespointList) {
+            MarkerOptions markerOptions = new MarkerOptions()
+                    .position(new LatLng(salesPoint.getSalesPointLat(), salesPoint.getSalesPointLong()))
+                    .title(salesPoint.getSalesPointName())
+                    .snippet(salesPoint.getSalesPointAddress());
+
+            for (ProductSalesPoint productSalesPoint : Singleton.getInstance().getProductSalesPointList()) {
+                if (productSalesPoint.getSalespointId().equals(salesPoint.getSalesPointId())) {
+                    if (productSalesPoint.getProductQuantity() > 0) {
+                        markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN));
+                    } else {
+                        markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED));
+                    }
+                }
+            }
+            mMap.addMarker(markerOptions);
         }
     }
 
+    //TODO: S'occuper de tout ce qui vient plus bas, vérifier les déclarations des variables
+    public void initVillesButton() {
+        btn_Ville.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                AlertDialog.Builder mBuilder = new AlertDialog.Builder(MapsActivity.this);
+                mBuilder.setTitle(R.string.dialog_title_Ville);
+
+                mBuilder.setMultiChoiceItems(listVille, checkedItemsVille, new DialogInterface.OnMultiChoiceClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int position, boolean isChecked) {
+                        if (isChecked) {
+                            mUserItemsVille.add(new Integer(position));
+                        } else {
+                            mUserItemsVille.remove(new Integer(position));
+                        }
+                    }
+
+                });
+
+                mBuilder.setCancelable(false);
+                mBuilder.setPositiveButton(R.string.ok_label, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int which) {
+
+                        final List<SalesPoint> listsalesPoints = Singleton.getInstance().getSalesPointList();
+                        List<SalesPoint> temporarySalespointList;
+
+                       if ( mUserItemsVille.size() == 0 ||  mUserItemsVille.size() == listItemsVille.size()) {
+                           temporarySalespointList = Singleton.getInstance().getSalesPointList();
+                        }
+                        else {
+                            temporarySalespointList = new ArrayList<>();
+                            for (SalesPoint salesPoint : listsalesPoints) {
+                                for (int i = 0; i < mUserItemsVille.size(); i++) {
+                                String ville = listVille[mUserItemsVille.get(i)];
+                                    if (salesPoint.getSalesPointAddress().contains(ville) ) {
+                                        temporarySalespointList.add(salesPoint);
+                                    }
+                                }
+                            }
+                       }
+
+                        refreshMap(temporarySalespointList);
+
+                        ((SalesPointsAdapter) listViewSalesPoints.getAdapter()).clear();
+                        ((SalesPointsAdapter) listViewSalesPoints.getAdapter()).addAll(temporarySalespointList);
+                    }
+                });
+
+                mBuilder.setNegativeButton(R.string.dismiss_label, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        dialogInterface.dismiss();
+                    }
+                });
+
+                mBuilder.setNeutralButton(R.string.clear_all_label, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int which) {
+                        for (int i = 0; i < checkedItemsVille.length; i++) {
+                            checkedItemsVille[i] = false;
+                            mUserItemsVille.clear();
+
+                            List<SalesPoint> temporarySalespointList = Singleton.getInstance().getSalesPointList();
+                            ((SalesPointsAdapter) listViewSalesPoints.getAdapter()).clear();
+                            ((SalesPointsAdapter) listViewSalesPoints.getAdapter()).addAll(temporarySalespointList);
+                            refreshMap(temporarySalespointList);
+                        }
+                    }
+                });
+
+                AlertDialog mDialog = mBuilder.create();
+                mDialog.show();
+            }
+        });
+    }
+
+
+    public void initSearchPerimeterButton (){
+        btn_searchPerimeter.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                AlertDialog.Builder mBuilder = new AlertDialog.Builder(MapsActivity.this);
+                mBuilder.setTitle(R.string.dialog_title_Perimeter);
+
+                final String[] listRayon = getResources().getStringArray(R.array.rayon_recherche);
+
+
+                mBuilder.setSingleChoiceItems(listRayon, -1, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+
+                        mUserItemRayon =(new Integer(which));
+
+                    }
+                });
+
+                mBuilder.setCancelable(false);
+                mBuilder.setPositiveButton(R.string.ok_label, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int id) {
+
+                        int searchDiametre =0;
+
+                        switch (mUserItemRayon)
+                        {
+                            case 0 : {searchDiametre=10; break;}
+                            case 1 : {searchDiametre=20; break;}
+                            case 2 : {searchDiametre=50; break;}
+                            case 3 : {searchDiametre=100; break;}
+
+                        }
+
+                        double offsetLatitude = searchDiametre/111110;
+                        double oneLongitudeDegree = 111110 * Math.cos(latitudeSearchPosition * Math.PI/180);
+                        double offsetLongitude = searchDiametre/oneLongitudeDegree;
+
+                        double minLatitude = latitudeSearchPosition - offsetLatitude;
+                        double maxLatitude = latitudeSearchPosition + offsetLatitude;
+                        double minLongitude = longitudeSearchPosition - offsetLongitude;
+                        double  maxLongitude = longitudeSearchPosition + offsetLongitude;
+
+
+
+
+                       final List<SalesPoint> listsalesPoints = Singleton.getInstance().getSalesPointList();List<SalesPoint> temporarySalespointList;
+
+
+                       //util ou pas ?
+                        if ( mUserItemRayon == null ) {
+                            temporarySalespointList = Singleton.getInstance().getSalesPointList();
+                        }
+                        else {
+                            temporarySalespointList = new ArrayList<>();
+                            for (SalesPoint salesPoint : listsalesPoints) {
+                                if (salesPoint.getSalesPointLat() >= minLatitude && salesPoint.getSalesPointLat() <= maxLatitude &&
+                                        salesPoint.getSalesPointLong() >= minLongitude && salesPoint.getSalesPointLong() <= maxLongitude) {
+                                    //Si la position spécifiée est dans le rayon
+                                    temporarySalespointList.add(salesPoint);
+                                }
+
+                            }
+                        }
+
+                        refreshMap(temporarySalespointList);
+
+                        ((SalesPointsAdapter) listViewSalesPoints.getAdapter()).clear();
+                        ((SalesPointsAdapter) listViewSalesPoints.getAdapter()).addAll(temporarySalespointList);
+
+
+
+                    }
+                });
+
+
+                mBuilder.setNegativeButton(R.string.dismiss_label, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        dialogInterface.dismiss();
+                    }
+                });
+
+                mBuilder.setNeutralButton(R.string.clear_all_label, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int which) {
+
+                        mUserItemRayon=null;
+                        Log.e(TAG, " CLEAR " + mUserItemRayon);
+
+                        List<SalesPoint> temporarySalespointList = Singleton.getInstance().getSalesPointList();
+                        ((SalesPointsAdapter) listViewSalesPoints.getAdapter()).clear();
+                        ((SalesPointsAdapter) listViewSalesPoints.getAdapter()).addAll(temporarySalespointList);
+                        refreshMap(temporarySalespointList);
+                    }
+
+                });
+
+                AlertDialog mDialog = mBuilder.create();
+                mDialog.show();
+            }
+        });
+    }
+
+
+    public void initWilayaButton() {
+        btn_Wilaya.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                AlertDialog.Builder mBuilder = new AlertDialog.Builder(MapsActivity.this);
+                mBuilder.setTitle(R.string.dialog_title_Wilaya);
+                mBuilder.setMultiChoiceItems(listItemsWilaya, checkedItemsWilaya, new DialogInterface.OnMultiChoiceClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int position, boolean isChecked) {
+
+
+                        if (isChecked) {
+                            mUserItemsWilaya.add(new Integer(position));
+                        } else {
+                            mUserItemsWilaya.remove(new Integer(position));
+                        }
+                    }
+                });
+
+                mBuilder.setCancelable(false);
+                mBuilder.setPositiveButton(R.string.ok_label, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int which) {
+
+                        listItemsVille.clear();
+
+                        for (int i = 0; i < mUserItemsWilaya.size(); i++) {
+
+                            String element = listItemsWilaya[mUserItemsWilaya.get(i).intValue()];
+
+                            if (element.equals("Alger")) {
+
+                                listItemsVille.addAll(Arrays.asList(getResources().getStringArray(R.array.Algiers_item)));
+                            }
+
+                            if (element.equals("Blida")) {
+                                listItemsVille.addAll(Arrays.asList(getResources().getStringArray(R.array.Blida_item)));
+                            }
+
+
+                        }
+                        if (mUserItemsWilaya.size() != 0) btn_Ville.setVisibility(View.VISIBLE);
+
+                         listVille = listItemsVille.toArray(new String[listItemsVille.size()]);
+                        checkedItemsVille = new boolean[listVille.length];
+
+
+                        final List<SalesPoint> listsalesPoints = Singleton.getInstance().getSalesPointList();
+                        List<SalesPoint> temporarySalespointList;
+
+                        if ( mUserItemsWilaya.size() == 0 ||  mUserItemsWilaya.size() == listItemsWilaya.length) {
+                            temporarySalespointList = Singleton.getInstance().getSalesPointList();
+                        }
+                        else {
+                            temporarySalespointList = new ArrayList<>();
+                            for (SalesPoint salesPoint : listsalesPoints) {
+                                for (int i = 0; i < mUserItemsWilaya.size(); i++) {
+                                    String wilaya = listItemsWilaya[mUserItemsWilaya.get(i)];
+                                    if (salesPoint.getSalesPointAddress().contains(wilaya) ) {
+                                        temporarySalespointList.add(salesPoint);
+                                    }
+                                }
+                            }
+                        }
+
+                        refreshMap(temporarySalespointList);
+
+                        ((SalesPointsAdapter) listViewSalesPoints.getAdapter()).clear();
+                        ((SalesPointsAdapter) listViewSalesPoints.getAdapter()).addAll(temporarySalespointList);
+
+                    }
+                });
+
+
+                mBuilder.setNegativeButton(R.string.dismiss_label, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        dialogInterface.dismiss();
+                    }
+                });
+
+                mBuilder.setNeutralButton(R.string.clear_all_label, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int which) {
+                        for (int i = 0; i < checkedItemsWilaya.length; i++) {
+                            checkedItemsWilaya[i] = false;
+                            mUserItemsWilaya.clear();
+
+                            btn_Ville.setVisibility(View.GONE);
+                            listItemsVille.clear();
+
+                            List<SalesPoint> temporarySalespointList = Singleton.getInstance().getSalesPointList();
+                            ((SalesPointsAdapter) listViewSalesPoints.getAdapter()).clear();
+                            ((SalesPointsAdapter) listViewSalesPoints.getAdapter()).addAll(temporarySalespointList);
+                            refreshMap(temporarySalespointList);
+                        }
+                    }
+                });
+
+                AlertDialog mDialog = mBuilder.create();
+                mDialog.show();
+            }
+        });
+    }
+
+    private void verifierGPS () {
+
+        LocationManager gps;
+        gps = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+
+        if (!gps.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+            AlertDialog.Builder mBuilderGps = new AlertDialog.Builder(MapsActivity.this);
+
+
+            mBuilderGps.setPositiveButton(R.string.ok_label, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int which) {
+                    startActivity(new Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS));
+
+                }
+            });
+
+            mBuilderGps.setNegativeButton(R.string.dismiss_label, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+                    dialogInterface.dismiss();
+                }
+            });
+        }
+    }
 }

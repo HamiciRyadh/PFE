@@ -27,8 +27,8 @@ public interface PfeService
     @GET("Products/Search")
     Observable<List<Product>> searchFromQuery(@Query("value") String value);
 
-    @GET("Products/Search/{product_id}")
-    Observable<Result> searchFromProductId(@Path("product_id") int productId);
+    @GET("Products/Search/{productId}")
+    Observable<Result> searchFromProductId(@Path("productId") int productId);
 
     /**
      * Gives a List of Products for a given Category

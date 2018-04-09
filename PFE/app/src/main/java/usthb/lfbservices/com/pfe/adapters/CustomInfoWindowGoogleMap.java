@@ -6,6 +6,7 @@ import android.view.View;
 import android.widget.TextView;
 
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
@@ -17,18 +18,18 @@ import usthb.lfbservices.com.pfe.models.ProductSalesPoint;
 public class CustomInfoWindowGoogleMap implements GoogleMap.InfoWindowAdapter {
 
     private Context context;
-    private Map<Marker, ProductSalesPoint> hashMap;
+    private Map<LatLng, ProductSalesPoint> hashMap;
 
-    public CustomInfoWindowGoogleMap(Context ctx, Map<Marker, ProductSalesPoint> hashMap){
+    public CustomInfoWindowGoogleMap(Context ctx, Map<LatLng, ProductSalesPoint> hashMap){
         context = ctx;
         this.hashMap = hashMap;
     }
 
-    public Map<Marker, ProductSalesPoint> getHashMap() {
+    public Map<LatLng, ProductSalesPoint> getHashMap() {
         return hashMap;
     }
 
-    public void setHashMap(Map<Marker, ProductSalesPoint> hashMap) {
+    public void setHashMap(Map<LatLng, ProductSalesPoint> hashMap) {
         this.hashMap = hashMap;
     }
 
@@ -42,7 +43,7 @@ public class CustomInfoWindowGoogleMap implements GoogleMap.InfoWindowAdapter {
         View view = ((Activity)context).getLayoutInflater()
                 .inflate(R.layout.list_item_salespoint_product, null);
 
-        ProductSalesPoint object = this.hashMap.get(marker);
+        ProductSalesPoint object = this.hashMap.get(marker.getPosition());
 
         TextView name = view.findViewById(R.id.sales_point_name_marker);
         TextView address = view.findViewById(R.id.sales_point_address_marker);

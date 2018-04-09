@@ -59,7 +59,6 @@ public class PfeRx extends FragmentActivity {
     private static PfeAPI pfeAPI = new PfeAPI();
 
     public static void searchFromProductId(@NonNull final Activity activity,
-                                          // @NonNull final GoogleMap map,
                                            @NonNull final int productId) {
 
         pfeAPI.searchFromProductId(productId)
@@ -81,13 +80,16 @@ public class PfeRx extends FragmentActivity {
                         final List<SalesPoint> salesPoints = result.getSalesPoints();
                         final List<ProductSalesPoint> productSalesPoints = result.getProductSalesPoints();
                         final Button showList = activity.findViewById(R.id.show_list_button);
-                        final Map<Marker, ProductSalesPoint> hashMap = new HashMap<Marker, ProductSalesPoint>();
+                        final Map<LatLng, ProductSalesPoint> hashMap = new HashMap<LatLng, ProductSalesPoint>();
 
                         Collections.sort(salesPoints, new Comparator<SalesPoint>() {
                             public int compare(SalesPoint one, SalesPoint other) {
                                 return one.getSalesPointName().compareTo(other.getSalesPointName());
                             }
                         });
+
+                        Singleton.getInstance().setSalesPointList(salesPoints);
+                        Singleton.getInstance().setProductSalesPointList(productSalesPoints);
 
                         final SalesPointsAdapter salesPointsAdapter1 = new SalesPointsAdapter(activity, R.layout.list_item_salespoint_product, (ArrayList) salesPoints);
 
@@ -96,9 +98,9 @@ public class PfeRx extends FragmentActivity {
 
                         final GoogleMap map = Singleton.getInstance().getMap();
                         if (map != null) {
-                            LatLngBounds.Builder builder = new LatLngBounds.Builder();
                             map.clear();
 
+                            LatLngBounds.Builder builder = new LatLngBounds.Builder();
                             ProductSalesPoint productSalesPointTemps = new ProductSalesPoint();
 
                             for (SalesPoint salesPoint : salesPoints) {
@@ -118,7 +120,7 @@ public class PfeRx extends FragmentActivity {
                                     }
                                 }
                                 Marker marker = map.addMarker(markerOptions);
-                                hashMap.put(marker, productSalesPointTemps);
+                                hashMap.put(marker.getPosition(), productSalesPointTemps);
                                 builder.include(marker.getPosition());
                             }
 
@@ -185,7 +187,6 @@ public class PfeRx extends FragmentActivity {
                                                 //Zoomer sur le marqueur correspondant
                                                 CameraUpdate cu = CameraUpdateFactory.newLatLngZoom(salesPoint.getSalesPointLatLng(), 12f);
                                                 map.animateCamera(cu);
-
                                             }
                                         }
                                     });
@@ -234,6 +235,7 @@ public class PfeRx extends FragmentActivity {
                             }
                         });
 
+                        Singleton.getInstance().setProductList(products);
                         productsAdapter.addAll(products);
                         ListView listView = activity.findViewById(R.id.list_view_products);
                         listView.setAdapter(productsAdapter);
@@ -364,6 +366,7 @@ public class PfeRx extends FragmentActivity {
                         Log.e(TAG, list.toString());
 
                         productsAdapter.addAll(list);
+                        Singleton.getInstance().setProductList(list);
 
                         ListView listView = activity.findViewById(R.id.list_view_products);
                         if (listView != null) listView.setAdapter(productsAdapter);

@@ -3,9 +3,8 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    >
-
+    android:background="@color/color_white"
+    android:orientation="vertical">
 
     <HorizontalScrollView
         android:layout_width="match_parent"
@@ -19,45 +18,22 @@
             android:orientation="horizontal">
 
             <Button
-                android:id="@+id/btn_wilaya"
+                android:id="@+id/btn_Type"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="4dp"
-                android:text="Wilaya"
+                android:text="Type"
                 android:textColor="#616161"
-                android:textSize="12sp"
-                android:visibility="gone"/>
+                android:textSize="12sp"/>
 
             <Button
-                android:id="@+id/btn_ville"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_margin="4dp"
-                android:text="Ville"
-                android:visibility="gone"
-                android:textColor="#616161"
-                android:textSize="12sp"
-                />
-
-            <Spinner
-                android:id="@+id/spinner_rayon"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:entries="@array/country_arrays"
-                android:prompt="@string/rayon_de_recherche"
-                android:visibility="gone"/>
-
-            <Button
-                android:id="@+id/btn_marque"
+                android:id="@+id/btn_Marque"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="4dp"
                 android:text="Marque"
                 android:textColor="#616161"
-                android:textSize="12sp"
-                android:visibility="gone"/>
-
-
+                android:textSize="12sp"/>
 
         </LinearLayout>
 
@@ -67,9 +43,7 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:background="@color/color_white"
         >
-
 
         <ListView
             android:id="@+id/list_view_products"
@@ -94,9 +68,7 @@
             android:layout_centerInParent="true"
             />
 
-
     </RelativeLayout>
 
 </LinearLayout>
-
 

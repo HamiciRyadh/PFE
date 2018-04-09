@@ -23,7 +23,7 @@ public class PfeAPI {
     /**
      * The url of the Web Service to use.
      */
-    private static final String BASE_URL = "http://192.168.1.5:8080/PFE/api/";
+    private static final String BASE_URL = "http://192.168.1.2:8080/PFE-EE/api/";
 
     /**
      * A Retrofit object to instantiate the interface representing the exposed methods of the
