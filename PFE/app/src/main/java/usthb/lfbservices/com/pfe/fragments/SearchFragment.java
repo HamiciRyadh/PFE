@@ -1,6 +1,7 @@
 package usthb.lfbservices.com.pfe.fragments;
 
 import android.content.Context;
+import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
@@ -52,7 +53,7 @@ public class SearchFragment extends Fragment {
     private HistoryAdapter historyAdapter;
     private TextView emptyTextViewHistory;
     private String[] categories;
-    private Bitmap icon;
+    private ArrayList<Bitmap> icon;
     private int numberOfCategoriesToDisplay;
 
     public SearchFragment(){
@@ -90,7 +91,14 @@ public class SearchFragment extends Fragment {
         emptyTextViewHistory = rootView.findViewById(R.id.empty_history);
         listView = rootView.findViewById(R.id.list_view_history);
         categories = getResources().getStringArray(R.array.categories_array);
-        icon = BitmapFactory.decodeResource(getResources(), R.drawable.common_full_open_on_phone);
+        icon = new ArrayList<Bitmap>();
+        icon.add(BitmapFactory.decodeResource(getResources(), R.drawable.computer));
+        icon.add(BitmapFactory.decodeResource(getResources(), R.drawable.telephone));
+        icon.add(BitmapFactory.decodeResource(getResources(), R.drawable.camera));
+        icon.add(BitmapFactory.decodeResource(getResources(), R.drawable.voiture));
+        icon.add(BitmapFactory.decodeResource(getResources(), R.drawable.materiel));
+        icon.add(BitmapFactory.decodeResource(getResources(), R.drawable.montre));
+
         numberOfCategoriesToDisplay = calculateNumberOfCategoriesToDisplay();
         listCategories = getMinimumCategoriesToDisplay();
         listHistorySearches = getHistorySearches();
@@ -197,15 +205,15 @@ public class SearchFragment extends Fragment {
         ArrayList<Category> list = new ArrayList<Category>();
 
         for (int i = 1; i < numberOfCategoriesToDisplay; i++) {
-            list.add(new Category(icon, categories[i-1], i));
+            list.add(new Category(icon.get(i-1), categories[i-1], i));
         }
 
         if (numberOfCategoriesToDisplay < categories.length) {
-            list.add(new Category(icon, getString(R.string.more), numberOfCategoriesToDisplay));
+            list.add(new Category(BitmapFactory.decodeResource(getResources(), R.drawable.plus), getString(R.string.more), numberOfCategoriesToDisplay));
         }
         else {
             if (numberOfCategoriesToDisplay == categories.length) {
-                list.add(new Category(icon, categories[categories.length-1], numberOfCategoriesToDisplay));
+                list.add(new Category(icon.get(categories.length-1), categories[categories.length-1], numberOfCategoriesToDisplay));
             }
         }
 
@@ -216,18 +224,23 @@ public class SearchFragment extends Fragment {
         ArrayList<Category> list = new ArrayList<Category>();
 
         for (int i = 1; i <= categories.length; i++) {
-            list.add(new Category(icon, categories[i-1], i));
+            list.add(new Category(icon.get(i-1), categories[i-1], i));
         }
 
         if (numberOfCategoriesToDisplay < categories.length) {
-            list.add(new Category(icon, getString(R.string.less), categories.length+1));
+            list.add(new Category(BitmapFactory.decodeResource(getResources(), R.drawable.moins), getString(R.string.less), categories.length+1));
         }
 
         return list;
     }
 
     public int calculateNumberOfCategoriesToDisplay() {
-        int pxWidth = Utils.getDeviceWidthInPixel(fragmentBelongActivity);
+        int pxWidth;
+        if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
+            pxWidth = Utils.getDeviceWidthInPixel(fragmentBelongActivity);
+        } else {
+            pxWidth = Utils.getDeviceHeightInPixel(fragmentBelongActivity);
+        }
         int result = (int)((pxWidth + 2*getResources().getDimension(R.dimen.categories_grid_layout_margin))
                 /getResources().getDimension(R.dimen.categories_grid_column_width));
 

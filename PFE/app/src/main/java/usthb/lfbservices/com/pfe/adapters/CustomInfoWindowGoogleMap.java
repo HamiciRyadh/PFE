@@ -40,17 +40,18 @@ public class CustomInfoWindowGoogleMap implements GoogleMap.InfoWindowAdapter {
 
     @Override
     public View getInfoContents(Marker marker) {
-        View view = ((Activity)context).getLayoutInflater()
-                .inflate(R.layout.list_item_salespoint_product, null);
-
         ProductSalesPoint object = this.hashMap.get(marker.getPosition());
-
-        TextView name = view.findViewById(R.id.sales_point_name_marker);
-        TextView address = view.findViewById(R.id.sales_point_address_marker);
-        TextView qte = view.findViewById(R.id.product_qte_marker);
-        TextView price = view.findViewById(R.id.product_price_marker);
+        View view = null;
 
         if (object != null) {
+            view = ((Activity)context).getLayoutInflater()
+                    .inflate(R.layout.list_item_salespoint_product, null);
+
+            TextView name = view.findViewById(R.id.sales_point_name_marker);
+            TextView address = view.findViewById(R.id.sales_point_address_marker);
+            TextView qte = view.findViewById(R.id.product_qte_marker);
+            TextView price = view.findViewById(R.id.product_price_marker);
+
             name.setText(marker.getTitle());
             address.setText(marker.getSnippet());
 

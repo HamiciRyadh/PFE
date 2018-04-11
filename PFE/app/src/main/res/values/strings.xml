@@ -10,27 +10,31 @@
     <string name="no_corresponding_product"> Aucun produit ne correspond à votre recherche.</string>
     <string name="not_available">Non disponible</string>
     <string name="show">Afficher</string>
-    <string name="sales_points_show_list">Afficher la liste des points de vente.</string>
+    <string name="sales_points_show_list">Points de vente</string>
     <string name="reduce">Diminuer</string>
+    <string name="no">Non</string>
 
     <string-array name="categories_array">
-        <item>Electromenager</item>
-        <item>Vêtements</item>
         <item>Informatique</item>
-        <item>Téléphones et Tablettes</item>
-        <item>Fournitures de maisons</item>
-        <item>Electronique</item>
+        <item>Téléphone</item>
+        <item>Camera</item>
+        <item>Automobile</item>
+        <item>Matériel Professionnel</item>
+        <item>Montres</item>
     </string-array>
 
-    <string-array name="icon_array">
-        <item>@drawable/phone</item>
-        <item>@drawable/website</item>
-        <item>@drawable/address</item>
-        <item>@drawable/arrow</item>
-        <item>@drawable/common_full_open_on_phone</item>
-        <item>@drawable/phone</item>
+    <string-array name="types">
+        <item>Ordinateur Portable</item>
+        <item>Imprimante et Scanner</item>
+        <item>Ordinateur de Bureau</item>
+        <item>Ecran et Data Show</item>
+        <item>Smartphone</item>
+        <item>Tablette</item>
+        <item>Téléphone Fixe</item>
+        <item>Téléphone Portable</item>
     </string-array>
 
+    <string name="dialog_message_activate_gps">Veuillez activer le GPS.</string>
     <string name="dialog_title_Wilaya">Filtrer par Wilaya</string>
     <string name="dialog_title_Ville">Filtrer par Ville</string>
     <string name="dialog_title_Marque">Filtrer par Marque</string>
@@ -91,13 +95,6 @@
         <item>AinTemouchent</item>
         <item>Ghardaia</item>
         <item>Relizane</item>
-
-
-
-
-
-
-
     </string-array>
 
     <string-array name="Blida_item">
@@ -114,7 +111,7 @@
         <item>Chiffa</item>
         <item>Chrea</item>
         <item>Djebara</item>
-        <item>El affroun</item>
+        <item>El Affroun</item>
         <item>Guerrouaou</item>
         <item>Hamam melouane</item>
         <item>Larabaa</item>
@@ -123,13 +120,10 @@
         <item>Ouled djer</item>
         <item>Ouled el alleug</item>
         <item>Ouled selama</item>
-        <item> Ouled yaich</item>
+        <item>Ouled yaich</item>
         <item>Sidi moussa</item>
         <item>Souhane</item>
         <item>Soumaa</item>
-
-
-
     </string-array>
 
 
@@ -151,17 +145,20 @@
         <item>Birkhadem</item>
         <item>Birtouta</item>
         <item>Ouled Fayet</item>
+        <item>Kouba</item>
+        <item>Hammamet</item>
+        <item>Hydra</item>
+        <item>Birkhadem</item>
 
     </string-array>
 
 
     <string-array name="rayon_recherche">
-        <item>10km</item>
-        <item>20km</item>
-        <item>50km</item>
-        <item>100km</item>
+        <item>10 km</item>
+        <item>20 km</item>
+        <item>50 km</item>
+        <item>100 km</item>
     </string-array>
-
 
 
 </resources>

@@ -49,8 +49,8 @@ public class ProductsFragment extends Fragment {
 
     private Button btn_Type;
     private ArrayList<String> listItemsType = new ArrayList<>();
-    private boolean[] checkedItemsType;
     private ArrayList<Integer> mUserItemsType = new ArrayList<>();
+    private boolean[] checkedItemsType;
 
 
     public ProductsFragment() {
@@ -174,23 +174,8 @@ public class ProductsFragment extends Fragment {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int which) {
 
-                        List<Product> temporaryProductsList;
-                        ((ProductsAdapter) listView.getAdapter()).clear();
-
-                        if (listCheckedTradeMarks.size() == 0 || listCheckedTradeMarks.size() == listItemsMarque.size()) {
-                            temporaryProductsList = Singleton.getInstance().getProductList();
-                        }
-
-                        else {
-                            temporaryProductsList = new ArrayList<Product>();
-                            for (Product product : productsList) {
-                                for (String tradeMark : listCheckedTradeMarks) {
-                                    if (product.getProductTradeMark().equals(tradeMark)) {
-                                        temporaryProductsList.add(product);
-                                    }
-                                }
-                            }
-                        }
+                        List<Product> temporaryProductsList = sortByType();
+                        temporaryProductsList = sortByTradeMark(temporaryProductsList);
 
                         ((ProductsAdapter) listView.getAdapter()).addAll(temporaryProductsList);
                     }
@@ -208,7 +193,7 @@ public class ProductsFragment extends Fragment {
                     public void onClick(DialogInterface dialogInterface, int which) {
                         listCheckedTradeMarks.clear();
                         ((ProductsAdapter) listView.getAdapter()).clear();
-                        ((ProductsAdapter) listView.getAdapter()).addAll(Singleton.getInstance().getProductList());
+                        ((ProductsAdapter) listView.getAdapter()).addAll(sortByType());
                     }
                 });
 
@@ -219,36 +204,34 @@ public class ProductsFragment extends Fragment {
     }
 
 
-    //TODO: Tout refaire comme avec les marques
     public void initTypeButton() {
         btn_Type.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                for (int i=0; i< listView.getAdapter().getCount(); i++ ){
+                String[] types = getResources().getStringArray(R.array.types);
+                final List<Product> products = Singleton.getInstance().getProductList();
 
-                    int Type =  ((Product)listView.getAdapter().getItem(i)).getProductType();
-
-                    //Web Service
-                    // type en string !!
-
-                    if (! listItemsType.contains(""+Type))
-                        listItemsType.add(""+Type);
+                for (int i=0; i< products.size(); i++ ){
+                    int type =  products.get(i).getProductType();
+                    if (!listItemsType.contains(types[type])) listItemsType.add(types[type]);
                 }
 
                 final String[] listType = listItemsType.toArray(new String[listItemsType.size()]);
                 checkedItemsType = new boolean[listType.length];
 
+                for (Integer integer : mUserItemsType) {
+                    checkedItemsType[integer.intValue()] = true;
+                }
+
                 AlertDialog.Builder mBuilder = new AlertDialog.Builder(fragmentBelongActivity);
                 mBuilder.setTitle(R.string.dialog_title_Type);
-
-
                 mBuilder.setMultiChoiceItems(listType, checkedItemsType, new DialogInterface.OnMultiChoiceClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int position, boolean isChecked) {
                         if (isChecked) {
-                            mUserItemsType.add(position);
+                            mUserItemsType.add(new Integer(position));
                         } else {
-                            mUserItemsType.remove((Integer.valueOf(position)));
+                            mUserItemsType.remove(new Integer(position));
                         }
                     }
 
@@ -259,16 +242,11 @@ public class ProductsFragment extends Fragment {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int which) {
 
-                        String item = "";
-                        for (int i = 0; i < mUserItemsType.size(); i++) {
-                            item = item + listType[mUserItemsType.get(i)];
-                            if (i != mUserItemsType.size() - 1) {
-                                item = item + ", ";
-                            }
-                        }
+                        List<Product> temporaryProductsList = sortByType();
+                        temporaryProductsList = sortByTradeMark(temporaryProductsList);
 
-                        //ICII APPEL
-                        //  mItemSelected.setText(item);
+                        ((ProductsAdapter) listView.getAdapter()).clear();
+                        ((ProductsAdapter) listView.getAdapter()).addAll(temporaryProductsList);
                     }
                 });
 
@@ -284,11 +262,12 @@ public class ProductsFragment extends Fragment {
                     public void onClick(DialogInterface dialogInterface, int which) {
                         for (int i = 0; i < checkedItemsType.length; i++) {
                             checkedItemsType[i] = false;
-                            mUserItemsType.clear();
-
-                            //CHANGEMENT
-                            //  mItemSelected.setText("");
                         }
+                        mUserItemsType.clear();
+                        listItemsType.clear();
+                        ((ProductsAdapter) listView.getAdapter()).clear();
+                        ((ProductsAdapter) listView.getAdapter())
+                                .addAll(sortByTradeMark(Singleton.getInstance().getProductList()));
                     }
                 });
 
@@ -298,6 +277,47 @@ public class ProductsFragment extends Fragment {
         });
     }
 
+    public List<Product> sortByType() {
+        List<Product> products = Singleton.getInstance().getProductList();
+        List<Product> temporaryProductsList;
+        if (mUserItemsType.size() == 0 || mUserItemsType.size() == products.size()) {
+            temporaryProductsList = products;
+        } else {
+            temporaryProductsList = new ArrayList<Product>();
+
+            for (Integer integer : mUserItemsType) {
+                int correspondingType = integer.intValue();
+
+                for (Product product : products) {
+                    if (product.getProductType() == correspondingType) {
+                        temporaryProductsList.add(product);
+                    }
+                }
+            }
+        }
+        return temporaryProductsList;
+    }
+
+    public List<Product> sortByTradeMark(List<Product> productsSortedByType) {
+        List<Product> temporaryProductsList;
+        ((ProductsAdapter) listView.getAdapter()).clear();
+
+        if (listCheckedTradeMarks.size() == 0 || listCheckedTradeMarks.size() == listItemsMarque.size()) {
+            temporaryProductsList = productsSortedByType;
+        }
+
+        else {
+            temporaryProductsList = new ArrayList<Product>();
+            for (Product product : productsSortedByType) {
+                for (String tradeMark : listCheckedTradeMarks) {
+                    if (product.getProductTradeMark().equals(tradeMark)) {
+                        temporaryProductsList.add(product);
+                    }
+                }
+            }
+        }
+        return temporaryProductsList;
+    }
 
 
 

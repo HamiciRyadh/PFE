@@ -10,6 +10,7 @@ import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -100,7 +101,7 @@ public class PfeRx extends FragmentActivity {
                         if (map != null) {
                             map.clear();
 
-                            LatLngBounds.Builder builder = new LatLngBounds.Builder();
+                            LatLngBounds.Builder builder = null;
                             ProductSalesPoint productSalesPointTemps = new ProductSalesPoint();
 
                             for (SalesPoint salesPoint : salesPoints) {
@@ -121,14 +122,18 @@ public class PfeRx extends FragmentActivity {
                                 }
                                 Marker marker = map.addMarker(markerOptions);
                                 hashMap.put(marker.getPosition(), productSalesPointTemps);
+                                if (builder == null) builder = new LatLngBounds.Builder();
                                 builder.include(marker.getPosition());
                             }
-
-                            LatLngBounds bounds = builder.build();
-                            // offset from the edges of the map in pixels
-                            int padding = 200;
-                            CameraUpdate cu = CameraUpdateFactory.newLatLngBounds(bounds, padding);
-                            map.animateCamera(cu);
+                            if (builder != null) {
+                                LatLngBounds bounds = builder.build();
+                                // offset from the edges of the map in pixels
+                                int padding = 200;
+                                CameraUpdate cu = CameraUpdateFactory.newLatLngBounds(bounds, padding);
+                                map.animateCamera(cu);
+                            } else {
+                                Toast.makeText(activity, "Aucun point de vente pour le produit sélectionné", Toast.LENGTH_LONG).show();
+                            }
                             CustomInfoWindowGoogleMap customInfoWindow = new CustomInfoWindowGoogleMap(activity, hashMap);
                             map.setInfoWindowAdapter(customInfoWindow);
 
@@ -364,6 +369,12 @@ public class PfeRx extends FragmentActivity {
                     public void onNext(List<Product> list) {
                         Log.e(TAG, "Search Category : onNext");
                         Log.e(TAG, list.toString());
+
+                        Collections.sort(list, new Comparator<Product>() {
+                            public int compare(Product one, Product other) {
+                                return one.getProductName().compareTo(other.getProductName());
+                            }
+                        });
 
                         productsAdapter.addAll(list);
                         Singleton.getInstance().setProductList(list);
