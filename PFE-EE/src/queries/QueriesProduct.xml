@@ -31,8 +31,8 @@
 
 <select id = "getProductsByName" parameterType = "map" resultMap = "result">
 
-  SELECT * FROM ${db.schema}."Product" WHERE (product_name LIKE #{value} OR product_trade_mark LIKE #{value}) 
-  <if test='tradeMark != null'>AND product_trade_mark LIKE #{tradeMark}</if>
+  SELECT * FROM ${db.schema}."Product" WHERE (product_name ILIKE #{value} OR product_trade_mark ILIKE #{value}) 
+  <if test='tradeMark != null'>AND product_trade_mark ILIKE #{tradeMark}</if>
   <if test='type != null'>AND product_type = #{type}</if>
   ;                                                                                       
 </select>

@@ -62,7 +62,8 @@ public class Service {
 	@Path("/Search")
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
-	public List<Product> search(@DefaultValue("") @QueryParam("value") String value,
+	public List<Product> search(
+			@DefaultValue("") @QueryParam("value") String value,
 			@DefaultValue("") @QueryParam("tradeMark") String tradeMark,
 			@DefaultValue("-1") @QueryParam("type") int type) throws Exception {
 		//TODO: Verify all the parameters
@@ -74,9 +75,9 @@ public class Service {
 		    );
 		}
 		Map<String, Object> extraParameters = new HashMap<String, Object>();
-		extraParameters.put("value", value);
+		extraParameters.put("value", "%"+value.toUpperCase()+"%");
 		
-		if (!tradeMark.trim().equals("")) extraParameters.put("tradeMark", "%"+tradeMark+"%");
+		if (!tradeMark.trim().equals("")) extraParameters.put("tradeMark", "%"+tradeMark.toUpperCase()+"%");
 		if (type != -1) extraParameters.put("type", new Integer(type));
 		
 		return Access.getProductsByName(extraParameters);
