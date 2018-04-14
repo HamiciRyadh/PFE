@@ -14,26 +14,6 @@
     <string name="reduce">Diminuer</string>
     <string name="no">Non</string>
 
-    <string-array name="categories_array">
-        <item>Informatique</item>
-        <item>Téléphone</item>
-        <item>Camera</item>
-        <item>Automobile</item>
-        <item>Matériel Professionnel</item>
-        <item>Montres</item>
-    </string-array>
-
-    <string-array name="types">
-        <item>Ordinateur Portable</item>
-        <item>Imprimante et Scanner</item>
-        <item>Ordinateur de Bureau</item>
-        <item>Ecran et Data Show</item>
-        <item>Smartphone</item>
-        <item>Tablette</item>
-        <item>Téléphone Fixe</item>
-        <item>Téléphone Portable</item>
-    </string-array>
-
     <string name="dialog_message_activate_gps">Veuillez activer le GPS.</string>
     <string name="dialog_title_Wilaya">Filtrer par Wilaya</string>
     <string name="dialog_title_Ville">Filtrer par Ville</string>

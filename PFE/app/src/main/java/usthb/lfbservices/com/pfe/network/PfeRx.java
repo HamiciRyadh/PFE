@@ -1,6 +1,8 @@
 package usthb.lfbservices.com.pfe.network;
 
 import android.app.Activity;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomSheetBehavior;
 import android.support.v4.app.FragmentActivity;
@@ -35,6 +37,8 @@ import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 
 import usthb.lfbservices.com.pfe.R;
+import usthb.lfbservices.com.pfe.activities.LoginActivity;
+import usthb.lfbservices.com.pfe.activities.MapsActivity;
 import usthb.lfbservices.com.pfe.adapters.ProductsAdapter;
 import usthb.lfbservices.com.pfe.adapters.SalesPointsAdapter;
 import usthb.lfbservices.com.pfe.adapters.CustomInfoWindowGoogleMap;
@@ -45,6 +49,7 @@ import usthb.lfbservices.com.pfe.models.Result;
 import usthb.lfbservices.com.pfe.models.SalesPoint;
 import usthb.lfbservices.com.pfe.models.Singleton;
 import usthb.lfbservices.com.pfe.utils.DisposableManager;
+import usthb.lfbservices.com.pfe.utils.Utils;
 
 /**
  * A class exposing static methods to interact with Retrofit that handles the network calls
@@ -298,7 +303,7 @@ public class PfeRx extends FragmentActivity {
                     @Override
                     public void onNext(SalesPoint salesPoint) {
                         Log.e(TAG, "GetPlaceDetails : onNext");
-                        Log.e(TAG, "Content : " + salesPoint);
+                        Log.e(TAG, "Content : " + salesPoint.getSalesPointPhotoReference());
 
                         if (activity instanceof BottomSheetDataSetter) {
                             BottomSheetDataSetter bottomSheetDataSetter = (BottomSheetDataSetter)activity;
@@ -424,6 +429,99 @@ public class PfeRx extends FragmentActivity {
                                 emptyTextView.setText(activity.getString(R.string.no_corresponding_product));
                             else emptyTextView.setText("");
                         }
+                    }
+                });
+    }
+
+    public static void connect(@NonNull final Activity activity,
+                               @NonNull final String mailAddress,
+                               @NonNull final String password) {
+
+        pfeAPI.connect(mailAddress, password)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<Boolean>() {
+                    @Override
+                    public void onSubscribe(Disposable d) {
+                        Log.e(TAG, "Connect : onSubscribe");
+                        DisposableManager.add(d);
+                    }
+
+                    @Override
+                    public void onNext(Boolean exists) {
+                        Log.e(TAG, "Connect : onNext");
+
+                        if (exists) {
+                            SharedPreferences.Editor editor =
+                                    activity.getSharedPreferences(Utils.SHARED_PREFERENCES_USER,MODE_PRIVATE).edit();
+                            editor.putString("email", mailAddress);
+                            editor.putString("password", password);
+                            editor.apply();
+
+                            Intent intent = new Intent(activity, MapsActivity.class);
+                            activity.startActivity(intent);
+                        } else {
+                            Toast.makeText(activity, "WRONG", Toast.LENGTH_LONG).show();
+                        }
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        Log.e(TAG, "Connect : onError " + e.toString());
+                        Toast.makeText(activity, "ERROR", Toast.LENGTH_LONG).show();
+                    }
+
+                    @Override
+                    public void onComplete() {
+                        Log.e(TAG, "Connect : onComplete");
+                    }
+                });
+    }
+
+
+    public static void register(@NonNull final Activity activity,
+                                @NonNull final String mailAddress,
+                                @NonNull final String password) {
+
+        pfeAPI.register(mailAddress, password)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<Boolean>() {
+                    @Override
+                    public void onSubscribe(Disposable d) {
+                        Log.e(TAG, "Register : onSubscribe");
+                        DisposableManager.add(d);
+                    }
+
+                    @Override
+                    public void onNext(Boolean registered) {
+                        Log.e(TAG, "Register : onNext");
+
+                        if (registered) {
+                            SharedPreferences.Editor editor =
+                                    activity.getSharedPreferences(Utils.SHARED_PREFERENCES_USER,MODE_PRIVATE).edit();
+                            editor.putString("email", mailAddress);
+                            editor.putString("password", password);
+                            editor.apply();
+
+                            Intent intent = new Intent(activity, MapsActivity.class);
+                            activity.startActivity(intent);
+                        } else {
+                            //TODO:Error message for mail address
+                            Toast.makeText(activity, "WRONG", Toast.LENGTH_LONG).show();
+                        }
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        //TODO:Snackbar for retry
+                        Log.e(TAG, "Register : onError " + e.toString());
+                        Toast.makeText(activity, "ERROR", Toast.LENGTH_LONG).show();
+                    }
+
+                    @Override
+                    public void onComplete() {
+                        Log.e(TAG, "Register : onComplete");
                     }
                 });
     }

@@ -30,6 +30,7 @@ import java.util.ArrayList;
 import usthb.lfbservices.com.pfe.R;
 import usthb.lfbservices.com.pfe.adapters.CategoryAdapter;
 import usthb.lfbservices.com.pfe.adapters.HistoryAdapter;
+import usthb.lfbservices.com.pfe.database.DatabaseHelper;
 import usthb.lfbservices.com.pfe.models.Category;
 import usthb.lfbservices.com.pfe.utils.Utils;
 
@@ -44,6 +45,7 @@ public class SearchFragment extends Fragment {
 
     private View rootView;
     private FragmentActivity fragmentBelongActivity;
+    private DatabaseHelper db;
 
     private ListView listView;
     private ArrayList<Category> listCategories;
@@ -88,9 +90,10 @@ public class SearchFragment extends Fragment {
     }
 
     public void initVariables() {
+        db = new DatabaseHelper(fragmentBelongActivity);
         emptyTextViewHistory = rootView.findViewById(R.id.empty_history);
         listView = rootView.findViewById(R.id.list_view_history);
-        categories = getResources().getStringArray(R.array.categories_array);
+        categories = db.getCategories();
         icon = new ArrayList<Bitmap>();
         icon.add(BitmapFactory.decodeResource(getResources(), R.drawable.computer));
         icon.add(BitmapFactory.decodeResource(getResources(), R.drawable.telephone));
@@ -204,7 +207,7 @@ public class SearchFragment extends Fragment {
     public ArrayList<Category> getMinimumCategoriesToDisplay() {
         ArrayList<Category> list = new ArrayList<Category>();
 
-        for (int i = 1; i < numberOfCategoriesToDisplay; i++) {
+        for (int i = 1; i < numberOfCategoriesToDisplay && i <= categories.length; i++) {
             list.add(new Category(icon.get(i-1), categories[i-1], i));
         }
 

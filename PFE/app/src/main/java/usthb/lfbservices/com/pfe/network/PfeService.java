@@ -7,6 +7,7 @@ import java.util.List;
 
 import io.reactivex.Observable;
 import retrofit2.http.GET;
+import retrofit2.http.POST;
 import retrofit2.http.Path;
 import retrofit2.http.Query;
 import usthb.lfbservices.com.pfe.models.Product;
@@ -37,4 +38,12 @@ public interface PfeService
      */
     @GET("Products/Category/{categoryId}")
     Observable<List<Product>> searchCategory(@Path("categoryId") int category);
+
+    @POST("User/Connect")
+    Observable<Boolean> connect(@Query("mailAddress") String mailAddress,
+                                @Query("password") String password);
+
+    @POST("User/Register")
+    Observable<Boolean> register(@Query("mailAddress") String mailAddress,
+                                @Query("password") String password);
 }

@@ -25,7 +25,7 @@ public class PfeAPI {
     /**
      * The url of the Web Service to use.
      */
-    private static final String BASE_URL = "http://192.168.1.2:8080/PFE-EE/api/";
+    private static final String BASE_URL = "http://192.168.1.6:8080/PFE-EE/api/";
 
     /**
      * A Retrofit object to instantiate the interface representing the exposed methods of the
@@ -54,7 +54,7 @@ public class PfeAPI {
     public Retrofit getClient() {
 
         OkHttpClient okHttpClient = new OkHttpClient.Builder()
-                .connectTimeout(1, TimeUnit.MINUTES)
+                .connectTimeout(30, TimeUnit.SECONDS)
                 .readTimeout(30, TimeUnit.SECONDS)
                 .writeTimeout(15, TimeUnit.SECONDS)
                 .build();
@@ -94,6 +94,14 @@ public class PfeAPI {
      */
     public Observable<List<Product>> searchCategory(final int category) {
         return pfeService.searchCategory(category);
+    }
+
+    public Observable<Boolean> connect(final String mailAddress, final String password) {
+        return pfeService.connect(mailAddress, password);
+    }
+
+    public Observable<Boolean> register(final String mailAddress, final String password) {
+        return pfeService.register(mailAddress, password);
     }
 
 }

@@ -20,6 +20,7 @@
 		<mapper resource="queries/QueriesProduct.xml"/>
 		<mapper resource="queries/QueriesProductSalesPoint.xml"/>
 	    <mapper resource="queries/QueriesSalesPoint.xml"/>
+	    <mapper resource="queries/QueriesUsers.xml"/>
 	
 	
 	</mappers>

@@ -21,6 +21,7 @@ import java.util.List;
 
 import usthb.lfbservices.com.pfe.R;
 import usthb.lfbservices.com.pfe.adapters.ProductsAdapter;
+import usthb.lfbservices.com.pfe.database.DatabaseHelper;
 import usthb.lfbservices.com.pfe.models.Product;
 import usthb.lfbservices.com.pfe.models.Singleton;
 
@@ -40,6 +41,7 @@ public class ProductsFragment extends Fragment {
     private ProgressBar progressBar;
     private List<Product> savedListProducts = null;
     private ProductsAdapter savedProductsAdapter = null;
+    private DatabaseHelper db;
 
 
     private Button btn_Marque;
@@ -50,6 +52,7 @@ public class ProductsFragment extends Fragment {
     private Button btn_Type;
     private ArrayList<String> listItemsType = new ArrayList<>();
     private ArrayList<Integer> mUserItemsType = new ArrayList<>();
+    private String[] types;
     private boolean[] checkedItemsType;
 
 
@@ -123,9 +126,11 @@ public class ProductsFragment extends Fragment {
 
 
     public void initVariables() {
+        db = new DatabaseHelper(fragmentBelongActivity);
         progressBar = rootView.findViewById(R.id.products_progress_bar);
         btn_Marque = rootView.findViewById(R.id.btn_Marque);
         btn_Type = rootView.findViewById(R.id.btn_Type);
+        types = db.getTypes();
     }
 
 
@@ -208,7 +213,6 @@ public class ProductsFragment extends Fragment {
         btn_Type.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                String[] types = getResources().getStringArray(R.array.types);
                 final List<Product> products = Singleton.getInstance().getProductList();
 
                 for (int i=0; i< products.size(); i++ ){

@@ -1,21 +1,16 @@
 package usthb.lfbservices.com.pfe.activities;
 
 import android.Manifest;
-import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.location.Location;
-import android.location.LocationManager;
 import android.os.Build;
-import android.provider.Settings;
+import android.provider.ContactsContract;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomSheetBehavior;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.View;
@@ -50,14 +45,13 @@ import com.squareup.picasso.Picasso;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 
 import usthb.lfbservices.com.pfe.R;
 import usthb.lfbservices.com.pfe.adapters.SalesPointsAdapter;
+import usthb.lfbservices.com.pfe.database.DatabaseHelper;
 import usthb.lfbservices.com.pfe.fragments.ProductsFragment;
 import usthb.lfbservices.com.pfe.fragments.SearchFragment;
 import usthb.lfbservices.com.pfe.models.BottomSheetDataSetter;
-import usthb.lfbservices.com.pfe.models.Product;
 import usthb.lfbservices.com.pfe.models.ProductSalesPoint;
 import usthb.lfbservices.com.pfe.models.SalesPoint;
 import usthb.lfbservices.com.pfe.models.Singleton;
@@ -77,6 +71,7 @@ public class MapsActivity extends FragmentActivity implements SearchFragment.Sea
 
     private GoogleMap mMap;
     private SupportMapFragment mapFragment;
+    private DatabaseHelper db;
     private BottomSheetBehavior sheetBehavior;
     private Button showButton;
     private ListView listViewSalesPoints;
@@ -101,8 +96,7 @@ public class MapsActivity extends FragmentActivity implements SearchFragment.Sea
     private LatLng userPosition;
     private Marker userMarker;
     private MarkerOptions userMakerOptions;
-    private Circle circle =null ;
-
+    private Circle circle = null ;
 
     private FusedLocationProviderClient mFusedLocationClient;
 
@@ -338,6 +332,7 @@ public class MapsActivity extends FragmentActivity implements SearchFragment.Sea
     }
 
     public void initVariables() {
+        db = new DatabaseHelper(this);
         searchView = findViewById(R.id.search_view);
         sheetBehavior = BottomSheetBehavior.from(findViewById(R.id.layout_bottom_sheet));
         showButton = findViewById(R.id.show_list_button);
@@ -346,7 +341,7 @@ public class MapsActivity extends FragmentActivity implements SearchFragment.Sea
         btn_Wilaya = findViewById(R.id.btn_Wilaya);
         btn_Ville = findViewById(R.id.btn_Ville);
         btn_searchPerimeter = findViewById(R.id.btn_Rayon_Recherche);
-        listItemsWilaya = getResources().getStringArray(R.array.wilaya_item);
+        listItemsWilaya = db.getWilayas();
         checkedItemsWilaya = new boolean[listItemsWilaya.length];
     }
 

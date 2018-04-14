@@ -31,7 +31,6 @@ import static android.content.Context.LOCATION_SERVICE;
 
 
 /**
- * Created by ryadh on 31/01/18.
  * List of public and static constants and methods
  */
 
@@ -54,8 +53,10 @@ public class Utils
      * Base url for retrieving photos from google.
      */
     public static final String GOOGLE_PHOTO_BASE_URL = "https://maps.googleapis.com/maps/api/place/photo?";
-
-
+    /**
+     * Name of the {@link android.content.SharedPreferences} responsible for storing the user's data
+     */
+    public static final String SHARED_PREFERENCES_USER = "user";
 
 
 

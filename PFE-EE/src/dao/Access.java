@@ -10,6 +10,7 @@ import org.apache.ibatis.session.SqlSession;
 import model.Product;
 import model.ProductSalesPoint;
 import model.SalesPoint;
+import model.User;
 
 public class Access {
 	
@@ -130,5 +131,41 @@ public class Access {
 		session.close();
 
 	}
+	
+	/********************************	Queries for Users	*************************************/
+	
+	public static boolean connect(final Map<String,Object> parameters) {
+		SqlSession session = DBConnectionFactory.getNewSession();
+		
+		boolean exists = session.selectOne("QueriesUsers.userExists", parameters);
 
+		session.commit();
+		session.close();
+
+		return exists;
+	}
+	
+	
+	public static boolean addUser(User user) {
+		SqlSession session = DBConnectionFactory.getNewSession();
+		
+		int result = session.insert("QueriesUsers.addUser");
+
+		session.commit();
+		session.close();
+
+		return result == 1;
+	}
+	
+	
+	public static List<User> getAllUsers() {
+		SqlSession session = DBConnectionFactory.getNewSession();
+		
+		List<User> users = session.selectList("QueriesUsers.getAllUsers");
+
+		session.commit();
+		session.close();
+
+		return users;
+	}
 }

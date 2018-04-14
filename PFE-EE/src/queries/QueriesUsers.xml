@@ -1,0 +1,26 @@
+<?xml version = "1.0" encoding = "UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"   "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="QueriesUsers">
+
+	<resultMap id = "user" type = "model.User">
+	   <result property = "mailAddress" column = "user_mail_address"/>
+	   <result property = "password" column = "user_password"/>
+	</resultMap>
+
+	<select id = "userExists" parameterType = "map" resultType="boolean">
+	   SELECT EXISTS(SELECT 1 FROM ${db.schema}."User" WHERE user_mail_address = #{mailAddress} AND 
+	   user_password = #{password}); 
+	</select>
+	
+	<select id = "getAllUsers" resultMap="user">
+	   SELECT * FROM ${db.schema}."User"; 
+	</select>
+	
+	<insert id = "addUser" parameterType="model.User">
+		INSERT INTO ${db.schema}."User" (user_mail_address, user_password) 
+		VALUES (#{mailAddress}, #{password});
+	</insert>
+
+</mapper>
