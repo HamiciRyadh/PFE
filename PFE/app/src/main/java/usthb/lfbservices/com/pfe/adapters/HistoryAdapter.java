@@ -34,7 +34,7 @@ public class HistoryAdapter extends ArrayAdapter<String> {
         super(context, layoutResourceId, data);
         this.layoutResourceId = layoutResourceId;
         this.context = context;
-//        this.data = data;
+//       this.data = data;
     }
 
 
@@ -47,10 +47,11 @@ public class HistoryAdapter extends ArrayAdapter<String> {
                     layoutResourceId, parent, false);
         }
 
-        String history = getItem(position);
+       String history = getItem(position);
 
         final TextView historyElement = listItemView.findViewById(R.id.history_element);
         historyElement.setText(history);
+
 
         final SearchView searchView = ((Activity)context).findViewById(R.id.search_view);
 

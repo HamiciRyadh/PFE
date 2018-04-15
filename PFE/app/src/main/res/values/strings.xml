@@ -7,14 +7,138 @@
     <string name="empty_history">Aucun élément.</string>
     <string name="no_internet">Aucun accès internet.</string>
     <string name="error_occured">Une erreur est survenue.</string>
-    <string name="no_corresponding_product">Aucun produit ne correspond à votre recherche.</string>
+    <string name="no_corresponding_product"> Aucun produit ne correspond à votre recherche.</string>
+    <string name="not_available">Non disponible</string>
+    <string name="show">Afficher</string>
+    <string name="sales_points_show_list">Points de vente</string>
+    <string name="reduce">Diminuer</string>
+    <string name="no">Non</string>
 
-    <string-array name="categories_array">
-        <item>Electronique</item>
-        <item>Vétements</item>
-        <item>Nourriture</item>
-        <item>Jouets</item>
-        <item>Médicaments</item>
-        <item>Cuisine</item>
+    <string name="dialog_message_activate_gps">Veuillez activer le GPS.</string>
+    <string name="dialog_title_Wilaya">Filtrer par Wilaya</string>
+    <string name="dialog_title_Ville">Filtrer par Ville</string>
+    <string name="dialog_title_Marque">Filtrer par Marque</string>
+    <string name="dialog_title_Type">Filtrer par Type</string>
+    <string name="dialog_title_Perimeter">Filtrer par Rayon de Recherche</string>
+    <string name="ok_label">OK</string>
+    <string name="dismiss_label">Annuler</string>
+    <string name="clear_all_label">Tout Décocher</string>
+
+    <string-array name="wilaya_item">
+        <item>Adrar</item>
+        <item>Chlef</item>
+        <item>Laghouat</item>
+        <item>OumElBouaghi</item>
+        <item>Batna</item>
+        <item>Bejaia</item>
+        <item>Biskra</item>
+        <item>Bechar</item>
+        <item>Blida</item>
+        <item>Batna</item>
+        <item>Bouira</item>
+        <item>Tamanrasset</item>
+        <item>Tebessa</item>
+        <item>Tlemcen</item>
+        <item>Tiaret</item>
+        <item>TiziOuzou</item>
+        <item>Alger</item>
+        <item>Djelfa</item>
+        <item>Jijel</item>
+        <item>Sétif</item>
+        <item>Saida</item>
+        <item>Skikda</item>
+        <item>Batna</item>
+        <item>SidiBelAbess</item>
+        <item>Annaba</item>
+        <item>Guelma</item>
+        <item>Constantine</item>
+        <item>Medea</item>
+        <item>Mostaganem</item>
+        <item>Msila</item>
+        <item>Mascara</item>
+        <item>Ouragla</item>
+        <item>Oran</item>
+        <item>ElBayadg</item>
+        <item>Illizi</item>
+        <item>BordjBouArreridj</item>
+        <item>Boumerdes</item>
+        <item>ElTaref</item>
+        <item>Tindouf</item>
+        <item>Tissemsilt</item>
+        <item>ElOued</item>
+        <item>Khenchela</item>
+        <item>SoukAhres</item>
+        <item>Tipaza</item>
+        <item>Mila</item>
+        <item>AinDefla</item>
+        <item>Naama</item>
+        <item>AinTemouchent</item>
+        <item>Ghardaia</item>
+        <item>Relizane</item>
     </string-array>
+
+    <string-array name="Blida_item">
+        <item>Ain romana</item>
+        <item>Ben khellil</item>
+        <item>Beni mered</item>
+        <item>Beni tamou</item>
+        <item>Blida</item>
+        <item>Bouarfa</item>
+        <item>Boufarik</item>
+        <item>Bougara</item>
+        <item>Bouinan</item>
+        <item>Chebli</item>
+        <item>Chiffa</item>
+        <item>Chrea</item>
+        <item>Djebara</item>
+        <item>El Affroun</item>
+        <item>Guerrouaou</item>
+        <item>Hamam melouane</item>
+        <item>Larabaa</item>
+        <item>Meftah</item>
+        <item>Mouzaia</item>
+        <item>Ouled djer</item>
+        <item>Ouled el alleug</item>
+        <item>Ouled selama</item>
+        <item>Ouled yaich</item>
+        <item>Sidi moussa</item>
+        <item>Souhane</item>
+        <item>Soumaa</item>
+    </string-array>
+
+
+    <string-array name="Algiers_item">
+        <item>Ouled Fayet</item>
+        <item>Ain Banian</item>
+        <item>Ain Naadja</item>
+        <item>Ain Taya</item>
+        <item>Alger Centre</item>
+        <item>Bab el Oued</item>
+        <item>Bab ezzouar</item>
+        <item>Bab hassen</item>
+        <item>Bachdjerrah</item>
+        <item>Baraki</item>
+        <item>Belouizdad</item>
+        <item>Ben aknoun</item>
+        <item>Beni messous</item>
+        <item>Bir mourad rais</item>
+        <item>Birkhadem</item>
+        <item>Birtouta</item>
+        <item>Ouled Fayet</item>
+        <item>Kouba</item>
+        <item>Hammamet</item>
+        <item>Hydra</item>
+        <item>Birkhadem</item>
+
+    </string-array>
+
+
+    <string-array name="rayon_recherche">
+        <item>10 km</item>
+        <item>20 km</item>
+        <item>50 km</item>
+        <item>100 km</item>
+    </string-array>
+
+
 </resources>

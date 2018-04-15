@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="20dp"
+    android:background="@color/color_white">
+
+
+    <TextView
+        android:id="@+id/sales_point_name_list"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textColor="#581845"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        tools:text="LFB Services" />
+
+    <TextView
+        android:id="@+id/sales_point_address_list"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_below="@id/sales_point_name_list"
+        android:ellipsize="end"
+        android:lines="2"
+        android:textColor="#900C3F"
+        android:textSize="16sp"
+        tools:text="Ben Aknoun " />
+
+</RelativeLayout>

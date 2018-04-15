@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/layout_bottom_sheet"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="@color/color_white"
+    app:behavior_peekHeight="120dp"
+    app:layout_behavior="@string/bottom_sheet_behavior"
+    app:behavior_hideable="true"
+    android:clickable="true">
+
+    <android.support.v4.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"
+        >
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="120dp"
+                android:orientation="vertical">
+                <TextView
+                    android:id="@+id/sales_point_name_details"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textColor="#581845"
+                    android:textSize="24sp"
+                    android:textStyle="bold"
+                    android:gravity="center"
+                    tools:text="SARL LFB Services" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    >
+
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="15dp"
+                        android:src="@drawable/address" />
+
+                    <TextView
+                        android:id="@+id/sales_point_address_details"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="15dp"
+                        android:layout_marginRight="@dimen/history_elements_layout_margin"
+                        android:layout_weight="1"
+                        android:width="1dp"
+                        android:gravity="center_vertical|left"
+                        android:padding="12dp"
+                        android:textAppearance="?android:textAppearanceMedium"
+                        android:textSize="@dimen/history_text_size"
+                        tools:text="7 Route Doudou Mokhtar N°14، Ben Aknoun 16304" />
+
+
+                </LinearLayout>
+            </LinearLayout>
+
+            <ImageView
+                android:id="@+id/sales_point_image_details"
+                android:layout_width="match_parent"
+                android:layout_height="300dp"
+                android:scaleType="center"
+                android:src="@drawable/lfb" />
+
+            <RatingBar
+                android:id="@+id/sales_point_rating_details"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="0"
+                android:isIndicator="true"
+                android:numStars="5"
+                android:stepSize="0.5"
+                android:textSize="2dp" />
+
+
+
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:layout_marginBottom="10dp"
+                android:layout_marginTop="10dp">
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="15dp"
+                    android:src="@drawable/phone" />
+
+                <TextView
+                    android:id="@+id/sales_point_phone_number_details"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="@dimen/history_elements_layout_margin"
+                    android:layout_marginRight="@dimen/history_elements_layout_margin"
+                    android:layout_weight="1"
+                    android:width="1dp"
+                    android:gravity="center_vertical|left"
+                    android:textAppearance="?android:textAppearanceMedium"
+                    android:textSize="@dimen/history_text_size"
+                    tools:text="023 23 85 47" />
+
+
+            </LinearLayout>
+
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:layout_marginBottom="10dp"
+                android:layout_marginTop="10dp">
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="15dp"
+                    android:src="@drawable/website" />
+
+                <TextView
+                    android:id="@+id/sales_point_website_details"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="@dimen/history_elements_layout_margin"
+                    android:layout_marginRight="@dimen/history_elements_layout_margin"
+                    android:layout_weight="1"
+                    android:width="1dp"
+                    android:gravity="center_vertical|left"
+                    android:textAppearance="?android:textAppearanceMedium"
+                    android:textSize="@dimen/history_text_size"
+                    tools:text="lfb-services.com" />
+
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+
+
+
+    </android.support.v4.widget.NestedScrollView>
+
+</LinearLayout>

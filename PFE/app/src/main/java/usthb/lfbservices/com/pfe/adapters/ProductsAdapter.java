@@ -22,12 +22,14 @@ import usthb.lfbservices.com.pfe.R;
 public class ProductsAdapter extends ArrayAdapter<Product> {
 
     private Context context;
-    int layoutResourceId;
+    private int layoutResourceId;
+    private ArrayList<Product> data;
 
     public ProductsAdapter(Activity context, int layoutResourceId, ArrayList<Product> data){
         super(context,0, data);
         this.layoutResourceId = layoutResourceId;
         this.context = context;
+        this.data = data;
     }
     @NonNull
     @Override
@@ -49,5 +51,7 @@ public class ProductsAdapter extends ArrayAdapter<Product> {
         return listItemView;
     }
 
-
+    public ArrayList<Product> getData() {
+        return data;
+    }
 }

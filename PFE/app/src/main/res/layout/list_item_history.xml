@@ -31,7 +31,7 @@
         android:id="@+id/history_to_search_view"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
-        android:src="@drawable/history"
+        android:src="@drawable/arrow"
         android:paddingLeft="@dimen/history_elements_padding"
         android:paddingRight="@dimen/history_elements_padding"/>
 </LinearLayout>

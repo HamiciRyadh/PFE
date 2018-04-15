@@ -1,5 +1,4 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:orientation="vertical"
@@ -19,11 +18,11 @@
     <TextView
         android:id="@+id/category_name"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="30dp"
         android:layout_marginTop="@dimen/category_name_margin"
         android:textSize="@dimen/category_text_size"
         android:textStyle="bold"
-        android:layout_gravity="center_horizontal">
+        android:layout_gravity="center">
     </TextView>
 
 </LinearLayout>

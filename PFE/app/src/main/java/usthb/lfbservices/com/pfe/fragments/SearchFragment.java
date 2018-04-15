@@ -1,6 +1,7 @@
 package usthb.lfbservices.com.pfe.fragments;
 
 import android.content.Context;
+import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
@@ -14,6 +15,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.GridView;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.File;
@@ -28,12 +30,11 @@ import java.util.ArrayList;
 import usthb.lfbservices.com.pfe.R;
 import usthb.lfbservices.com.pfe.adapters.CategoryAdapter;
 import usthb.lfbservices.com.pfe.adapters.HistoryAdapter;
+import usthb.lfbservices.com.pfe.database.DatabaseHelper;
 import usthb.lfbservices.com.pfe.models.Category;
-import usthb.lfbservices.com.pfe.network.PfeRx;
 import usthb.lfbservices.com.pfe.utils.Utils;
 
 /**
- * Created by root on 11/03/18.
  */
 
 public class SearchFragment extends Fragment {
@@ -44,15 +45,17 @@ public class SearchFragment extends Fragment {
 
     private View rootView;
     private FragmentActivity fragmentBelongActivity;
+    private DatabaseHelper db;
 
     private ListView listView;
     private ArrayList<Category> listCategories;
-    private ArrayList<String> listHistorySearchs;
+    private ArrayList<String> listHistorySearches;
     private GridView gridView;
     private CategoryAdapter categoryAdapter;
     private HistoryAdapter historyAdapter;
+    private TextView emptyTextViewHistory;
     private String[] categories;
-    private Bitmap icon;
+    private ArrayList<Bitmap> icon;
     private int numberOfCategoriesToDisplay;
 
     public SearchFragment(){
@@ -71,7 +74,6 @@ public class SearchFragment extends Fragment {
             initCategories();
             initHistory();
         }
-
         return rootView;
     }
 
@@ -88,15 +90,24 @@ public class SearchFragment extends Fragment {
     }
 
     public void initVariables() {
+        db = new DatabaseHelper(fragmentBelongActivity);
+        emptyTextViewHistory = rootView.findViewById(R.id.empty_history);
         listView = rootView.findViewById(R.id.list_view_history);
-        categories = getResources().getStringArray(R.array.categories_array);
-        icon = BitmapFactory.decodeResource(getResources(), R.drawable.common_full_open_on_phone);
+        categories = db.getCategories();
+        icon = new ArrayList<Bitmap>();
+        icon.add(BitmapFactory.decodeResource(getResources(), R.drawable.computer));
+        icon.add(BitmapFactory.decodeResource(getResources(), R.drawable.telephone));
+        icon.add(BitmapFactory.decodeResource(getResources(), R.drawable.camera));
+        icon.add(BitmapFactory.decodeResource(getResources(), R.drawable.voiture));
+        icon.add(BitmapFactory.decodeResource(getResources(), R.drawable.materiel));
+        icon.add(BitmapFactory.decodeResource(getResources(), R.drawable.montre));
+
         numberOfCategoriesToDisplay = calculateNumberOfCategoriesToDisplay();
         listCategories = getMinimumCategoriesToDisplay();
-        listHistorySearchs = getHistorySearchs();
+        listHistorySearches = getHistorySearches();
         gridView = rootView.findViewById(R.id.category_grid_view);
         categoryAdapter = new CategoryAdapter(fragmentBelongActivity, R.layout.category_grid, listCategories);
-        historyAdapter = new HistoryAdapter(fragmentBelongActivity, R.layout.list_item_history, listHistorySearchs);
+        historyAdapter = new HistoryAdapter(fragmentBelongActivity, R.layout.list_item_history, listHistorySearches);
     }
 
     public void initCategories() {
@@ -117,7 +128,6 @@ public class SearchFragment extends Fragment {
                     categoryAdapter.addAll(listCategories);
                 }
                 else {
-                    //Network call
                     Log.e(TAG, "Category Network Call");
                     implementation.onCategorySelected(position);
                 }
@@ -127,13 +137,18 @@ public class SearchFragment extends Fragment {
 
     public void initHistory() {
         listView.setAdapter(historyAdapter);
+        listView.setEmptyView(emptyTextViewHistory);
+        if (historyAdapter.getCount() == 0) {
+            emptyTextViewHistory.setText(fragmentBelongActivity.getResources().getString(R.string.empty_history));
+        } else {
+            emptyTextViewHistory.setText("");
+        }
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                //Network call
                 Log.e(TAG, "History Network Call");
                 if (Utils.isNetworkAvailable(fragmentBelongActivity)) {
-                    PfeRx.search(fragmentBelongActivity, R.layout.list_item_products, historyAdapter.getItem(position));
+                    implementation.searchQuery(historyAdapter.getItem(position));
                 }
                 else {
                     Toast.makeText(fragmentBelongActivity, getString(R.string.no_internet), Toast.LENGTH_LONG).show();
@@ -142,16 +157,13 @@ public class SearchFragment extends Fragment {
         });
     }
 
-    public ArrayList<String> getHistorySearchs() {
+    public ArrayList<String> getHistorySearches() {
         Log.e(TAG, "READING FILE : " + Utils.HISTORY_FILE_NAME);
         ArrayList<String> list = new ArrayList<String>();
 
         try {
             File file = new File(fragmentBelongActivity.getFilesDir(), Utils.HISTORY_FILE_NAME);
-            if (!file.exists()) {
-                list.add(getString(R.string.empty_history));
-            }
-            else{
+            if (file.exists()) {
                 FileInputStream fis = new FileInputStream(file);
                 ObjectInputStream ois = new ObjectInputStream(fis);
                 list = (ArrayList<String>) ois.readObject();
@@ -166,9 +178,9 @@ public class SearchFragment extends Fragment {
         return list;
     }
 
-    public void addToHistorySearchs(String history) {
+    public void addToHistorySearches(String history) {
         Log.e(TAG, "WRITING TO FILE : " + Utils.HISTORY_FILE_NAME);
-        listHistorySearchs.add(0, history);
+        listHistorySearches.add(0, history);
         try {
             File file = new File(fragmentBelongActivity.getFilesDir(), Utils.HISTORY_FILE_NAME);
             FileOutputStream fos;
@@ -176,7 +188,7 @@ public class SearchFragment extends Fragment {
             fos = new FileOutputStream(file);
 
             ObjectOutputStream oos = new ObjectOutputStream(fos);
-            oos.writeObject(listHistorySearchs);
+            oos.writeObject(listHistorySearches);
             oos.close();
         } catch (FileNotFoundException e) {
             e.printStackTrace();
@@ -186,25 +198,25 @@ public class SearchFragment extends Fragment {
     }
 
     public void refreshHistory(){
-        listHistorySearchs.clear();
-        listHistorySearchs = getHistorySearchs();
+        listHistorySearches.clear();
+        listHistorySearches = getHistorySearches();
         historyAdapter.clear();
-        historyAdapter.addAll(listHistorySearchs);
+        historyAdapter.addAll(listHistorySearches);
     }
 
     public ArrayList<Category> getMinimumCategoriesToDisplay() {
         ArrayList<Category> list = new ArrayList<Category>();
 
-        for (int i = 1; i < numberOfCategoriesToDisplay; i++) {
-            list.add(new Category(icon, categories[i-1], i));
+        for (int i = 1; i < numberOfCategoriesToDisplay && i <= categories.length; i++) {
+            list.add(new Category(icon.get(i-1), categories[i-1], i));
         }
 
         if (numberOfCategoriesToDisplay < categories.length) {
-            list.add(new Category(icon, getString(R.string.more), numberOfCategoriesToDisplay));
+            list.add(new Category(BitmapFactory.decodeResource(getResources(), R.drawable.plus), getString(R.string.more), numberOfCategoriesToDisplay));
         }
         else {
             if (numberOfCategoriesToDisplay == categories.length) {
-                list.add(new Category(icon, categories[categories.length-1], numberOfCategoriesToDisplay));
+                list.add(new Category(icon.get(categories.length-1), categories[categories.length-1], numberOfCategoriesToDisplay));
             }
         }
 
@@ -215,18 +227,23 @@ public class SearchFragment extends Fragment {
         ArrayList<Category> list = new ArrayList<Category>();
 
         for (int i = 1; i <= categories.length; i++) {
-            list.add(new Category(icon, categories[i-1], i));
+            list.add(new Category(icon.get(i-1), categories[i-1], i));
         }
 
         if (numberOfCategoriesToDisplay < categories.length) {
-            list.add(new Category(icon, getString(R.string.less), categories.length+1));
+            list.add(new Category(BitmapFactory.decodeResource(getResources(), R.drawable.moins), getString(R.string.less), categories.length+1));
         }
 
         return list;
     }
 
     public int calculateNumberOfCategoriesToDisplay() {
-        int pxWidth = fragmentBelongActivity.getResources().getDisplayMetrics().widthPixels;
+        int pxWidth;
+        if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
+            pxWidth = Utils.getDeviceWidthInPixel(fragmentBelongActivity);
+        } else {
+            pxWidth = Utils.getDeviceHeightInPixel(fragmentBelongActivity);
+        }
         int result = (int)((pxWidth + 2*getResources().getDimension(R.dimen.categories_grid_layout_margin))
                 /getResources().getDimension(R.dimen.categories_grid_column_width));
 
@@ -236,5 +253,6 @@ public class SearchFragment extends Fragment {
     public interface SearchFragmentActions {
 
         void onCategorySelected(int category);
+        void searchQuery(String query);
     }
 }

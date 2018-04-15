@@ -1,0 +1,20 @@
+<?xml version = "1.0" encoding = "UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"   "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="QueriesProductSalesPoint">
+
+<resultMap id = "result" type = "model.ProductSalesPoint">
+   <result property = "salesPointId" column = "salespoint_id"/>
+   <result property = "productId" column = "product_id"/>
+   <result property = "productPrice" column = "product_price"/>
+   <result property = "productQuantity" column = "product_quantity"/>
+</resultMap>
+
+
+<select id = "getSalesPointsAndQte" parameterType = "int" resultMap = "result">
+   SELECT *  FROM  ${db.schema}."ProductSalesPoint" WHERE product_id  =  #{productId} ; 
+</select>
+
+
+</mapper>
