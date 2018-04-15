@@ -62,7 +62,7 @@ public class PfeRx extends FragmentActivity {
     /**
      * The object used for the network calls.
      */
-    private static PfeAPI pfeAPI = new PfeAPI();
+    private static PfeAPI pfeAPI = PfeAPI.getInstance();
 
     public static void searchFromProductId(@NonNull final Activity activity,
                                            @NonNull final int productId) {
@@ -460,6 +460,8 @@ public class PfeRx extends FragmentActivity {
 
                             Intent intent = new Intent(activity, MapsActivity.class);
                             activity.startActivity(intent);
+
+                            PfeAPI.getInstance().setCredentials(mailAddress, password);
                         } else {
                             Toast.makeText(activity, "WRONG", Toast.LENGTH_LONG).show();
                         }

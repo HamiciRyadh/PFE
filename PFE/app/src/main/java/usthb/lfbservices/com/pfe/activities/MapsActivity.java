@@ -1,14 +1,12 @@
 package usthb.lfbservices.com.pfe.activities;
 
-import android.Manifest;
 import android.content.DialogInterface;
 import android.graphics.Color;
 import android.location.Location;
+import android.location.LocationManager;
 import android.os.Build;
-import android.provider.ContactsContract;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomSheetBehavior;
-import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
@@ -36,9 +34,9 @@ import com.google.android.gms.maps.model.Circle;
 import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
-import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.squareup.picasso.Picasso;
 
@@ -76,9 +74,9 @@ public class MapsActivity extends FragmentActivity implements SearchFragment.Sea
     private Button showButton;
     private ListView listViewSalesPoints;
 
-    private Button btn_Wilaya;
-    private Button btn_searchPerimeter;
-    private Button btn_Ville;
+    private Button btnWilaya;
+    private Button btnSearchPerimeter;
+    private Button btnVille;
 
     private String[] listItemsWilaya;
     private ArrayList<String> listItemsVille = new ArrayList<>();
@@ -97,31 +95,36 @@ public class MapsActivity extends FragmentActivity implements SearchFragment.Sea
     private Marker userMarker;
     private MarkerOptions userMakerOptions;
     private Circle circle = null ;
+    private LatLng defaultPosition = new LatLng(36.7525, 3.04197);
 
     private FusedLocationProviderClient mFusedLocationClient;
+    private LocationManager locationManager;
+    private Marker defaultMarker;
 
+    //TODO: Add LocationProvider using network connexion and then save it in a variable and always
+    //compare with the other variable obtained via GPS Provider using the accuracy to choose one to use
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
 
-        mapFragment = (SupportMapFragment) getSupportFragmentManager()
-                .findFragmentById(R.id.map);
+        mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+
         if (findViewById(R.id.map_frame_layout) != null) {
             if (savedInstanceState != null) return;
 
             searchFragment = new SearchFragment();
             productsFragment = new ProductsFragment();
         }
+        locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
 
         if (Build.VERSION.SDK_INT >= 23) {
             if (!Utils.checkPermission(this)) {
                 Utils.requestGPSPermissions(this);
             }
         }
-
 
         this.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
 
@@ -134,26 +137,42 @@ public class MapsActivity extends FragmentActivity implements SearchFragment.Sea
     }
 
     public void addUserMarkerPosition() {
+            Log.e(TAG, "MARKER 1");
         if (Utils.checkPermission(this)) {
-            Log.e(TAG, "Permitted");
+            Log.e(TAG, "MARKER 2");
             mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
             mFusedLocationClient.getLastLocation()
                     .addOnSuccessListener(this, new OnSuccessListener<Location>() {
                         @Override
                         public void onSuccess(Location location) {
+                            Log.e(TAG, "MARKER 333");
                             if (location != null) {
+                                Log.e(TAG, "MARKER 4");
                                 latitudeSearchPosition = location.getLongitude();
                                 longitudeSearchPosition = location.getLatitude();
 
                                 userPosition = new LatLng(longitudeSearchPosition, latitudeSearchPosition);
-                                userMakerOptions =  new MarkerOptions().
-                                        position(userPosition).
-                                        title("Votre position!").
-                                        icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_CYAN));
+                                if (defaultMarker != null) defaultMarker.remove();
+                                if (userMarker != null) {
+                                    userMarker.setPosition(userPosition);
+                                }
+                                else {
+                                    userMakerOptions =  new MarkerOptions().
+                                            position(userPosition).
+                                            title("Votre position!").
+                                            icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_CYAN));
 
-                                userMarker= mMap.addMarker(userMakerOptions);
+                                    userMarker= mMap.addMarker(userMakerOptions);
+                                }
                                 mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(userPosition, 15));
+                                Log.e(TAG, "MARKER 5");
                             }
+                        }
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Log.e(TAG, "LOCATION FAILURE :  " + e);
                         }
                     });
         }
@@ -163,8 +182,62 @@ public class MapsActivity extends FragmentActivity implements SearchFragment.Sea
     @Override
     protected void onResume() {
         super.onResume();
-        if (Utils.isGPSActivated(this)) {
-            addUserMarkerPosition();
+        Log.e(TAG, "OnResume");
+        if (Utils.checkPermission(this)) {
+            /** THIS CODE WORKS DO NOT DELETE
+             * Liiiiittle problem, only works after approximately 20s
+             */
+            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1, 0, new android.location.LocationListener() {
+                @Override
+                public void onLocationChanged(Location location) {
+                    Log.e(TAG, "15151515");
+                    if (location != null) {
+                        Log.e(TAG, "MARKER 14");
+                        latitudeSearchPosition = location.getLongitude();
+                        longitudeSearchPosition = location.getLatitude();
+
+                        userPosition = new LatLng(longitudeSearchPosition, latitudeSearchPosition);
+                        if (defaultMarker != null) defaultMarker.remove();
+                        if (userMarker != null) {
+                            Log.e(TAG, "Changing position");
+                            userMarker.setPosition(userPosition);
+                            Log.e(TAG, "Position changed");
+                        }
+                        else {
+                            Log.e(TAG, "Creating");
+                            userMakerOptions =  new MarkerOptions().
+                                    position(userPosition).
+                                    title("Votre position!").
+                                    icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_CYAN));
+
+                            userMarker= mMap.addMarker(userMakerOptions);
+                        }
+                        Log.e(TAG, "MARKER 15");
+                    }
+                }
+
+                @Override
+                public void onStatusChanged(String s, int i, Bundle bundle) {
+                    Log.e(TAG, "CHANGED");
+                }
+
+                @Override
+                public void onProviderEnabled(String s) {
+                    Log.e(TAG, "ENABLED");
+                }
+
+                @Override
+                public void onProviderDisabled(String s) {
+                    Log.e(TAG, "DISABLED");
+                }
+            });
+            if (Utils.isGPSActivated(this)) {
+                Log.e(TAG, "GPS ACTIVATED2");
+                if (userPosition == null) addUserMarkerPosition();
+            } else {
+                Log.e(TAG, "GPS NON ACTIVATED2");
+                Utils.activateGPS(this);
+            }
         }
     }
 
@@ -173,27 +246,28 @@ public class MapsActivity extends FragmentActivity implements SearchFragment.Sea
         mMap = googleMap;
         Singleton.getInstance().setMap(mMap);
 
-        googleMap.setMapStyle(MapStyleOptions.loadRawResourceStyle(this, R.raw.map_style));
+        //googleMap.setMapStyle(MapStyleOptions.loadRawResourceStyle(this, R.raw.map_style));
+        googleMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
 
         if (!Utils.checkPermission(this)) {
+            Log.e(TAG, "GPS AUTH1");
             Utils.requestGPSPermissions(this);
         }
         if (Utils.checkPermission(this)) {
-            if (!Utils.isGPSActivated(this)) {
-                Utils.activateGPS(this);
-            }
+            Log.e(TAG, "GPS AUTH2");
             if (Utils.isGPSActivated(this)) {
+                Log.e(TAG, "GPS ACTIVATED4");
                 mMap.clear();
                 addUserMarkerPosition();
             } else {
-                LatLng alger = new LatLng(36.7525, 3.04197);
-                mMap.addMarker(new MarkerOptions().position(alger).title("Alger"));
-                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(alger, 10));
+                Log.e(TAG, "GPS ACTIVATED5");
+                defaultMarker = mMap.addMarker(new MarkerOptions().position(defaultPosition).title("Alger"));
+                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(defaultPosition, 10));
             }
         } else {
-            LatLng alger = new LatLng(36.7525, 3.04197);
-            mMap.addMarker(new MarkerOptions().position(alger).title("Alger"));
-            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(alger, 10));
+            Log.e(TAG, "GPS ACTIVATED6");
+            defaultMarker = mMap.addMarker(new MarkerOptions().position(defaultPosition).title("Alger"));
+            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(defaultPosition, 10));
         }
 
         mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
@@ -204,6 +278,7 @@ public class MapsActivity extends FragmentActivity implements SearchFragment.Sea
         });
     }
 
+    // onPause ==> locationManager.removeUpdates(this);
     @Override
     protected void onDestroy() {
         Log.e(TAG, "onDestroy");
@@ -223,14 +298,14 @@ public class MapsActivity extends FragmentActivity implements SearchFragment.Sea
         if (sheetBehavior != null) {
             sheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
         }
-        if (btn_Wilaya.getVisibility() == View.VISIBLE) {
-            btn_Wilaya.setVisibility(View.GONE);
+        if (btnWilaya.getVisibility() == View.VISIBLE) {
+            btnWilaya.setVisibility(View.GONE);
         }
-        if (btn_Ville.getVisibility() == View.VISIBLE) {
-            btn_Ville.setVisibility(View.GONE);
+        if (btnVille.getVisibility() == View.VISIBLE) {
+            btnVille.setVisibility(View.GONE);
         }
-        if (btn_searchPerimeter.getVisibility() == View.VISIBLE) {
-            btn_searchPerimeter.setVisibility(View.GONE);
+        if (btnSearchPerimeter.getVisibility() == View.VISIBLE) {
+            btnSearchPerimeter.setVisibility(View.GONE);
         }
         super.onBackPressed();
     }
@@ -265,8 +340,8 @@ public class MapsActivity extends FragmentActivity implements SearchFragment.Sea
                 .commit();
         PfeRx.searchFromProductId(this, productId);
 
-        btn_Wilaya.setVisibility(View.VISIBLE);
-        btn_searchPerimeter.setVisibility(View.VISIBLE);
+        btnWilaya.setVisibility(View.VISIBLE);
+        btnSearchPerimeter.setVisibility(View.VISIBLE);
     }
 
     @Override
@@ -311,9 +386,9 @@ public class MapsActivity extends FragmentActivity implements SearchFragment.Sea
             searchView.setVisibility(View.GONE);
             if (sheetBehavior != null) sheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
             if (showButton != null) showButton.setVisibility(View.GONE);
-            if (btn_Wilaya != null) btn_Wilaya.setVisibility(View.GONE);
-            if (btn_Ville != null) btn_Ville.setVisibility(View.GONE);
-            if (btn_searchPerimeter != null) btn_searchPerimeter.setVisibility(View.GONE);
+            if (btnWilaya != null) btnWilaya.setVisibility(View.GONE);
+            if (btnVille != null) btnVille.setVisibility(View.GONE);
+            if (btnSearchPerimeter != null) btnSearchPerimeter.setVisibility(View.GONE);
         } else {
             searchView.animate()
                     .translationY(0)
@@ -323,10 +398,10 @@ public class MapsActivity extends FragmentActivity implements SearchFragment.Sea
             if (this.hasData) {
                 if (showButton != null) showButton.setVisibility(View.VISIBLE);
                 showButton.setText(getResources().getString(R.string.sales_points_show_list));
-                if (btn_Wilaya != null) btn_Wilaya.setVisibility(View.VISIBLE);
+                if (btnWilaya != null) btnWilaya.setVisibility(View.VISIBLE);
                 //TODO:Faire en sorte qu'il réaparraise seulement dans le cas où une ville à été sélectionnée
                 // if (btn_Ville != null) btn_Ville.setVisibility(View.VISIBLE);
-                if (btn_searchPerimeter != null) btn_searchPerimeter.setVisibility(View.VISIBLE);
+                if (btnSearchPerimeter != null) btnSearchPerimeter.setVisibility(View.VISIBLE);
             }
         }
     }
@@ -338,16 +413,16 @@ public class MapsActivity extends FragmentActivity implements SearchFragment.Sea
         showButton = findViewById(R.id.show_list_button);
         listViewSalesPoints = findViewById(R.id.list_view_sales_points);
 
-        btn_Wilaya = findViewById(R.id.btn_Wilaya);
-        btn_Ville = findViewById(R.id.btn_Ville);
-        btn_searchPerimeter = findViewById(R.id.btn_Rayon_Recherche);
+        btnWilaya = findViewById(R.id.btn_Wilaya);
+        btnVille = findViewById(R.id.btn_Ville);
+        btnSearchPerimeter = findViewById(R.id.btn_Rayon_Recherche);
         listItemsWilaya = db.getWilayas();
         checkedItemsWilaya = new boolean[listItemsWilaya.length];
     }
 
     public void initSearchView() {
-        btn_Wilaya.setVisibility(View.GONE);
-        btn_searchPerimeter.setVisibility(View.GONE);
+        btnWilaya.setVisibility(View.GONE);
+        btnSearchPerimeter.setVisibility(View.GONE);
 
         searchView.setOnQueryTextFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
@@ -357,9 +432,9 @@ public class MapsActivity extends FragmentActivity implements SearchFragment.Sea
                 if (hasFocus) {
                     if (showButton.getVisibility() != View.GONE)
                         showButton.setVisibility(View.GONE);
-                    if (btn_Wilaya != null) btn_Wilaya.setVisibility(View.GONE);
-                    if (btn_Ville != null) btn_Ville.setVisibility(View.GONE);
-                    if (btn_searchPerimeter != null) btn_searchPerimeter.setVisibility(View.GONE);
+                    if (btnWilaya != null) btnWilaya.setVisibility(View.GONE);
+                    if (btnVille != null) btnVille.setVisibility(View.GONE);
+                    if (btnSearchPerimeter != null) btnSearchPerimeter.setVisibility(View.GONE);
                     if (sheetBehavior != null)
                         sheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
                     if (productsFragment.isAdded()) {
@@ -473,7 +548,7 @@ public class MapsActivity extends FragmentActivity implements SearchFragment.Sea
 
 
     public void initVillesButton() {
-        btn_Ville.setOnClickListener(new View.OnClickListener() {
+        btnVille.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 AlertDialog.Builder mBuilder = new AlertDialog.Builder(MapsActivity.this);
@@ -549,15 +624,15 @@ public class MapsActivity extends FragmentActivity implements SearchFragment.Sea
 
 
     public void initSearchPerimeterButton() {
-        btn_searchPerimeter.setOnClickListener(new View.OnClickListener() {
+        btnSearchPerimeter.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if (!Utils.isGPSActivated(MapsActivity.this)) {
                     if (!Utils.checkPermission(MapsActivity.this)) {
-                        ActivityCompat.requestPermissions(MapsActivity.this,
-                                new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, 123);
+                        Utils.requestGPSPermissions(MapsActivity.this);
+                    } else {
+                        Utils.activateGPS(MapsActivity.this);
                     }
-                    Utils.activateGPS(MapsActivity.this);
                 } else {
                     AlertDialog.Builder mBuilder = new AlertDialog.Builder(MapsActivity.this);
                     mBuilder.setTitle(R.string.dialog_title_Perimeter);
@@ -595,28 +670,29 @@ public class MapsActivity extends FragmentActivity implements SearchFragment.Sea
 
                             if (userMakerOptions != null) mMap.addMarker(userMakerOptions);
 
-                            if  (circle != null) {circle.remove();}
-                            CircleOptions circleOptions =new CircleOptions()
-                                    .center(userPosition)
-                                    .radius(searchDiametre)
-                                    .strokeColor(Color.DKGRAY)
-                                    .fillColor( R.color.color_transparent);
+                            if (circle != null) {circle.remove();}
+                            if (userPosition != null) {
+                                CircleOptions circleOptions =new CircleOptions()
+                                        .center(userPosition)
+                                        .radius(searchDiametre)
+                                        .strokeColor(Color.DKGRAY)
+                                        .fillColor( R.color.color_transparent);
 
-                            circle = mMap.addCircle(circleOptions);
-
-                            LatLngBounds.Builder builder = new LatLngBounds.Builder();
-                            List<SalesPoint> temporarySalesPointsList = Singleton.getInstance().getSalesPointList();
-                            for (SalesPoint salesPoint : temporarySalesPointsList) {
-                                if (Utils.isInsidePerimeter(userPosition, salesPoint.getSalesPointLatLng(), circle.getRadius())) {
-                                    builder.include(salesPoint.getSalesPointLatLng());
+                                circle = mMap.addCircle(circleOptions);
+                                LatLngBounds.Builder builder = new LatLngBounds.Builder();
+                                List<SalesPoint> temporarySalesPointsList = Singleton.getInstance().getSalesPointList();
+                                for (SalesPoint salesPoint : temporarySalesPointsList) {
+                                    if (Utils.isInsidePerimeter(userPosition, salesPoint.getSalesPointLatLng(), circle.getRadius())) {
+                                        builder.include(salesPoint.getSalesPointLatLng());
+                                    }
                                 }
+                                builder.include(userPosition);
+                                LatLngBounds bounds = builder.build();
+                                // offset from the edges of the map in pixels
+                                int padding = 200;
+                                CameraUpdate cu = CameraUpdateFactory.newLatLngBounds(bounds, padding);
+                                mMap.animateCamera(cu);
                             }
-                            if (userPosition != null) builder.include(userPosition);
-                            LatLngBounds bounds = builder.build();
-                            // offset from the edges of the map in pixels
-                            int padding = 200;
-                            CameraUpdate cu = CameraUpdateFactory.newLatLngBounds(bounds, padding);
-                            mMap.animateCamera(cu);
                         }
                     });
                     mBuilder.setNegativeButton(R.string.dismiss_label, new DialogInterface.OnClickListener() {
@@ -628,8 +704,8 @@ public class MapsActivity extends FragmentActivity implements SearchFragment.Sea
                     mBuilder.setNeutralButton(R.string.clear_all_label, new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialogInterface, int which) {
-                            userMarker.remove();
-                            circle.remove();
+                            if (userMarker != null) userMarker.remove();
+                            if (circle != null) circle.remove();
                             mUserItemRayon = -1;
                         }
 
@@ -644,7 +720,7 @@ public class MapsActivity extends FragmentActivity implements SearchFragment.Sea
 
 
     public void initWilayaButton() {
-        btn_Wilaya.setOnClickListener(new View.OnClickListener() {
+        btnWilaya.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 AlertDialog.Builder mBuilder = new AlertDialog.Builder(MapsActivity.this);
@@ -677,7 +753,7 @@ public class MapsActivity extends FragmentActivity implements SearchFragment.Sea
                                 listItemsVille.addAll(Arrays.asList(getResources().getStringArray(R.array.Blida_item)));
                             }
                         }
-                        if (mUserItemsWilaya.size() != 0) btn_Ville.setVisibility(View.VISIBLE);
+                        if (mUserItemsWilaya.size() != 0) btnVille.setVisibility(View.VISIBLE);
 
                         listVille = listItemsVille.toArray(new String[listItemsVille.size()]);
                         checkedItemsVille = new boolean[listVille.length];
@@ -726,7 +802,7 @@ public class MapsActivity extends FragmentActivity implements SearchFragment.Sea
                             checkedItemsWilaya[i] = false;
                             mUserItemsWilaya.clear();
 
-                            btn_Ville.setVisibility(View.GONE);
+                            btnVille.setVisibility(View.GONE);
                             listItemsVille.clear();
 
                             List<SalesPoint> temporarySalespointList = Singleton.getInstance().getSalesPointList();

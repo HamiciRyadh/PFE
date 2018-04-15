@@ -5,11 +5,16 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import io.reactivex.Observable;
+import okhttp3.Credentials;
+import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 import retrofit2.Retrofit;
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
 import retrofit2.converter.gson.GsonConverterFactory;
@@ -38,12 +43,45 @@ public class PfeAPI {
      */
     private PfeService pfeService;
 
+
+    private static final PfeAPI INSTANCE = new PfeAPI();
+
+    public static PfeAPI getInstance() {
+        return INSTANCE;
+    }
+
+
     /**
      * A constructor.
      */
-    public PfeAPI() {
+    private PfeAPI() {
         retrofit = this.getClient();
         pfeService = retrofit.create(PfeService.class);
+    }
+
+    public void setCredentials(final String mailAddress, final String password) {
+        Interceptor interceptor = new Interceptor() {
+            @Override
+            public Response intercept(Chain chain) throws IOException {
+                Request originalRequest = chain.request();
+
+                Request.Builder builder = originalRequest.newBuilder().header("Authorization",
+                        Credentials.basic(mailAddress, password));
+
+                Request newRequest = builder.build();
+                return chain.proceed(newRequest);
+            }
+        };
+
+        OkHttpClient okHttpClient = new OkHttpClient.Builder()
+                .connectTimeout(30, TimeUnit.SECONDS)
+                .readTimeout(30, TimeUnit.SECONDS)
+                .writeTimeout(15, TimeUnit.SECONDS)
+                .addInterceptor(interceptor)
+                .build();
+
+        if (retrofit == null) retrofit = getClient();
+        retrofit.newBuilder().client(okHttpClient);
     }
 
     /**
