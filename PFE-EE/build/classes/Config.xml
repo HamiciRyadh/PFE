@@ -12,16 +12,14 @@
 			  <property name="url" value="${db.url}" />
 			  <property name="username" value="${db.username}"/>
 			  <property name="password" value="${db.password}"/>	
-			 
 			</dataSource>
 		</environment>
 	</environments>
+	
  	<mappers>
 		<mapper resource="queries/QueriesProduct.xml"/>
 		<mapper resource="queries/QueriesProductSalesPoint.xml"/>
 	    <mapper resource="queries/QueriesSalesPoint.xml"/>
 	    <mapper resource="queries/QueriesUsers.xml"/>
-	
-	
 	</mappers>
 </configuration>

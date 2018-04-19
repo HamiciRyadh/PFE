@@ -15,6 +15,7 @@ import android.provider.Settings;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
+import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 import android.view.animation.Animation;
@@ -23,6 +24,10 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.RelativeLayout;
 
 import com.google.android.gms.maps.model.LatLng;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 import usthb.lfbservices.com.pfe.R;
 import usthb.lfbservices.com.pfe.activities.MapsActivity;
@@ -57,6 +62,7 @@ public class Utils
      * Name of the {@link android.content.SharedPreferences} responsible for storing the user's data
      */
     public static final String SHARED_PREFERENCES_USER = "user";
+    public static final String SHARED_PREFERENCES_POSITION = "position";
 
 
 
@@ -165,5 +171,60 @@ public class Utils
                 center.latitude, center.longitude, distance);
 
         return distance[0] < radius;
+    }
+
+    /**
+     * Returns a List containing up to the n closest positions to another position called center, if center
+     * is null, returns up to the n closest positions.
+     * @param positions The list of positions.
+     * @param center The center of the result.
+     * @param n The number of positions to keep.
+     * @return A List containing up to the n closest positions to the center.
+     */
+    public static List<LatLng> getClosestPositions(Iterator<LatLng> positions, LatLng center, int n) {
+        List<LatLng> result = new ArrayList<LatLng>();
+        float[] distanceFutureElement;
+        float[][] distances = new float[n][2];
+        int count = 0;
+
+        if (positions.hasNext()) {
+            if (center == null) {
+                center = positions.next();
+            }
+
+            while (positions.hasNext()) {
+                LatLng latLng = positions.next();
+
+                if (result.size() < n) {
+                    result.add(latLng);
+                    Location.distanceBetween(latLng.latitude, latLng.longitude,
+                            center.latitude, center.longitude, distances[count]);
+                    count++;
+                } else {
+                    distanceFutureElement = new float[2];
+                    Location.distanceBetween(latLng.latitude, latLng.longitude,
+                            center.latitude, center.longitude, distanceFutureElement);
+
+                    float distanceMax = distances[0][0];
+                    int positionMax = 0;
+                    for (int i = 1; i < n; i++) {
+                        if (distances[i][0] > distanceMax) {
+                            distanceMax = distances[i][0];
+                            positionMax = i;
+                        }
+                    }
+
+                    result.remove(positionMax);
+                    result.add(latLng);
+                    distances[positionMax] = distanceFutureElement;
+                }
+            }
+        }
+
+        result.add(center);
+
+        for (int i = 0; i < result.size(); i++)
+            Log.e("Utils", result.get(i).latitude + "     " + result.get(i).longitude);
+        return result;
     }
 }

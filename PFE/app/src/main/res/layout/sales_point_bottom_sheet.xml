@@ -72,8 +72,8 @@
                 android:id="@+id/sales_point_image_details"
                 android:layout_width="match_parent"
                 android:layout_height="300dp"
-                android:scaleType="center"
-                android:src="@drawable/lfb" />
+                android:scaleType="centerCrop"/>
+                <!--android:scaleType="centerInside" -->
 
             <RatingBar
                 android:id="@+id/sales_point_rating_details"

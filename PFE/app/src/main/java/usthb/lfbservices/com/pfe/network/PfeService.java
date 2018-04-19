@@ -1,11 +1,10 @@
 package usthb.lfbservices.com.pfe.network;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
-
 import java.util.List;
 
 import io.reactivex.Observable;
+import retrofit2.http.Field;
+import retrofit2.http.FormUrlEncoded;
 import retrofit2.http.GET;
 import retrofit2.http.POST;
 import retrofit2.http.Path;
@@ -40,10 +39,12 @@ public interface PfeService
     Observable<List<Product>> searchCategory(@Path("categoryId") int category);
 
     @POST("User/Connect")
-    Observable<Boolean> connect(@Query("mailAddress") String mailAddress,
-                                @Query("password") String password);
+    @FormUrlEncoded
+    Observable<Boolean> connect(@Field("mailAddress") String mailAddress,
+                                @Field("password") String password);
 
     @POST("User/Register")
-    Observable<Boolean> register(@Query("mailAddress") String mailAddress,
-                                @Query("password") String password);
+    @FormUrlEncoded
+    Observable<Boolean> register(@Field("mailAddress") String mailAddress,
+                                @Field("password") String password);
 }

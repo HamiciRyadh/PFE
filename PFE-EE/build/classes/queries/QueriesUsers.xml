@@ -4,7 +4,7 @@
 
 <mapper namespace="QueriesUsers">
 
-	<resultMap id = "user" type = "model.User">
+	<resultMap id = "user" type = "com.lfbservices.pfe.model.User">
 	   <result property = "mailAddress" column = "user_mail_address"/>
 	   <result property = "password" column = "user_password"/>
 	</resultMap>
@@ -18,9 +18,17 @@
 	   SELECT * FROM ${db.schema}."User"; 
 	</select>
 	
-	<insert id = "addUser" parameterType="model.User">
+	<select id = "isMailAddressAvailable" parameterType="string" resultType="boolean">
+	   SELECT EXISTS(SELECT 1 FROM ${db.schema}."User" WHERE user_mail_address = #{mailAddress}); 
+	</select>
+
+	<insert id = "addUser" parameterType="com.lfbservices.pfe.model.User">
 		INSERT INTO ${db.schema}."User" (user_mail_address, user_password) 
 		VALUES (#{mailAddress}, #{password});
 	</insert>
+	
+	<delete id = "deleteUser" parameterType = "string">
+	   DELETE from ${db.schema}."User" WHERE user_mail_address = #{mailAddress};
+	</delete>
 
 </mapper>

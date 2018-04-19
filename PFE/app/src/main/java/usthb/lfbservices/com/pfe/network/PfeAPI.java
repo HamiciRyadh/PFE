@@ -1,20 +1,21 @@
 package usthb.lfbservices.com.pfe.network;
 
+import android.util.Base64;
+import android.util.Log;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
 
 import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import io.reactivex.Observable;
-import okhttp3.Credentials;
 import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
+import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Retrofit;
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
 import retrofit2.converter.gson.GsonConverterFactory;
@@ -44,12 +45,14 @@ public class PfeAPI {
     private PfeService pfeService;
 
 
+
     private static final PfeAPI INSTANCE = new PfeAPI();
 
     public static PfeAPI getInstance() {
         return INSTANCE;
     }
 
+    private String authorization = "";
 
     /**
      * A constructor.
@@ -59,15 +62,24 @@ public class PfeAPI {
         pfeService = retrofit.create(PfeService.class);
     }
 
-    public void setCredentials(final String mailAddress, final String password) {
+    /**
+     * Instantiate the {@link Retrofit} object if it is null, and setting {@link Gson} to handle
+     * automatic conversion of JSON responses and {@link RxJava2CallAdapterFactory} to handle
+     * RxAndroid's Observable type.
+     */
+    public Retrofit getClient() {
+        HttpLoggingInterceptor logging = new HttpLoggingInterceptor();
+        logging.setLevel(HttpLoggingInterceptor.Level.HEADERS);
+
         Interceptor interceptor = new Interceptor() {
             @Override
-            public Response intercept(Chain chain) throws IOException {
+            public Response intercept(Interceptor.Chain chain) throws IOException {
                 Request originalRequest = chain.request();
 
-                Request.Builder builder = originalRequest.newBuilder().header("Authorization",
-                        Credentials.basic(mailAddress, password));
+                Log.e("ENCODED", "encoded : " + authorization);
 
+                Request.Builder builder = originalRequest.newBuilder().header("Authorization",
+                        "Basic " + authorization);
                 Request newRequest = builder.build();
                 return chain.proceed(newRequest);
             }
@@ -78,23 +90,7 @@ public class PfeAPI {
                 .readTimeout(30, TimeUnit.SECONDS)
                 .writeTimeout(15, TimeUnit.SECONDS)
                 .addInterceptor(interceptor)
-                .build();
-
-        if (retrofit == null) retrofit = getClient();
-        retrofit.newBuilder().client(okHttpClient);
-    }
-
-    /**
-     * Instantiate the {@link Retrofit} object if it is null, and setting {@link Gson} to handle
-     * automatic conversion of JSON responses and {@link RxJava2CallAdapterFactory} to handle
-     * RxAndroid's Observable type.
-     */
-    public Retrofit getClient() {
-
-        OkHttpClient okHttpClient = new OkHttpClient.Builder()
-                .connectTimeout(30, TimeUnit.SECONDS)
-                .readTimeout(30, TimeUnit.SECONDS)
-                .writeTimeout(15, TimeUnit.SECONDS)
+                .addInterceptor(logging)
                 .build();
 
         if (retrofit == null) {
@@ -142,4 +138,8 @@ public class PfeAPI {
         return pfeService.register(mailAddress, password);
     }
 
+
+    public void setAuthorization(final String mailAddress, final String password) {
+        authorization = android.util.Base64.encodeToString((mailAddress + ":" + password).getBytes(), Base64.NO_WRAP);
+    }
 }
