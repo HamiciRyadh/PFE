@@ -6,6 +6,7 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.FragmentActivity;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -24,6 +25,7 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -55,7 +57,6 @@ import usthb.lfbservices.com.pfe.R;
 import usthb.lfbservices.com.pfe.models.SalesPoint;
 import usthb.lfbservices.com.pfe.models.Singleton;
 import usthb.lfbservices.com.pfe.network.ItineraireService;
-import usthb.lfbservices.com.pfe.network.PfeService;
 import usthb.lfbservices.com.pfe.utils.Utils;
 
 public class ItineraireActivity extends FragmentActivity implements OnMapReadyCallback  {
@@ -63,7 +64,6 @@ public class ItineraireActivity extends FragmentActivity implements OnMapReadyCa
     private static final String TAG = ItineraireActivity.class.getName();
     public static final float ZOOM_LEVEL = 18.23f;
 
-    private float searchZoom;
     private AutoCompleteTextView depart;
     private AutoCompleteTextView arrivee;
     private LinearLayout layoutDriving;
@@ -75,7 +75,7 @@ public class ItineraireActivity extends FragmentActivity implements OnMapReadyCa
     private LatLng defaultPosition = new LatLng(36.7525, 3.04197);
     private TextView ShowDistanceDurationDriving;
     private RelativeLayout blockItineraire;
-    private ImageView userLocation;
+    private FloatingActionButton userLocation;
     private TextView ShowDistanceDurationWalking;
     private Polyline line;
     private ItineraireService service;
@@ -87,6 +87,7 @@ public class ItineraireActivity extends FragmentActivity implements OnMapReadyCa
     private List<SalesPoint> salesPointList;
     private FusedLocationProviderClient mFusedLocationClient;
     private SalesPoint salesPointTemps;
+    private CameraUpdate cameraUpdate;
     private boolean gpsPermissionRequested = false;
 
 
@@ -205,9 +206,9 @@ public class ItineraireActivity extends FragmentActivity implements OnMapReadyCa
             @Override
             public boolean onMarkerClick(Marker marker) {
                 Log.e(TAG, "onMarkerClick");
-                //TODO: It centers the clicked marker, maybe redo bounds and build etc ..
-                if (mMap.getCameraPosition().zoom > (searchZoom + ItineraireActivity.ZOOM_LEVEL)/2.0f) {
-                    mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(marker.getPosition(), searchZoom));
+                marker.showInfoWindow();
+                if (mMap.getCameraPosition().zoom > ItineraireActivity.ZOOM_LEVEL*0.8f) {
+                    mMap.animateCamera(cameraUpdate);
                 }
                 else {
                     mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(marker.getPosition(), ItineraireActivity.ZOOM_LEVEL));
@@ -229,6 +230,7 @@ public class ItineraireActivity extends FragmentActivity implements OnMapReadyCa
             userLocation.callOnClick();
         }
     }
+
 
     public void initVariables(){
         apiKey = getResources().getString(R.string.google_maps_key);
@@ -527,7 +529,7 @@ public class ItineraireActivity extends FragmentActivity implements OnMapReadyCa
                     line = mMap.addPolyline(new PolylineOptions()
                             .addAll(list)
                             .width(20)
-                            .color(getResources().getColor(R.color.color_Itineraire))
+                            .color(getResources().getColor(R.color.colorPrimary))
                             .geodesic(true)
                     );
                     originMarker.setPosition(origin);
@@ -559,8 +561,8 @@ public class ItineraireActivity extends FragmentActivity implements OnMapReadyCa
         int routePadding = 200;
         LatLngBounds latLngBounds = boundsBuilder.build();
 
-        googleMap.animateCamera(CameraUpdateFactory.newLatLngBounds(latLngBounds, routePadding));
-        searchZoom = googleMap.getCameraPosition().zoom;
+        cameraUpdate = CameraUpdateFactory.newLatLngBounds(latLngBounds, routePadding);
+        googleMap.animateCamera(cameraUpdate);
     }
 
 

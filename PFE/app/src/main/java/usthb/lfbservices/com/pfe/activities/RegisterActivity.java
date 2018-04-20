@@ -59,5 +59,6 @@ public class RegisterActivity extends AppCompatActivity {
     public void onBackPressed() {
         Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
         startActivity(intent);
+        overridePendingTransition(R.anim.push_right_in, R.anim.push_right_out);
     }
 }

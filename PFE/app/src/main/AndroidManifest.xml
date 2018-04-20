@@ -27,6 +27,7 @@
             android:screenOrientation="portrait"></activity>
         <activity
             android:name=".activities.LoginActivity"
+            android:theme="@style/AppTheme.Dark"
             android:noHistory="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -34,8 +35,10 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".activities.RegisterActivity"></activity>
-        <activity android:name=".activities.ItineraireActivity"></activity>
+        <activity android:name=".activities.RegisterActivity"
+            android:theme="@style/AppTheme.Dark"></activity>
+        <activity android:name=".activities.ItineraireActivity"
+            android:theme="@style/AppTheme.Dark"></activity>
     </application>
 
 </manifest>

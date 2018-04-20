@@ -1,10 +1,12 @@
 package usthb.lfbservices.com.pfe.network;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomSheetBehavior;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.View;
@@ -30,8 +32,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
-import java.util.Set;
 
 import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -39,7 +39,6 @@ import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 
 import usthb.lfbservices.com.pfe.R;
-import usthb.lfbservices.com.pfe.activities.LoginActivity;
 import usthb.lfbservices.com.pfe.activities.MapsActivity;
 import usthb.lfbservices.com.pfe.adapters.ProductsAdapter;
 import usthb.lfbservices.com.pfe.adapters.SalesPointsAdapter;
@@ -161,7 +160,6 @@ public class PfeRx extends FragmentActivity {
                                     LatLngBounds bounds = builder.build();
                                     // offset from the edges of the map in pixels
                                     int padding = 200;
-                                    //TODO: Actuellement sa prend le premier marqueur pour zoomer dessus, peut être modifier pour prendre la zone avec le plus de marqueurs?
                                     CameraUpdate cu = CameraUpdateFactory.newLatLngBounds(bounds, padding);
                                     map.animateCamera(cu);
                                 }
@@ -481,6 +479,12 @@ public class PfeRx extends FragmentActivity {
                                @NonNull final String mailAddress,
                                @NonNull final String password) {
 
+        final ProgressDialog progressDialog = new ProgressDialog(activity,
+                R.style.AppTheme_Dark_Dialog);
+        progressDialog.setIndeterminate(true);
+        progressDialog.setMessage("Connexion au serveur ...");
+        progressDialog.show();
+
         pfeAPI.connect(mailAddress, password)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -489,6 +493,7 @@ public class PfeRx extends FragmentActivity {
                     public void onSubscribe(Disposable d) {
                         Log.e(TAG, "Connect : onSubscribe");
                         DisposableManager.add(d);
+                        progressDialog.setMessage("Vérification des identifiants ...");
                     }
 
                     @Override
@@ -514,12 +519,22 @@ public class PfeRx extends FragmentActivity {
                     @Override
                     public void onError(Throwable e) {
                         Log.e(TAG, "Connect : onError " + e.toString());
-                        Toast.makeText(activity, "ERROR", Toast.LENGTH_LONG).show();
+                        progressDialog.dismiss();
+                        Snackbar.make(activity.findViewById(R.id.login_layout),"Error", Snackbar.LENGTH_LONG)
+                                .setAction("Reessayer", new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View view) {
+                                        PfeRx.connect(activity, mailAddress, password);
+                                    }
+                                })
+                                .setActionTextColor(activity.getResources().getColor(R.color.colorPrimary))
+                                .show();
                     }
 
                     @Override
                     public void onComplete() {
                         Log.e(TAG, "Connect : onComplete");
+                        progressDialog.dismiss();
                     }
                 });
     }
@@ -529,6 +544,12 @@ public class PfeRx extends FragmentActivity {
                                 @NonNull final String mailAddress,
                                 @NonNull final String password) {
 
+        final ProgressDialog progressDialog = new ProgressDialog(activity,
+                R.style.AppTheme_Dark_Dialog);
+        progressDialog.setIndeterminate(true);
+        progressDialog.setMessage("Connexion au serveur ...");
+        progressDialog.show();
+
         pfeAPI.register(mailAddress, password)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -537,6 +558,7 @@ public class PfeRx extends FragmentActivity {
                     public void onSubscribe(Disposable d) {
                         Log.e(TAG, "Register : onSubscribe");
                         DisposableManager.add(d);
+                        progressDialog.setMessage("Enregistrement des informations ...");
                     }
 
                     @Override
@@ -562,14 +584,16 @@ public class PfeRx extends FragmentActivity {
 
                     @Override
                     public void onError(Throwable e) {
-                        //TODO:Snackbar for retry
                         Log.e(TAG, "Register : onError " + e.toString());
-                        Toast.makeText(activity, "ERROR", Toast.LENGTH_LONG).show();
+                        progressDialog.dismiss();
+                        Snackbar.make(activity.findViewById(R.id.register_layout),"Error", Snackbar.LENGTH_LONG)
+                                .show();
                     }
 
                     @Override
                     public void onComplete() {
                         Log.e(TAG, "Register : onComplete");
+                        progressDialog.dismiss();
                     }
                 });
     }
