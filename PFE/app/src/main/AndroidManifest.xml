@@ -35,6 +35,7 @@
             </intent-filter>
         </activity>
         <activity android:name=".activities.RegisterActivity"></activity>
+        <activity android:name=".activities.ItineraireActivity"></activity>
     </application>
 
 </manifest>

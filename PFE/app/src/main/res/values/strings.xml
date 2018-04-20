@@ -13,6 +13,7 @@
     <string name="sales_points_show_list">Points de vente</string>
     <string name="reduce">Diminuer</string>
     <string name="no">Non</string>
+    <string name="no_marker_in_search_area">Aucun lieu n\'est présent dans le rayon de recherche.</string>
 
     <string name="dialog_message_activate_gps">Veuillez activer le GPS.</string>
     <string name="dialog_title_Wilaya">Filtrer par Wilaya</string>
@@ -24,58 +25,10 @@
     <string name="dismiss_label">Annuler</string>
     <string name="clear_all_label">Tout Décocher</string>
 
-    <string-array name="wilaya_item">
-        <item>Adrar</item>
-        <item>Chlef</item>
-        <item>Laghouat</item>
-        <item>OumElBouaghi</item>
-        <item>Batna</item>
-        <item>Bejaia</item>
-        <item>Biskra</item>
-        <item>Bechar</item>
-        <item>Blida</item>
-        <item>Batna</item>
-        <item>Bouira</item>
-        <item>Tamanrasset</item>
-        <item>Tebessa</item>
-        <item>Tlemcen</item>
-        <item>Tiaret</item>
-        <item>TiziOuzou</item>
-        <item>Alger</item>
-        <item>Djelfa</item>
-        <item>Jijel</item>
-        <item>Sétif</item>
-        <item>Saida</item>
-        <item>Skikda</item>
-        <item>Batna</item>
-        <item>SidiBelAbess</item>
-        <item>Annaba</item>
-        <item>Guelma</item>
-        <item>Constantine</item>
-        <item>Medea</item>
-        <item>Mostaganem</item>
-        <item>Msila</item>
-        <item>Mascara</item>
-        <item>Ouragla</item>
-        <item>Oran</item>
-        <item>ElBayadg</item>
-        <item>Illizi</item>
-        <item>BordjBouArreridj</item>
-        <item>Boumerdes</item>
-        <item>ElTaref</item>
-        <item>Tindouf</item>
-        <item>Tissemsilt</item>
-        <item>ElOued</item>
-        <item>Khenchela</item>
-        <item>SoukAhres</item>
-        <item>Tipaza</item>
-        <item>Mila</item>
-        <item>AinDefla</item>
-        <item>Naama</item>
-        <item>AinTemouchent</item>
-        <item>Ghardaia</item>
-        <item>Relizane</item>
-    </string-array>
+    <string name="invalid_mail_address">Adresse mail invalide.</string>
+    <string name="invalid_password">Mot de passe invalide, un mot de passe doit comporter
+    au minimum 5 caractères, et peut contenir des chiffres (0 .. 9), des lettres (a .. Z) et des tirets - _</string>
+    <string name="passwords_not_matching">Mots de passes différents, veuillez réessayer.</string>
 
     <string-array name="Blida_item">
         <item>Ain romana</item>

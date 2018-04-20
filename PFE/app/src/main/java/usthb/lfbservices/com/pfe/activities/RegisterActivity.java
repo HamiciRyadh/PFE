@@ -9,6 +9,7 @@ import android.widget.EditText;
 
 import usthb.lfbservices.com.pfe.R;
 import usthb.lfbservices.com.pfe.network.PfeRx;
+import usthb.lfbservices.com.pfe.utils.FormValidation;
 
 public class RegisterActivity extends AppCompatActivity {
 
@@ -33,10 +34,26 @@ public class RegisterActivity extends AppCompatActivity {
         signup.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                PfeRx.register(RegisterActivity.this, mailAddress.getText().toString(), password.getText().toString());
+                final String sMailAddress = mailAddress.getText().toString();
+                final String sPassword = password.getText().toString();
+                final String sPasswordConfirmation = passwordConfirmation.getText().toString();
+                if (!FormValidation.isMailAddress(sMailAddress)) {
+                    mailAddress.setError(getResources().getString(R.string.invalid_mail_address));
+                } else {
+                    if (!FormValidation.isPassword(sPassword)) {
+                        password.setError(getResources().getString(R.string.invalid_password));
+                    } else {
+                        if (!sPassword.equals(sPasswordConfirmation)) {
+                            passwordConfirmation.setError(getResources().getString(R.string.passwords_not_matching));
+                        } else {
+                            PfeRx.register(RegisterActivity.this, sMailAddress, sPassword);
+                        }
+                    }
+                }
             }
         });
     }
+
 
     @Override
     public void onBackPressed() {

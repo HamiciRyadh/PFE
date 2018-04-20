@@ -72,20 +72,27 @@
                 android:id="@+id/sales_point_image_details"
                 android:layout_width="match_parent"
                 android:layout_height="300dp"
-                android:scaleType="center"
-                android:src="@drawable/lfb" />
+                android:scaleType="centerCrop"
+                />
+
+            <ImageView
+                android:id="@+id/sales_point_itineraire"
+                android:layout_width="101dp"
+                android:layout_height="60dp"
+                android:layout_gravity="right"
+                android:src="@drawable/itineraire" />
 
             <RatingBar
                 android:id="@+id/sales_point_rating_details"
+                style="@android:style/Widget.Holo.Light.RatingBar.Small"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="0"
                 android:isIndicator="true"
                 android:numStars="5"
+                android:layout_marginLeft="20dp"
                 android:stepSize="0.5"
                 android:textSize="2dp" />
-
-
 
 
             <LinearLayout
@@ -133,6 +140,7 @@
                     android:layout_marginLeft="15dp"
                     android:src="@drawable/website" />
 
+
                 <TextView
                     android:id="@+id/sales_point_website_details"
                     android:layout_width="match_parent"
@@ -146,14 +154,8 @@
                     android:textSize="@dimen/history_text_size"
                     tools:text="lfb-services.com" />
 
-
             </LinearLayout>
-
         </LinearLayout>
-
-
-
-
     </android.support.v4.widget.NestedScrollView>
 
 </LinearLayout>

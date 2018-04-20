@@ -27,8 +27,10 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.Set;
 
 import io.reactivex.Observer;
@@ -106,8 +108,8 @@ public class PfeRx extends FragmentActivity {
                         if (map != null) {
                             map.clear();
 
-                            LatLngBounds.Builder builder = null;
                             ProductSalesPoint productSalesPointTemps = new ProductSalesPoint();
+                            int nbMarkers = 0;
 
                             for (SalesPoint salesPoint : salesPoints) {
                                 MarkerOptions markerOptions = new MarkerOptions()
@@ -127,15 +129,42 @@ public class PfeRx extends FragmentActivity {
                                 }
                                 Marker marker = map.addMarker(markerOptions);
                                 hashMap.put(marker.getPosition(), productSalesPointTemps);
-                                if (builder == null) builder = new LatLngBounds.Builder();
-                                builder.include(marker.getPosition());
+                                nbMarkers++;
                             }
-                            if (builder != null) {
-                                LatLngBounds bounds = builder.build();
-                                // offset from the edges of the map in pixels
-                                int padding = 200;
-                                CameraUpdate cu = CameraUpdateFactory.newLatLngBounds(bounds, padding);
-                                map.animateCamera(cu);
+                            if (nbMarkers > 0) {
+                                if (nbMarkers == 1) {
+                                    CameraUpdate cu = CameraUpdateFactory.newLatLngZoom((LatLng)hashMap.keySet().toArray()[0], MapsActivity.ZOOM_LEVEL);
+                                    map.animateCamera(cu);
+                                } else {
+                                    Iterator<LatLng> positions = hashMap.keySet().iterator();
+                                    LatLngBounds.Builder builder = new LatLngBounds.Builder();
+
+                                    SharedPreferences preferences = activity.getSharedPreferences(Utils.SHARED_PREFERENCES_POSITION,MODE_PRIVATE);
+                                    String sUserLatitude = preferences.getString("latitude", null);
+                                    String sUserLongitude = preferences.getString("longitude", null);
+                                    LatLng userPosition = null;
+
+                                    if (sUserLatitude != null && sUserLongitude != null) {
+                                        try {
+                                            userPosition = new LatLng(Double.parseDouble(sUserLatitude), Double.parseDouble(sUserLongitude));
+                                        } catch (Exception e) {
+                                            Log.e(TAG, "Exception creating user position : " + e);
+                                        }
+                                    }
+
+                                    Log.e(TAG, "" + userPosition.longitude + "   " + userPosition.latitude);
+                                    List<LatLng> latLngList = Utils.getClosestPositions(positions, userPosition ,3);
+
+                                    for (LatLng latLng : latLngList) {
+                                        builder.include(latLng);
+                                    }
+                                    LatLngBounds bounds = builder.build();
+                                    // offset from the edges of the map in pixels
+                                    int padding = 200;
+                                    //TODO: Actuellement sa prend le premier marqueur pour zoomer dessus, peut être modifier pour prendre la zone avec le plus de marqueurs?
+                                    CameraUpdate cu = CameraUpdateFactory.newLatLngBounds(bounds, padding);
+                                    map.animateCamera(cu);
+                                }
                             } else {
                                 Toast.makeText(activity, "Aucun point de vente pour le produit sélectionné", Toast.LENGTH_LONG).show();
                             }
@@ -194,8 +223,7 @@ public class PfeRx extends FragmentActivity {
                                                 bottomSheetDataSetter.setBottomSheetData(salesPoint);
                                                 PfeRx.getPlaceDetails(activity, salesPoint.getSalesPointId());
 
-                                                //Zoomer sur le marqueur correspondant
-                                                CameraUpdate cu = CameraUpdateFactory.newLatLngZoom(salesPoint.getSalesPointLatLng(), 12f);
+                                                CameraUpdate cu = CameraUpdateFactory.newLatLngZoom(salesPoint.getSalesPointLatLng(), MapsActivity.ZOOM_LEVEL);
                                                 map.animateCamera(cu);
                                             }
                                         }
@@ -303,14 +331,30 @@ public class PfeRx extends FragmentActivity {
                     @Override
                     public void onNext(SalesPoint salesPoint) {
                         Log.e(TAG, "GetPlaceDetails : onNext");
-                        Log.e(TAG, "Content : " + salesPoint.getSalesPointPhotoReference());
+
+                        List<SalesPoint> salesPoints = Singleton.getInstance().getSalesPointList();
+
+                        for (SalesPoint salesPointTemps : salesPoints) {
+                            if (salesPointTemps.getSalesPointId().equals(salesPoint.getSalesPointId())) {
+                                salesPointTemps.setSalesPointPhoneNumber(salesPoint.getSalesPointPhoneNumber());
+                                salesPointTemps.setSalesPointPhotoReference(salesPoint.getSalesPointPhotoReference());
+                                salesPointTemps.setSalesPointRating(salesPoint.getSalesPointRating());
+                                salesPointTemps.setSalesPointWebSite(salesPoint.getSalesPointWebSite());
+
+                                salesPoint.setSalesPointLat(salesPointTemps.getSalesPointLat());
+                                salesPoint.setSalesPointLong(salesPointTemps.getSalesPointLong());
+                                salesPoint.setSalesPointName(salesPointTemps.getSalesPointName());
+                                salesPoint.setSalesPointAddress(salesPointTemps.getSalesPointAddress());
+                                salesPoint.setSalesPointWilaya(salesPointTemps.getSalesPointWilaya());
+                                break;
+                            }
+                        }
 
                         if (activity instanceof BottomSheetDataSetter) {
                             BottomSheetDataSetter bottomSheetDataSetter = (BottomSheetDataSetter)activity;
                             bottomSheetDataSetter.setBottomSheetDataDetails(salesPoint);
                             bottomSheetDataSetter.setBottomSheetState(BottomSheetBehavior.STATE_EXPANDED);
                         }
-
                     }
 
                     @Override
@@ -458,10 +502,10 @@ public class PfeRx extends FragmentActivity {
                             editor.putString("password", password);
                             editor.apply();
 
+                            PfeAPI.getInstance().setAuthorization(mailAddress, password);
+
                             Intent intent = new Intent(activity, MapsActivity.class);
                             activity.startActivity(intent);
-
-                            PfeAPI.getInstance().setCredentials(mailAddress, password);
                         } else {
                             Toast.makeText(activity, "WRONG", Toast.LENGTH_LONG).show();
                         }
@@ -505,6 +549,8 @@ public class PfeRx extends FragmentActivity {
                             editor.putString("email", mailAddress);
                             editor.putString("password", password);
                             editor.apply();
+
+                            PfeAPI.getInstance().setAuthorization(mailAddress, password);
 
                             Intent intent = new Intent(activity, MapsActivity.class);
                             activity.startActivity(intent);

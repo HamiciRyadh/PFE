@@ -1,0 +1,159 @@
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    >
+
+    <fragment android:id="@+id/map_itineraire"
+        android:name="com.google.android.gms.maps.SupportMapFragment"
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:context="usthb.lfbservices.com.pfe.activities.ItineraireActivity"/>
+
+    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:id="@+id/block_itineraire"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:orientation="vertical">
+
+
+        <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:background="@color/color_Itineraire"
+            android:paddingLeft="20dp"
+            android:paddingRight="20dp"
+            >
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="3"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Départ"
+                    android:paddingRight="10dp"
+                    android:textStyle="bold" />
+
+                <AutoCompleteTextView
+                    android:id="@+id/editDepart"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="2"
+                    android:inputType="text"
+                    android:lines="1"
+                    android:maxLines="1"
+                    android:hint="choisir un point de départ"/>
+            </LinearLayout>
+
+            <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="3"
+                android:gravity="center"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Arrivée"
+                    android:paddingRight="10dp"
+                    android:textStyle="bold" />
+
+                <AutoCompleteTextView
+                    android:id="@+id/editArrivee"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="2"
+                    android:hint="choisir une destination"
+                    android:inputType="text"
+                    android:lines="1"
+                    android:maxLines="1" />
+            </LinearLayout>
+
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="false"
+            android:layout_marginTop="91dp"
+            android:background="@color/color_white">
+
+            <LinearLayout
+                android:id="@+id/layout_driving"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="50"
+                android:gravity="center">
+
+                <ImageButton
+                    android:id="@+id/btnDriving"
+                    android:layout_width="43dp"
+                    android:layout_height="43dp"
+                    android:layout_marginLeft="60dp"
+                    android:background="@drawable/driving"
+                    android:layout_marginRight="15dp"/>
+
+
+                <TextView
+                    android:id="@+id/show_distance_time_driving"
+                    android:layout_width="93dp"
+                    android:layout_height="wrap_content"
+                    android:layout_toRightOf="@id/btnDriving"
+                    android:textSize="15dp"
+                    tools:text="2h (45km)"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/layout_walking"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="50"
+                android:gravity="center">
+
+                <ImageButton
+                    android:id="@+id/btnWalk"
+                    android:layout_width="37dp"
+                    android:layout_height="37dp"
+                    android:layout_gravity="center|right"
+                    android:background="@drawable/walking"
+                    android:layout_marginRight="15dp"/>
+
+                <TextView
+                    android:id="@+id/show_distance_time_walking"
+                    android:layout_width="93dp"
+                    android:layout_height="wrap_content"
+                    android:textSize="15dp"
+                    tools:text="2h (45km)"/>
+            </LinearLayout>
+
+        </LinearLayout>
+
+
+    </RelativeLayout>
+
+
+    <ImageView
+        android:id="@+id/btn_location"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|right"
+        android:layout_marginBottom="40dp"
+        android:layout_marginRight="8dp"
+        android:layout_weight="1"
+        android:src="@drawable/geoloc" />
+</FrameLayout>
+
+
+

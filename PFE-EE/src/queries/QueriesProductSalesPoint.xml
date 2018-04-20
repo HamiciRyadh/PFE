@@ -4,7 +4,7 @@
 
 <mapper namespace="QueriesProductSalesPoint">
 
-<resultMap id = "result" type = "model.ProductSalesPoint">
+<resultMap id = "result" type = "com.lfbservices.pfe.model.ProductSalesPoint">
    <result property = "salesPointId" column = "salespoint_id"/>
    <result property = "productId" column = "product_id"/>
    <result property = "productPrice" column = "product_price"/>
