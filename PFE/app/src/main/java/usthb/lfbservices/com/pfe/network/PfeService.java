@@ -47,4 +47,5 @@ public interface PfeService
     @FormUrlEncoded
     Observable<Boolean> register(@Field("mailAddress") String mailAddress,
                                 @Field("password") String password);
+
 }

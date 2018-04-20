@@ -1,6 +1,7 @@
 package usthb.lfbservices.com.pfe.activities;
 
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.location.Location;
@@ -443,14 +444,22 @@ public class MapsActivity extends FragmentActivity implements SearchFragment.Sea
     }
 
     @Override
-    public void setBottomSheetDataDetails(@NonNull SalesPoint salesPoint) {
+    public void setBottomSheetDataDetails(@NonNull final SalesPoint salesPoint) {
         ImageView salesPointPhoto = findViewById(R.id.sales_point_image_details);
         RatingBar salesPointRating = findViewById(R.id.sales_point_rating_details);
         TextView salesPointPhoneNumber = findViewById(R.id.sales_point_phone_number_details);
         TextView salesPointWebSite = findViewById(R.id.sales_point_website_details);
+        ImageView salesPointItineraire = findViewById(R.id.sales_point_itineraire);
+        salesPointItineraire.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                final Intent intent = new Intent(MapsActivity.this, ItineraireActivity.class);
 
-        //TODO: Put these in the extras of the intent sending to itineraire
+                intent.putExtra("salesPointID", salesPoint.getSalesPointId());
+                MapsActivity.this.startActivity(intent);
 
+            }
+        });
 
         Picasso.get()
                 .load(Utils.buildGooglePictureUri(MapsActivity.this,salesPoint.getSalesPointPhotoReference()))
