@@ -57,6 +57,7 @@ import usthb.lfbservices.com.pfe.models.ProductSalesPoint;
 import usthb.lfbservices.com.pfe.models.SalesPoint;
 import usthb.lfbservices.com.pfe.models.Singleton;
 import usthb.lfbservices.com.pfe.network.PfeRx;
+import usthb.lfbservices.com.pfe.utils.Constantes;
 import usthb.lfbservices.com.pfe.utils.DisposableManager;
 import usthb.lfbservices.com.pfe.utils.Utils;
 
@@ -178,9 +179,9 @@ public class MapsActivity extends FragmentActivity implements SearchFragment.Sea
                                     userMarker= mMap.addMarker(userMakerOptions);
                                 }
                                 SharedPreferences.Editor editor =
-                                        getSharedPreferences(Utils.SHARED_PREFERENCES_POSITION,MODE_PRIVATE).edit();
-                                editor.putString("latitude", ""+userPosition.latitude);
-                                editor.putString("longitude", ""+userPosition.longitude);
+                                        getSharedPreferences(Constantes.SHARED_PREFERENCES_POSITION, MODE_PRIVATE).edit();
+                                editor.putString(Constantes.SHARED_PREFERENCES_POSITION_LATITUDE, ""+userPosition.latitude);
+                                editor.putString(Constantes.SHARED_PREFERENCES_POSITION_LONGITUDE, ""+userPosition.longitude);
                                 editor.apply();
                                 mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(userPosition, MapsActivity.ZOOM_LEVEL));
                             }
@@ -234,9 +235,9 @@ public class MapsActivity extends FragmentActivity implements SearchFragment.Sea
                             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(userPosition, MapsActivity.ZOOM_LEVEL));
                         }
                         SharedPreferences.Editor editor =
-                                getSharedPreferences(Utils.SHARED_PREFERENCES_POSITION,MODE_PRIVATE).edit();
-                        editor.putString("latitude", ""+userPosition.latitude);
-                        editor.putString("longitude", ""+userPosition.longitude);
+                                getSharedPreferences(Constantes.SHARED_PREFERENCES_POSITION,MODE_PRIVATE).edit();
+                        editor.putString(Constantes.SHARED_PREFERENCES_POSITION_LATITUDE, ""+userPosition.latitude);
+                        editor.putString(Constantes.SHARED_PREFERENCES_POSITION_LONGITUDE, ""+userPosition.longitude);
                         editor.apply();
                     }
                 }
@@ -292,9 +293,9 @@ public class MapsActivity extends FragmentActivity implements SearchFragment.Sea
                             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(userPosition, MapsActivity.ZOOM_LEVEL));
                         }
                         SharedPreferences.Editor editor =
-                                getSharedPreferences(Utils.SHARED_PREFERENCES_POSITION,MODE_PRIVATE).edit();
-                        editor.putString("latitude", ""+userPosition.latitude);
-                        editor.putString("longitude", ""+userPosition.longitude);
+                                getSharedPreferences(Constantes.SHARED_PREFERENCES_POSITION,MODE_PRIVATE).edit();
+                        editor.putString(Constantes.SHARED_PREFERENCES_POSITION_LATITUDE, ""+userPosition.latitude);
+                        editor.putString(Constantes.SHARED_PREFERENCES_POSITION_LONGITUDE, ""+userPosition.longitude);
                         editor.apply();
                     }
                 }
@@ -407,7 +408,7 @@ public class MapsActivity extends FragmentActivity implements SearchFragment.Sea
             searchView.clearFocus();
             getSupportFragmentManager()
                     .beginTransaction()
-                    .add(R.id.map_frame_layout, productsFragment, Utils.FRAGMENT_PRODUCTS)
+                    .add(R.id.map_frame_layout, productsFragment, Constantes.FRAGMENT_PRODUCTS)
                     .addToBackStack(null)
                     .remove(searchFragment)
                     .addToBackStack(null)
@@ -456,7 +457,7 @@ public class MapsActivity extends FragmentActivity implements SearchFragment.Sea
             public void onClick(View v) {
                 final Intent intent = new Intent(MapsActivity.this, ItineraireActivity.class);
 
-                intent.putExtra("salesPointID", salesPoint.getSalesPointId());
+                intent.putExtra(Constantes.INTENT_SALES_POINT_ID, salesPoint.getSalesPointId());
                 MapsActivity.this.startActivity(intent);
 
             }
@@ -552,10 +553,10 @@ public class MapsActivity extends FragmentActivity implements SearchFragment.Sea
                         Log.e(TAG, "Setting SearchFragment");
                         getSupportFragmentManager()
                                 .beginTransaction()
-                                .add(R.id.map_frame_layout, searchFragment, Utils.FRAGMENT_SEARCH)
+                                .add(R.id.map_frame_layout, searchFragment, Constantes.FRAGMENT_SEARCH)
                                 .addToBackStack(null)
                                 .commit();
-                        if (getSupportFragmentManager().findFragmentByTag(Utils.FRAGMENT_SEARCH) != null)
+                        if (getSupportFragmentManager().findFragmentByTag(Constantes.FRAGMENT_SEARCH) != null)
                             searchFragment.refreshHistory();
                     }
                 }
@@ -566,7 +567,7 @@ public class MapsActivity extends FragmentActivity implements SearchFragment.Sea
             @Override
             public boolean onQueryTextSubmit(String query) {
                 Log.e(TAG, "SearchView : OnQueryTextSubmit");
-                if (getSupportFragmentManager().findFragmentByTag(Utils.FRAGMENT_SEARCH) != null) {
+                if (getSupportFragmentManager().findFragmentByTag(Constantes.FRAGMENT_SEARCH) != null) {
                     searchFragment.addToHistorySearches(query);
                     searchFragment.refreshHistory();
                     searchQuery(query);
@@ -617,7 +618,7 @@ public class MapsActivity extends FragmentActivity implements SearchFragment.Sea
             searchView.clearFocus();
             getSupportFragmentManager()
                     .beginTransaction()
-                    .add(R.id.map_frame_layout, productsFragment, Utils.FRAGMENT_PRODUCTS)
+                    .add(R.id.map_frame_layout, productsFragment, Constantes.FRAGMENT_PRODUCTS)
                     .addToBackStack(null)
                     .remove(searchFragment)
                     .addToBackStack(null)
@@ -627,7 +628,6 @@ public class MapsActivity extends FragmentActivity implements SearchFragment.Sea
             Toast.makeText(this, getString(R.string.no_internet), Toast.LENGTH_LONG).show();
         }
     }
-
 
     public void refreshMap(List<SalesPoint> temporarySalespointList) {
         mMap.clear();
@@ -650,7 +650,6 @@ public class MapsActivity extends FragmentActivity implements SearchFragment.Sea
             mMap.addMarker(markerOptions);
         }
     }
-
 
     public void initVillesButton() {
         btnVille.setOnClickListener(new View.OnClickListener() {
@@ -726,7 +725,6 @@ public class MapsActivity extends FragmentActivity implements SearchFragment.Sea
             }
         });
     }
-
 
     public void initSearchPerimeterButton() {
         btnSearchPerimeter.setOnClickListener(new View.OnClickListener() {

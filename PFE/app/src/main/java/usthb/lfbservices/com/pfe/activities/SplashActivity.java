@@ -6,6 +6,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 
 import usthb.lfbservices.com.pfe.network.PfeAPI;
+import usthb.lfbservices.com.pfe.utils.Constantes;
 
 public class SplashActivity extends AppCompatActivity {
 
@@ -13,17 +14,19 @@ public class SplashActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        SharedPreferences preferences = getSharedPreferences("user",MODE_PRIVATE);
-        String mailAddress = preferences.getString("email", null);
-        String password = preferences.getString("password", null);
+        SharedPreferences preferences = getSharedPreferences(Constantes.SHARED_PREFERENCES_USER,MODE_PRIVATE);
+        String mailAddress = preferences.getString(Constantes.SHARED_PREFERENCES_USER_EMAIL, null);
+        String password = preferences.getString(Constantes.SHARED_PREFERENCES_USER_PASSWORD, null);
         if (mailAddress != null && password != null) {
             PfeAPI.getInstance().setAuthorization(mailAddress, password);
             Intent intent = new Intent(SplashActivity.this, MapsActivity.class);
             startActivity(intent);
             finish();
         }
-        Intent intent = new Intent(this, LoginActivity.class);
-        startActivity(intent);
-        finish();
+        else {
+            Intent intent = new Intent(this, LoginActivity.class);
+            startActivity(intent);
+            finish();
+        }
     }
 }

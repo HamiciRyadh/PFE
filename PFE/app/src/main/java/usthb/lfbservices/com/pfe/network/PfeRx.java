@@ -49,6 +49,7 @@ import usthb.lfbservices.com.pfe.models.ProductSalesPoint;
 import usthb.lfbservices.com.pfe.models.Result;
 import usthb.lfbservices.com.pfe.models.SalesPoint;
 import usthb.lfbservices.com.pfe.models.Singleton;
+import usthb.lfbservices.com.pfe.utils.Constantes;
 import usthb.lfbservices.com.pfe.utils.DisposableManager;
 import usthb.lfbservices.com.pfe.utils.Utils;
 
@@ -144,9 +145,9 @@ public class PfeRx extends FragmentActivity {
                                     Iterator<LatLng> positions = hashMap.keySet().iterator();
                                     LatLngBounds.Builder builder = new LatLngBounds.Builder();
 
-                                    SharedPreferences preferences = activity.getSharedPreferences(Utils.SHARED_PREFERENCES_POSITION,MODE_PRIVATE);
-                                    String sUserLatitude = preferences.getString("latitude", null);
-                                    String sUserLongitude = preferences.getString("longitude", null);
+                                    SharedPreferences preferences = activity.getSharedPreferences(Constantes.SHARED_PREFERENCES_POSITION, MODE_PRIVATE);
+                                    String sUserLatitude = preferences.getString(Constantes.SHARED_PREFERENCES_POSITION_LATITUDE, null);
+                                    String sUserLongitude = preferences.getString(Constantes.SHARED_PREFERENCES_POSITION_LONGITUDE, null);
                                     LatLng userPosition = null;
 
                                     if (sUserLatitude != null && sUserLongitude != null) {
@@ -511,9 +512,9 @@ public class PfeRx extends FragmentActivity {
 
                         if (exists) {
                             SharedPreferences.Editor editor =
-                                    activity.getSharedPreferences(Utils.SHARED_PREFERENCES_USER,MODE_PRIVATE).edit();
-                            editor.putString("email", mailAddress);
-                            editor.putString("password", password);
+                                    activity.getSharedPreferences(Constantes.SHARED_PREFERENCES_USER, MODE_PRIVATE).edit();
+                            editor.putString(Constantes.SHARED_PREFERENCES_USER_EMAIL, mailAddress);
+                            editor.putString(Constantes.SHARED_PREFERENCES_USER_PASSWORD, password);
                             editor.apply();
 
                             PfeAPI.getInstance().setAuthorization(mailAddress, password);
@@ -576,9 +577,9 @@ public class PfeRx extends FragmentActivity {
 
                         if (registered) {
                             SharedPreferences.Editor editor =
-                                    activity.getSharedPreferences(Utils.SHARED_PREFERENCES_USER,MODE_PRIVATE).edit();
-                            editor.putString("email", mailAddress);
-                            editor.putString("password", password);
+                                    activity.getSharedPreferences(Constantes.SHARED_PREFERENCES_USER, MODE_PRIVATE).edit();
+                            editor.putString(Constantes.SHARED_PREFERENCES_USER_EMAIL, mailAddress);
+                            editor.putString(Constantes.SHARED_PREFERENCES_USER_PASSWORD, password);
                             editor.apply();
 
                             PfeAPI.getInstance().setAuthorization(mailAddress, password);
