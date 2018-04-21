@@ -7,7 +7,7 @@
     android:layout_height="wrap_content"
     android:orientation="vertical"
     android:background="@color/color_white"
-    app:behavior_peekHeight="120dp"
+    app:behavior_peekHeight="100dp"
     app:layout_behavior="@string/bottom_sheet_behavior"
     app:behavior_hideable="true"
     android:clickable="true"
@@ -26,7 +26,7 @@
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="120dp"
+                android:layout_height="100dp"
                 android:orientation="vertical">
                 <TextView
                     android:id="@+id/sales_point_name_details"
@@ -38,35 +38,63 @@
                     android:gravity="center"
                     tools:text="SARL LFB Services" />
 
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal"
-                    >
+               <LinearLayout
+                   android:layout_width="match_parent"
+                   android:layout_height="match_parent"
+                   android:orientation="horizontal">
 
-                    <ImageView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginLeft="15dp"
-                        android:src="@drawable/address" />
+                   <LinearLayout
+                       android:layout_width="0dp"
+                       android:layout_height="match_parent"
+                       android:orientation="horizontal"
+                       android:layout_weight="50"
+                       android:gravity="center_vertical">
+                       <TextView
+                           android:layout_width="wrap_content"
+                           android:layout_height="wrap_content"
+                           android:text="@string/quantity"
+                           android:layout_marginLeft="20dp"
+                           android:textSize="15sp" />
 
-                    <TextView
-                        android:id="@+id/sales_point_address_details"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginLeft="15dp"
-                        android:layout_marginRight="@dimen/history_elements_layout_margin"
-                        android:layout_weight="1"
-                        android:width="1dp"
-                        android:gravity="center_vertical|left"
-                        android:padding="12dp"
-                        android:textAppearance="?android:textAppearanceMedium"
-                        android:textSize="@dimen/history_text_size"
-                        tools:text="7 Route Doudou Mokhtar N°14، Ben Aknoun 16304" />
+                       <TextView
+                           android:id="@+id/product_qte_marker"
+                           android:layout_width="wrap_content"
+                           android:layout_height="wrap_content"
+                           android:layout_marginLeft="38dp"
+                           android:layout_marginStart="38dp"
+                           android:ellipsize="end"
+                           android:textColor="#581845"
+                           android:textSize="25sp"
+                           tools:text="50" />
+                   </LinearLayout>
 
+                   <LinearLayout
+                       android:layout_width="0dp"
+                       android:layout_height="match_parent"
+                       android:orientation="horizontal"
+                       android:layout_weight="50"
+                       android:gravity="center_vertical">
 
-                </LinearLayout>
+                       <TextView
+                           android:id="@+id/textView3"
+                           android:layout_width="wrap_content"
+                           android:layout_height="wrap_content"
+                           android:text="@string/price"
+                           android:textSize="18sp"
+                           />
+
+                       <TextView
+                           android:id="@+id/product_price_marker"
+                           android:layout_width="wrap_content"
+                           android:layout_height="wrap_content"
+                           android:layout_marginLeft="46dp"
+                           android:layout_marginStart="46dp"
+                           android:textColor="@android:color/black"
+                           android:textSize="18sp"
+                           tools:text="19585 DA" />
+                   </LinearLayout>
+
+               </LinearLayout>
             </LinearLayout>
 
             <ImageView
@@ -76,25 +104,65 @@
                 android:scaleType="centerCrop"
                 />
 
-            <ImageView
-                android:id="@+id/sales_point_itineraire"
-                android:layout_width="101dp"
-                android:layout_height="60dp"
-                android:layout_gravity="right"
-                android:src="@drawable/itineraire" />
-
-            <RatingBar
-                android:id="@+id/sales_point_rating_details"
-                style="@android:style/Widget.Holo.Light.RatingBar.Small"
-                android:layout_width="wrap_content"
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="0"
-                android:isIndicator="true"
-                android:numStars="5"
-                android:layout_marginLeft="20dp"
-                android:stepSize="0.5"
-                android:textSize="2dp" />
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:layout_marginBottom="10dp"
+                android:layout_marginTop="10dp">
 
+                <RatingBar
+                    android:id="@+id/sales_point_rating_details"
+                    style="@android:style/Widget.Holo.Light.RatingBar.Small"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="0"
+                    android:isIndicator="true"
+                    android:numStars="5"
+                    android:layout_marginStart="20dp"
+                    android:layout_marginLeft="20dp"
+                    android:stepSize="0.5"
+                    />
+
+                <TextView
+                    android:id="@+id/rating"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="15dp"
+                    />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                >
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="15dp"
+                    android:src="@drawable/address" />
+
+                <TextView
+                    android:id="@+id/sales_point_address_details"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="15dp"
+                    android:layout_weight="1"
+                    android:textAppearance="?android:textAppearanceMedium"
+                    android:textSize="@dimen/history_text_size"
+                    tools:text="7 Route Doudou Mokhtar N°14، Ben Aknoun 16304" />
+
+                <ImageView
+                    android:id="@+id/sales_point_itineraire"
+                    android:layout_width="101dp"
+                    android:layout_height="60dp"
+                    android:layout_gravity="right"
+                    android:src="@drawable/itineraire" />
+            </LinearLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -112,18 +180,15 @@
 
                 <TextView
                     android:id="@+id/sales_point_phone_number_details"
-                    android:layout_width="match_parent"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="@dimen/history_elements_layout_margin"
                     android:layout_marginRight="@dimen/history_elements_layout_margin"
                     android:layout_weight="1"
-                    android:width="1dp"
                     android:gravity="center_vertical|left"
                     android:textAppearance="?android:textAppearanceMedium"
                     android:textSize="@dimen/history_text_size"
                     tools:text="023 23 85 47" />
-
-
             </LinearLayout>
 
 

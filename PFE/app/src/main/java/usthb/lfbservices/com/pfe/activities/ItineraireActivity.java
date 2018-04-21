@@ -57,6 +57,7 @@ import usthb.lfbservices.com.pfe.R;
 import usthb.lfbservices.com.pfe.models.SalesPoint;
 import usthb.lfbservices.com.pfe.models.Singleton;
 import usthb.lfbservices.com.pfe.network.ItineraireService;
+import usthb.lfbservices.com.pfe.network.PfeAPI;
 import usthb.lfbservices.com.pfe.utils.Constantes;
 import usthb.lfbservices.com.pfe.utils.Utils;
 
@@ -79,7 +80,7 @@ public class ItineraireActivity extends FragmentActivity implements OnMapReadyCa
     private FloatingActionButton userLocation;
     private TextView ShowDistanceDurationWalking;
     private Polyline line;
-    private ItineraireService service;
+    private PfeAPI pfeAPI = PfeAPI.getInstance();
     private String apiKey;
     private Marker originMarker;
     private Marker destMarker;
@@ -106,7 +107,6 @@ public class ItineraireActivity extends FragmentActivity implements OnMapReadyCa
         mapFragment.getMapAsync(this);
 
         initVariables();
-        build_retrofit();
         initDepart();
         initArrivee();
         initUserLocation();
@@ -414,7 +414,7 @@ public class ItineraireActivity extends FragmentActivity implements OnMapReadyCa
 
     private void get_distance(LatLng origin, LatLng dest) {
 
-        Call<GoogleDirections> call = service.getDistanceDuration(apiKey,"metric", origin.latitude + "," + origin.longitude,dest.latitude + "," + dest.longitude,Constantes.ITINERAIRE_WALKING);
+        Call<GoogleDirections> call = pfeAPI.getDistanceDuration(apiKey,"metric", origin.latitude + "," + origin.longitude,dest.latitude + "," + dest.longitude,Constantes.ITINERAIRE_WALKING);
         call.enqueue(new Callback<GoogleDirections>() {
 
             @Override
@@ -438,19 +438,8 @@ public class ItineraireActivity extends FragmentActivity implements OnMapReadyCa
     }
 
 
-    private void build_retrofit() {
-        String url = "https://maps.googleapis.com/maps/api/";
-        Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(url)
-                .addConverterFactory(GsonConverterFactory.create())
-                .build();
-
-        service = retrofit.create(ItineraireService.class);
-    }
-
-
     private  void get_places(String searchTerm){
-        Call<GoogleAutocompleteResponse> call = service.getAutoCompleteSearchResults(apiKey,searchTerm ,36.7525 +","+ 3.04197,500);
+        Call<GoogleAutocompleteResponse> call = pfeAPI.getAutoCompleteSearchResults(apiKey,searchTerm ,36.7525 +","+ 3.04197,500);
         call.enqueue(new Callback<GoogleAutocompleteResponse>() {
             ArrayAdapter<String> adapterPosition;
 
@@ -480,7 +469,7 @@ public class ItineraireActivity extends FragmentActivity implements OnMapReadyCa
 
     private void get_latlng(String api_key, String id_place){
 
-        Call<GooglePlaceDetails> call = service.getLatLng(api_key,id_place);
+        Call<GooglePlaceDetails> call = pfeAPI.getLatLng(api_key,id_place);
         call.enqueue(new Callback<GooglePlaceDetails>() {
 
             @Override
@@ -505,7 +494,7 @@ public class ItineraireActivity extends FragmentActivity implements OnMapReadyCa
         listLatLng.add(origin);
         listLatLng.add(dest);
 
-        Call<GoogleDirections> call = service.getDistanceDuration(apiKey,"metric", origin.latitude + "," + origin.longitude,dest.latitude + "," + dest.longitude, type);
+        Call<GoogleDirections> call = pfeAPI.getDistanceDuration(apiKey,"metric", origin.latitude + "," + origin.longitude,dest.latitude + "," + dest.longitude, type);
         call.enqueue(new Callback<GoogleDirections>() {
             @Override
             public void onResponse(Call<GoogleDirections> call, Response<GoogleDirections> response) {

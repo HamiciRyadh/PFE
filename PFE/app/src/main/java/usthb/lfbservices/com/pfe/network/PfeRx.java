@@ -42,7 +42,6 @@ import usthb.lfbservices.com.pfe.R;
 import usthb.lfbservices.com.pfe.activities.MapsActivity;
 import usthb.lfbservices.com.pfe.adapters.ProductsAdapter;
 import usthb.lfbservices.com.pfe.adapters.SalesPointsAdapter;
-import usthb.lfbservices.com.pfe.adapters.CustomInfoWindowGoogleMap;
 import usthb.lfbservices.com.pfe.models.BottomSheetDataSetter;
 import usthb.lfbservices.com.pfe.models.Product;
 import usthb.lfbservices.com.pfe.models.ProductSalesPoint;
@@ -173,33 +172,27 @@ public class PfeRx extends FragmentActivity {
                             } else {
                                 Toast.makeText(activity, activity.getResources().getString(R.string.no_corresponding_sales_point), Toast.LENGTH_LONG).show();
                             }
-                            CustomInfoWindowGoogleMap customInfoWindow = new CustomInfoWindowGoogleMap(activity, hashMap);
-                            map.setInfoWindowAdapter(customInfoWindow);
 
                             map.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
                                 @Override
                                 public boolean onMarkerClick(Marker marker) {
-                                    marker.showInfoWindow();
-                                    return false;
-                                }
-                            });
-
-                            map.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
-
-                                @Override
-                                public void onInfoWindowClick(Marker marker) {
-
                                     if (activity instanceof BottomSheetDataSetter) {
                                         for (SalesPoint salesPoint : salesPoints) {
                                             if (salesPoint.getSalesPointLatLng().equals(marker.getPosition())) {
-                                                BottomSheetDataSetter bottomSheetDataSetter = (BottomSheetDataSetter)activity;
-                                                bottomSheetDataSetter.setBottomSheetData(salesPoint);
-                                                PfeRx.getPlaceDetails(activity, salesPoint.getSalesPointId());
+                                                for (ProductSalesPoint productSalesPoint : productSalesPoints) {
+                                                    if (productSalesPoint.getSalespointId().equals(salesPoint.getSalesPointId())) {
+                                                        BottomSheetDataSetter bottomSheetDataSetter = (BottomSheetDataSetter)activity;
+                                                        bottomSheetDataSetter.setBottomSheetData(salesPoint, productSalesPoint);
+                                                        bottomSheetDataSetter.setBottomSheetState(BottomSheetBehavior.STATE_COLLAPSED);
+                                                        PfeRx.getPlaceDetails(activity, salesPoint.getSalesPointId());
+                                                        break;
+                                                    }
+                                                }
                                                 break;
                                             }
                                         }
-
                                     }
+                                    return true;
                                 }
                             });
                         }
@@ -224,8 +217,14 @@ public class PfeRx extends FragmentActivity {
 
                                             if (activity instanceof BottomSheetDataSetter) {
                                                 SalesPoint salesPoint = ((SalesPoint)(adapterView.getItemAtPosition(position)));
-                                                BottomSheetDataSetter bottomSheetDataSetter = (BottomSheetDataSetter)activity;
-                                                bottomSheetDataSetter.setBottomSheetData(salesPoint);
+                                                for (ProductSalesPoint productSalesPoint : productSalesPoints) {
+                                                    if (productSalesPoint.getSalespointId().equals(salesPoint.getSalesPointId())) {
+                                                        BottomSheetDataSetter bottomSheetDataSetter = (BottomSheetDataSetter)activity;
+                                                        bottomSheetDataSetter.setBottomSheetData(salesPoint, productSalesPoint);
+                                                        bottomSheetDataSetter.setBottomSheetState(BottomSheetBehavior.STATE_EXPANDED);
+                                                        break;
+                                                    }
+                                                }
                                                 PfeRx.getPlaceDetails(activity, salesPoint.getSalesPointId());
 
                                                 CameraUpdate cu = CameraUpdateFactory.newLatLngZoom(salesPoint.getSalesPointLatLng(), MapsActivity.ZOOM_LEVEL);
@@ -361,7 +360,6 @@ public class PfeRx extends FragmentActivity {
                         if (activity instanceof BottomSheetDataSetter) {
                             BottomSheetDataSetter bottomSheetDataSetter = (BottomSheetDataSetter)activity;
                             bottomSheetDataSetter.setBottomSheetDataDetails(salesPoint);
-                            bottomSheetDataSetter.setBottomSheetState(BottomSheetBehavior.STATE_EXPANDED);
                         }
                     }
 
@@ -517,7 +515,7 @@ public class PfeRx extends FragmentActivity {
                             editor.putString(Constantes.SHARED_PREFERENCES_USER_PASSWORD, password);
                             editor.apply();
 
-                            PfeAPI.getInstance().setAuthorization(mailAddress, password);
+                            pfeAPI.setAuthorization(mailAddress, password);
 
                             Intent intent = new Intent(activity, MapsActivity.class);
                             activity.startActivity(intent);
@@ -582,7 +580,7 @@ public class PfeRx extends FragmentActivity {
                             editor.putString(Constantes.SHARED_PREFERENCES_USER_PASSWORD, password);
                             editor.apply();
 
-                            PfeAPI.getInstance().setAuthorization(mailAddress, password);
+                            pfeAPI.setAuthorization(mailAddress, password);
 
                             Intent intent = new Intent(activity, MapsActivity.class);
                             activity.startActivity(intent);

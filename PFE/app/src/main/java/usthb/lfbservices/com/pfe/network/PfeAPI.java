@@ -16,9 +16,15 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 import okhttp3.logging.HttpLoggingInterceptor;
+import retrofit2.Call;
 import retrofit2.Retrofit;
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
 import retrofit2.converter.gson.GsonConverterFactory;
+import retrofit2.http.GET;
+import retrofit2.http.Query;
+import usthb.lfbservices.com.pfe.itinerary.autocomplete.GoogleAutocompleteResponse;
+import usthb.lfbservices.com.pfe.itinerary.direction.GoogleDirections;
+import usthb.lfbservices.com.pfe.itinerary.place.GooglePlaceDetails;
 import usthb.lfbservices.com.pfe.models.Product;
 import usthb.lfbservices.com.pfe.models.Result;
 import usthb.lfbservices.com.pfe.models.SalesPoint;
@@ -31,7 +37,8 @@ public class PfeAPI {
     /**
      * The url of the Web Service to use.
      */
-    private static final String BASE_URL = "http://192.168.1.6:8080/PFE-EE/api/";
+    private static final String WEB_SERVICE_BASE_URL = "http://192.168.1.6:8080/PFE-EE/api/";
+    private static final String GOOGLE_MAPS_API_BASE_URL = "https://maps.googleapis.com/maps/api/";
 
     /**
      * A Retrofit object to instantiate the interface representing the exposed methods of the
@@ -43,13 +50,12 @@ public class PfeAPI {
      * instantiate with Retrofit.
      */
     private PfeService pfeService;
+    private ItineraireService itineraireService;
 
-
-
-    private static final PfeAPI INSTANCE = new PfeAPI();
+    private static final PfeAPI WEB_SERVICE_INSTANCE = new PfeAPI();
 
     public static PfeAPI getInstance() {
-        return INSTANCE;
+        return WEB_SERVICE_INSTANCE;
     }
 
     private String authorization = "";
@@ -58,8 +64,10 @@ public class PfeAPI {
      * A constructor.
      */
     private PfeAPI() {
-        retrofit = this.getClient();
+        retrofit = this.getClient(WEB_SERVICE_BASE_URL);
         pfeService = retrofit.create(PfeService.class);
+        retrofit = this.getClient(GOOGLE_MAPS_API_BASE_URL);
+        itineraireService = retrofit.create(ItineraireService.class);
     }
 
     /**
@@ -67,7 +75,22 @@ public class PfeAPI {
      * automatic conversion of JSON responses and {@link RxJava2CallAdapterFactory} to handle
      * RxAndroid's Observable type.
      */
-    public Retrofit getClient() {
+    private Retrofit getClient(final String retrofitBaseUrl) {
+        OkHttpClient okHttpClient = buildOkHttpClient();
+        Gson gson = new GsonBuilder()
+                .setLenient()
+                .create();
+        retrofit = new Retrofit.Builder()
+                .baseUrl(retrofitBaseUrl)
+                .client(okHttpClient)
+                .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
+                .addConverterFactory(GsonConverterFactory.create(gson))
+                .build();
+
+        return retrofit;
+    }
+
+    private OkHttpClient buildOkHttpClient() {
         HttpLoggingInterceptor logging = new HttpLoggingInterceptor();
         logging.setLevel(HttpLoggingInterceptor.Level.HEADERS);
 
@@ -75,9 +98,6 @@ public class PfeAPI {
             @Override
             public Response intercept(Interceptor.Chain chain) throws IOException {
                 Request originalRequest = chain.request();
-
-                Log.e("ENCODED", "encoded : " + authorization);
-
                 Request.Builder builder = originalRequest.newBuilder().header("Authorization",
                         "Basic " + authorization);
                 Request newRequest = builder.build();
@@ -93,19 +113,7 @@ public class PfeAPI {
                 .addInterceptor(logging)
                 .build();
 
-        if (retrofit == null) {
-            Gson gson = new GsonBuilder()
-                    .setLenient()
-                    .create();
-            retrofit = new Retrofit.Builder()
-                    .baseUrl(BASE_URL)
-                    .client(okHttpClient)
-                    .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
-                    .addConverterFactory(GsonConverterFactory.create(gson))
-                    .build();
-        }
-
-        return retrofit;
+        return okHttpClient;
     }
 
     public Observable<SalesPoint> getPlaceDetails(String salesPointId) {
@@ -141,5 +149,19 @@ public class PfeAPI {
 
     public void setAuthorization(final String mailAddress, final String password) {
         authorization = android.util.Base64.encodeToString((mailAddress + ":" + password).getBytes(), Base64.NO_WRAP);
+    }
+
+    public Call<GoogleDirections> getDistanceDuration(final String apiKey, final String units, final String origin,
+                                                      final String destination, final String mode) {
+        return itineraireService.getDistanceDuration(apiKey, units, origin, destination, mode);
+    }
+
+    public Call<GoogleAutocompleteResponse> getAutoCompleteSearchResults(final String apiKey, final String searchTerm,
+                                                                         final String location, final long radius) {
+        return itineraireService.getAutoCompleteSearchResults(apiKey, searchTerm, location, radius);
+    }
+
+    public Call<GooglePlaceDetails> getLatLng(final String apiKey, final String placeid) {
+        return itineraireService.getLatLng(apiKey, placeid);
     }
 }

@@ -11,7 +11,7 @@ import java.util.List;
 
 public interface BottomSheetDataSetter {
 
-    void setBottomSheetData(SalesPoint salesPoint);
+    void setBottomSheetData(SalesPoint salesPoint, ProductSalesPoint productSalesPoint);
 
     void setBottomSheetDataDetails(SalesPoint salesPoint);
 
