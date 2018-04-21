@@ -40,7 +40,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Départ"
+                    android:text="@string/start_point"
                     android:paddingRight="10dp"
                     android:textStyle="bold" />
 
@@ -52,7 +52,7 @@
                     android:inputType="text"
                     android:lines="1"
                     android:maxLines="1"
-                    android:hint="choisir un point de départ"/>
+                    android:hint="@string/chose_start_point"/>
             </LinearLayout>
 
             <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
@@ -65,7 +65,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Arrivée"
+                    android:text="@string/destination_point"
                     android:paddingRight="10dp"
                     android:textStyle="bold" />
 
@@ -74,7 +74,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="2"
-                    android:hint="choisir une destination"
+                    android:hint="@string/chose_destination_point"
                     android:inputType="text"
                     android:lines="1"
                     android:maxLines="1" />
@@ -111,7 +111,7 @@
                     android:layout_width="93dp"
                     android:layout_height="wrap_content"
                     android:layout_toRightOf="@id/btnDriving"
-                    android:textSize="15dp"
+                    android:textSize="15sp"
                     tools:text="2h (45km)"/>
             </LinearLayout>
 
@@ -134,7 +134,7 @@
                     android:id="@+id/show_distance_time_walking"
                     android:layout_width="93dp"
                     android:layout_height="wrap_content"
-                    android:textSize="15dp"
+                    android:textSize="15sp"
                     tools:text="2h (45km)"/>
             </LinearLayout>
 

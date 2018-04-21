@@ -34,22 +34,23 @@ public class RegisterActivity extends AppCompatActivity {
         signup.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                boolean valid = true;
                 final String sMailAddress = mailAddress.getText().toString();
                 final String sPassword = password.getText().toString();
                 final String sPasswordConfirmation = passwordConfirmation.getText().toString();
                 if (!FormValidation.isMailAddress(sMailAddress)) {
                     mailAddress.setError(getResources().getString(R.string.invalid_mail_address));
-                } else {
-                    if (!FormValidation.isPassword(sPassword)) {
-                        password.setError(getResources().getString(R.string.invalid_password));
-                    } else {
-                        if (!sPassword.equals(sPasswordConfirmation)) {
-                            passwordConfirmation.setError(getResources().getString(R.string.passwords_not_matching));
-                        } else {
-                            PfeRx.register(RegisterActivity.this, sMailAddress, sPassword);
-                        }
-                    }
+                    valid = false;
                 }
+                if (!FormValidation.isPassword(sPassword)) {
+                    password.setError(getResources().getString(R.string.invalid_password));
+                    valid = false;
+                }
+                if (!sPassword.equals(sPasswordConfirmation)) {
+                    passwordConfirmation.setError(getResources().getString(R.string.passwords_not_matching));
+                    valid = false;
+                }
+                if (valid) PfeRx.register(RegisterActivity.this, sMailAddress, sPassword);
             }
         });
     }
@@ -60,5 +61,6 @@ public class RegisterActivity extends AppCompatActivity {
         Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
         startActivity(intent);
         overridePendingTransition(R.anim.push_right_in, R.anim.push_right_out);
+        finish();
     }
 }

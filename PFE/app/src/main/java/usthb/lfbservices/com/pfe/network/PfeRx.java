@@ -67,6 +67,11 @@ public class PfeRx extends FragmentActivity {
 
     public static void searchFromProductId(@NonNull final Activity activity,
                                            @NonNull final int productId) {
+        final ProgressDialog progressDialog = new ProgressDialog(activity,
+                R.style.AppTheme_Dark_Dialog);
+        progressDialog.setIndeterminate(true);
+        progressDialog.setMessage(activity.getResources().getString(R.string.server_connexion));
+        progressDialog.show();
 
         pfeAPI.searchFromProductId(productId)
                 .subscribeOn(Schedulers.io())
@@ -76,6 +81,7 @@ public class PfeRx extends FragmentActivity {
                     public void onSubscribe(Disposable d) {
                         Log.e(TAG, "SearchFromProductId : onSubscribe");
                         DisposableManager.add(d);
+                        progressDialog.setMessage(activity.getResources().getString(R.string.retrieving_data));
                     }
 
                     @Override
@@ -164,7 +170,7 @@ public class PfeRx extends FragmentActivity {
                                     map.animateCamera(cu);
                                 }
                             } else {
-                                Toast.makeText(activity, "Aucun point de vente pour le produit sélectionné", Toast.LENGTH_LONG).show();
+                                Toast.makeText(activity, activity.getResources().getString(R.string.no_corresponding_sales_point), Toast.LENGTH_LONG).show();
                             }
                             CustomInfoWindowGoogleMap customInfoWindow = new CustomInfoWindowGoogleMap(activity, hashMap);
                             map.setInfoWindowAdapter(customInfoWindow);
@@ -235,11 +241,14 @@ public class PfeRx extends FragmentActivity {
                     @Override
                     public void onError(Throwable e) {
                         Log.e(TAG, "SearchFromProductId : onError " + e.toString());
+                        Toast.makeText(activity, activity.getResources().getString(R.string.an_error_occured), Toast.LENGTH_LONG).show();
+                        progressDialog.dismiss();
                     }
 
                     @Override
                     public void onComplete() {
                         Log.e(TAG, "SearchFromProductId : onComplete");
+                        progressDialog.dismiss();
                     }
                 });
     }
@@ -291,7 +300,7 @@ public class PfeRx extends FragmentActivity {
                         if (progressBar != null)
                             progressBar.setVisibility(View.GONE);
                         if (emptyTextView != null)
-                            emptyTextView.setText(activity.getString(R.string.error_occured));
+                            emptyTextView.setText(activity.getString(R.string.an_error_occured));
                     }
 
                     @Override
@@ -381,7 +390,7 @@ public class PfeRx extends FragmentActivity {
      */
 
     public static void searchCategory(@NonNull final Activity activity,
-                                      final int category) {
+                                      @NonNull final int category) {
 
         final ArrayList<Product> products = new ArrayList<Product>();
         final ProductsAdapter productsAdapter = new ProductsAdapter(activity, R.layout.list_item_products, products);
@@ -450,7 +459,7 @@ public class PfeRx extends FragmentActivity {
                         if (progressBar != null)
                             progressBar.setVisibility(View.GONE);
                         if (emptyTextView != null)
-                            emptyTextView.setText(activity.getString(R.string.error_occured));
+                            emptyTextView.setText(activity.getString(R.string.an_error_occured));
                     }
 
                     /**
@@ -482,7 +491,7 @@ public class PfeRx extends FragmentActivity {
         final ProgressDialog progressDialog = new ProgressDialog(activity,
                 R.style.AppTheme_Dark_Dialog);
         progressDialog.setIndeterminate(true);
-        progressDialog.setMessage("Connexion au serveur ...");
+        progressDialog.setMessage(activity.getResources().getString(R.string.server_connexion));
         progressDialog.show();
 
         pfeAPI.connect(mailAddress, password)
@@ -493,7 +502,7 @@ public class PfeRx extends FragmentActivity {
                     public void onSubscribe(Disposable d) {
                         Log.e(TAG, "Connect : onSubscribe");
                         DisposableManager.add(d);
-                        progressDialog.setMessage("Vérification des identifiants ...");
+                        progressDialog.setMessage(activity.getResources().getString(R.string.checking_informations));
                     }
 
                     @Override
@@ -512,7 +521,7 @@ public class PfeRx extends FragmentActivity {
                             Intent intent = new Intent(activity, MapsActivity.class);
                             activity.startActivity(intent);
                         } else {
-                            Toast.makeText(activity, "WRONG", Toast.LENGTH_LONG).show();
+                            Toast.makeText(activity, activity.getResources().getString(R.string.invalid_mail_password), Toast.LENGTH_LONG).show();
                         }
                     }
 
@@ -520,8 +529,8 @@ public class PfeRx extends FragmentActivity {
                     public void onError(Throwable e) {
                         Log.e(TAG, "Connect : onError " + e.toString());
                         progressDialog.dismiss();
-                        Snackbar.make(activity.findViewById(R.id.login_layout),"Error", Snackbar.LENGTH_LONG)
-                                .setAction("Reessayer", new View.OnClickListener() {
+                        Snackbar.make(activity.findViewById(R.id.login_layout),activity.getResources().getString(R.string.an_error_occured), Snackbar.LENGTH_LONG)
+                                .setAction(activity.getResources().getString(R.string.retry), new View.OnClickListener() {
                                     @Override
                                     public void onClick(View view) {
                                         PfeRx.connect(activity, mailAddress, password);
@@ -547,7 +556,7 @@ public class PfeRx extends FragmentActivity {
         final ProgressDialog progressDialog = new ProgressDialog(activity,
                 R.style.AppTheme_Dark_Dialog);
         progressDialog.setIndeterminate(true);
-        progressDialog.setMessage("Connexion au serveur ...");
+        progressDialog.setMessage(activity.getResources().getString(R.string.server_connexion));
         progressDialog.show();
 
         pfeAPI.register(mailAddress, password)
@@ -558,7 +567,7 @@ public class PfeRx extends FragmentActivity {
                     public void onSubscribe(Disposable d) {
                         Log.e(TAG, "Register : onSubscribe");
                         DisposableManager.add(d);
-                        progressDialog.setMessage("Enregistrement des informations ...");
+                        progressDialog.setMessage(activity.getResources().getString(R.string.registering_informations));
                     }
 
                     @Override
@@ -578,7 +587,7 @@ public class PfeRx extends FragmentActivity {
                             activity.startActivity(intent);
                         } else {
                             //TODO:Error message for mail address
-                            Toast.makeText(activity, "WRONG", Toast.LENGTH_LONG).show();
+                            Toast.makeText(activity, activity.getResources().getString(R.string.mail_address_used), Toast.LENGTH_LONG).show();
                         }
                     }
 
@@ -586,7 +595,14 @@ public class PfeRx extends FragmentActivity {
                     public void onError(Throwable e) {
                         Log.e(TAG, "Register : onError " + e.toString());
                         progressDialog.dismiss();
-                        Snackbar.make(activity.findViewById(R.id.register_layout),"Error", Snackbar.LENGTH_LONG)
+                        Snackbar.make(activity.findViewById(R.id.login_layout),activity.getResources().getString(R.string.an_error_occured), Snackbar.LENGTH_LONG)
+                                .setAction(activity.getResources().getString(R.string.retry), new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View view) {
+                                        PfeRx.register(activity, mailAddress, password);
+                                    }
+                                })
+                                .setActionTextColor(activity.getResources().getColor(R.color.colorPrimary))
                                 .show();
                     }
 

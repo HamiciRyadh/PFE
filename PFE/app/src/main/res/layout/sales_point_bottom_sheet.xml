@@ -10,7 +10,8 @@
     app:behavior_peekHeight="120dp"
     app:layout_behavior="@string/bottom_sheet_behavior"
     app:behavior_hideable="true"
-    android:clickable="true">
+    android:clickable="true"
+    android:focusable="true">
 
     <android.support.v4.widget.NestedScrollView
         android:layout_width="match_parent"

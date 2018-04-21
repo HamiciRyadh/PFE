@@ -30,7 +30,7 @@
                     android:id="@+id/signin_mail_address"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="Adresse email"
+                    android:hint="@string/hint_mail_address"
                     android:text="hamiciryadh@gmail.com"
                     android:textSize="20sp"
                     android:layout_marginLeft="30dp"
@@ -50,7 +50,7 @@
                     android:id="@+id/signin_password"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="Mot de passe"
+                    android:hint="@string/hint_password"
                     android:text="admin"
                     android:textSize="20sp"
                     android:layout_marginLeft="30dp"
@@ -72,13 +72,13 @@
                 android:id="@+id/signin"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Se connecter"/>
+                android:text="@string/sign_in"/>
 
             <android.support.v7.widget.AppCompatButton
                 android:id="@+id/signup"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="S'enregistrer"/>
+                android:text="@string/sign_up"/>
         </LinearLayout>
 
     </LinearLayout>

@@ -29,7 +29,7 @@
                     android:id="@+id/signup_mail_address"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="Adresse email"
+                    android:hint="@string/hint_mail_address"
                     android:textSize="20sp"
                     android:layout_marginLeft="30dp"
                     android:layout_marginRight="30dp"
@@ -47,7 +47,7 @@
                     android:id="@+id/signup_password"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="Mot de passe"
+                    android:hint="@string/hint_password"
                     android:textSize="20sp"
                     android:layout_marginLeft="30dp"
                     android:layout_marginRight="30dp"
@@ -65,7 +65,7 @@
                     android:id="@+id/signup_password_confirmation"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="Mot de passe"
+                    android:hint="@string/hint_password"
                     android:textSize="20sp"
                     android:layout_marginLeft="30dp"
                     android:layout_marginRight="30dp"
@@ -86,7 +86,7 @@
                 android:id="@+id/signup"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="S'enregistrer"/>
+                android:text="@string/sign_up"/>
         </LinearLayout>
 
     </LinearLayout>

@@ -142,6 +142,7 @@ public class MapsActivity extends FragmentActivity implements SearchFragment.Sea
         initBottomSheet();
     }
 
+
     public void addUserMarkerPosition() {
         if (Utils.checkPermission(this)) {
             mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
@@ -171,7 +172,7 @@ public class MapsActivity extends FragmentActivity implements SearchFragment.Sea
                                 else {
                                     userMakerOptions =  new MarkerOptions().
                                             position(userPosition).
-                                            title("Votre position!").
+                                            title(getResources().getString(R.string.your_position)).
                                             icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_CYAN));
 
                                     userMarker= mMap.addMarker(userMakerOptions);
@@ -226,7 +227,7 @@ public class MapsActivity extends FragmentActivity implements SearchFragment.Sea
                         else {
                             userMakerOptions =  new MarkerOptions().
                                     position(userPosition).
-                                    title("Votre position!").
+                                    title(getResources().getString(R.string.your_position)).
                                     icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_CYAN));
 
                             userMarker= mMap.addMarker(userMakerOptions);
@@ -284,7 +285,7 @@ public class MapsActivity extends FragmentActivity implements SearchFragment.Sea
                         else {
                             userMakerOptions =  new MarkerOptions().
                                     position(userPosition).
-                                    title("Votre position!").
+                                    title(getResources().getString(R.string.your_position)).
                                     icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_CYAN));
 
                             userMarker= mMap.addMarker(userMakerOptions);
@@ -349,12 +350,12 @@ public class MapsActivity extends FragmentActivity implements SearchFragment.Sea
                 }
             } else {
                 Log.e(TAG, "onMapReady : GPS Non Activated.");
-                defaultMarker = mMap.addMarker(new MarkerOptions().position(defaultPosition).title("Alger"));
+                defaultMarker = mMap.addMarker(new MarkerOptions().position(defaultPosition).title(getResources().getString(R.string.default_marker_title)));
                 mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(defaultPosition, MapsActivity.ZOOM_LEVEL));
             }
         } else {
             Log.e(TAG, "onMapReady : GPS Permissions Non.");
-            defaultMarker = mMap.addMarker(new MarkerOptions().position(defaultPosition).title("Alger"));
+            defaultMarker = mMap.addMarker(new MarkerOptions().position(defaultPosition).title(getResources().getString(R.string.default_marker_title)));
             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(defaultPosition, MapsActivity.ZOOM_LEVEL));
         }
         mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {

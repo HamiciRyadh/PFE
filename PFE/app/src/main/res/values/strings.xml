@@ -4,17 +4,32 @@
     <string name="more">Plus</string>
     <string name="less">Moins</string>
     <string name="hint_search">Rechercher un produit.</string>
-    <string name="empty_history">Aucun élément.</string>
-    <string name="no_internet">Aucun accès internet.</string>
-    <string name="error_occured">Une erreur est survenue.</string>
-    <string name="no_corresponding_product"> Aucun produit ne correspond à votre recherche.</string>
-    <string name="not_available">Non disponible</string>
     <string name="show">Afficher</string>
     <string name="sales_points_show_list">Points de vente</string>
     <string name="reduce">Diminuer</string>
     <string name="no">Non</string>
-    <string name="no_marker_in_search_area">Aucun lieu n\'est présent dans le rayon de recherche.</string>
+    <string name="retry">Réessayer</string>
+    <string name="your_position">Votre position.</string>
+    <string name="start_point">Départ</string>
+    <string name="destination_point">Arrivée</string>
+    <string name="default_marker_title">Alger</string>
+    <string name="quantity">Quantité :</string>
+    <string name="price">Prix :</string>
+    <string name="type">Type</string>
+    <string name="trade_mark">Marque</string>
+    <string name="sign_up">S\'enregistrer</string>
+    <string name="sign_in">Se connecter</string>
+    <string name="wilaya">Wilaya</string>
+    <string name="city">Ville</string>
+    <string name="search_perimeter">Rayon de recherche</string>
+    <string name="chose_start_point">Choisir un point de départ</string>
+    <string name="chose_destination_point">Choisir une destination</string>
 
+    <!-- Hints -->
+    <string name="hint_mail_address">Adresse email</string>
+    <string name="hint_password">Mot de passe</string>
+
+    <!-- Dialog boxes -->
     <string name="dialog_message_activate_gps">Veuillez activer le GPS.</string>
     <string name="dialog_title_Wilaya">Filtrer par Wilaya</string>
     <string name="dialog_title_Ville">Filtrer par Ville</string>
@@ -25,10 +40,35 @@
     <string name="dismiss_label">Annuler</string>
     <string name="clear_all_label">Tout Décocher</string>
 
+    <!-- Error messages -->
     <string name="invalid_mail_address">Adresse mail invalide.</string>
     <string name="invalid_password">Mot de passe invalide, un mot de passe doit comporter
     au minimum 5 caractères, et peut contenir des chiffres (0 .. 9), des lettres (a .. Z) et des tirets - _</string>
     <string name="passwords_not_matching">Mots de passes différents, veuillez réessayer.</string>
+    <string name="an_error_occured">Une erreur est survenue.</string>
+    <string name="invalid_mail_password">Adresse email et/ou mot de passe invalides.</string>
+    <string name="mail_address_used">L\'adresse email saisie est déjà associée à un compte.</string>
+    <string name="no_corresponding_sales_point">Aucun point de vente pour le produit sélectionné.</string>
+    <string name="no_internet">Aucun accès internet.</string>
+    <string name="no_corresponding_product"> Aucun produit ne correspond à votre recherche.</string>
+    <string name="no_marker_in_search_area">Aucun lieu n\'est présent dans le rayon de recherche.</string>
+    <string name="not_available">Non disponible</string>
+    <string name="empty_history">Aucun élément.</string>
+    <string name="no_gps_use_last_position">GPS Désactivé, utilisation de la dernière position connue.</string>
+    <string name="no_gps_default_position">GPS Désactivé, utilisation de la position par défaut.</string>
+
+    <!-- Progress Dialog -->
+    <string name="registering_informations">Enregistrement des informations ...</string>
+    <string name="server_connexion">Connexion au serveur ...</string>
+    <string name="checking_informations">Vérification des informations ...</string>
+    <string name="retrieving_data">Récupération des données ...</string>
+
+    <string-array name="rayon_recherche">
+        <item>10 km</item>
+        <item>20 km</item>
+        <item>50 km</item>
+        <item>100 km</item>
+    </string-array>
 
     <string-array name="Blida_item">
         <item>Ain romana</item>
@@ -82,16 +122,6 @@
         <item>Hammamet</item>
         <item>Hydra</item>
         <item>Birkhadem</item>
-
     </string-array>
-
-
-    <string-array name="rayon_recherche">
-        <item>10 km</item>
-        <item>20 km</item>
-        <item>50 km</item>
-        <item>100 km</item>
-    </string-array>
-
 
 </resources>

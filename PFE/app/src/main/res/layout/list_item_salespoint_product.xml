@@ -37,7 +37,7 @@
         android:layout_alignBottom="@id/product_qte_marker"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
-        android:text="Quantité :"
+        android:text="@string/quantity"
         android:textSize="15sp" />
 
     <TextView
@@ -62,7 +62,7 @@
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
         android:layout_below="@+id/sales_point_address_marker"
-        android:text="Prix : "
+        android:text="@string/price"
         android:textSize="18sp" />
 
     <TextView

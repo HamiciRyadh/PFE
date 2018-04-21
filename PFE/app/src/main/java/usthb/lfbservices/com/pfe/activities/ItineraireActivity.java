@@ -118,7 +118,7 @@ public class ItineraireActivity extends FragmentActivity implements OnMapReadyCa
         mMap.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
         originMarker = mMap.addMarker(new MarkerOptions()
                 .position(defaultPosition)
-                .title("Départ")
+                .title(getResources().getString(R.string.start_point))
                 .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_CYAN)));
         origin = defaultPosition;
 
@@ -150,12 +150,12 @@ public class ItineraireActivity extends FragmentActivity implements OnMapReadyCa
         if (dest != null ) {
         destMarker = mMap.addMarker(new MarkerOptions()
                 .position(dest)
-                .title("Arrivée")
+                .title(getResources().getString(R.string.destination_point))
                 .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_YELLOW)));
         }
 
         if(userPosition != null ) {
-            depart.setText("Votre Position");
+            depart.setText(getResources().getString(R.string.your_position));
             origin = userPosition;
             originMarker.setPosition(origin);
         }
@@ -164,9 +164,9 @@ public class ItineraireActivity extends FragmentActivity implements OnMapReadyCa
 
         if (!Utils.isGPSActivated(this)) {
             if (userPosition != null) {
-                Toast.makeText(this, "GPS Désactivé, utilisation de la dernière position connue.", Toast.LENGTH_LONG).show();
+                Toast.makeText(this, getResources().getString(R.string.no_gps_use_last_position), Toast.LENGTH_LONG).show();
             } else {
-                Toast.makeText(this, "GPS Désactivé, utilisation de la position par défaut.", Toast.LENGTH_LONG).show();
+                Toast.makeText(this, getResources().getString(R.string.no_gps_default_position), Toast.LENGTH_LONG).show();
             }
         }
 
@@ -378,7 +378,7 @@ public class ItineraireActivity extends FragmentActivity implements OnMapReadyCa
                                 .addOnSuccessListener(ItineraireActivity.this, new OnSuccessListener<android.location.Location>() {
                                     @Override
                                     public void onSuccess(android.location.Location location) {
-                                        depart.setText("Votre position");
+                                        depart.setText(getResources().getString(R.string.your_position));
                                         if (location != null) {
                                             userPosition =new LatLng(location.getLatitude(),location.getLongitude());
 

@@ -32,6 +32,8 @@
         <item name="android:background">@color/colorPrimary</item>
     </style>
 
-
+    <style name="SplashTheme" parent="AppTheme.Dark">
+        <item name="android:windowBackground">@drawable/splash_screen</item>
+    </style>
 
 </resources>
