@@ -42,10 +42,10 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.squareup.picasso.Picasso;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 
 import usthb.lfbservices.com.pfe.R;
 import usthb.lfbservices.com.pfe.adapters.SalesPointsAdapter;
@@ -57,6 +57,7 @@ import usthb.lfbservices.com.pfe.models.ProductSalesPoint;
 import usthb.lfbservices.com.pfe.models.SalesPoint;
 import usthb.lfbservices.com.pfe.models.Singleton;
 import usthb.lfbservices.com.pfe.network.PfeRx;
+import usthb.lfbservices.com.pfe.utils.Constantes;
 import usthb.lfbservices.com.pfe.utils.DisposableManager;
 import usthb.lfbservices.com.pfe.utils.Utils;
 
@@ -108,6 +109,7 @@ public class MapsActivity extends FragmentActivity implements SearchFragment.Sea
 
     private Location currentLocation;
     private boolean isActivateGPSVisible = false;
+    private GPSLocationListener gpsLocationListener = new GPSLocationListener();
 
 
     @Override
@@ -142,178 +144,14 @@ public class MapsActivity extends FragmentActivity implements SearchFragment.Sea
         initBottomSheet();
     }
 
-    public void addUserMarkerPosition() {
-        if (Utils.checkPermission(this)) {
-            mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
-            mFusedLocationClient.getLastLocation()
-                    .addOnSuccessListener(this, new OnSuccessListener<Location>() {
-                        @Override
-                        public void onSuccess(Location location) {
-                            if (location != null) {
-                                Log.e(TAG, "Updating position.");
-                                if (currentLocation == null) currentLocation = location;
-                                if (location.getAccuracy() > currentLocation.getAccuracy()) {
-                                    Log.e(TAG, "Bad Accuracy, do nothing.");
-                                    return;
-                                }
-                                Log.e(TAG, "Good Accuracy.");
-
-                                currentLocation = location;
-
-                                latitudeSearchPosition = location.getLongitude();
-                                longitudeSearchPosition = location.getLatitude();
-
-                                userPosition = new LatLng(longitudeSearchPosition, latitudeSearchPosition);
-                                if (defaultMarker != null) defaultMarker.remove();
-                                if (userMarker != null) {
-                                    userMarker.setPosition(userPosition);
-                                }
-                                else {
-                                    userMakerOptions =  new MarkerOptions().
-                                            position(userPosition).
-                                            title("Votre position!").
-                                            icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_CYAN));
-
-                                    userMarker= mMap.addMarker(userMakerOptions);
-                                }
-                                SharedPreferences.Editor editor =
-                                        getSharedPreferences(Utils.SHARED_PREFERENCES_POSITION,MODE_PRIVATE).edit();
-                                editor.putString("latitude", ""+userPosition.latitude);
-                                editor.putString("longitude", ""+userPosition.longitude);
-                                editor.apply();
-                                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(userPosition, MapsActivity.ZOOM_LEVEL));
-                            }
-                        }
-                    })
-                    .addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception e) {
-                            Log.e(TAG, "Location update failure :  " + e);
-                        }
-                    });
-        }
-    }
-
 
     @Override
     protected void onResume() {
         super.onResume();
         Log.e(TAG, "OnResume");
         if (Utils.checkPermission(this)) {
-            locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, new android.location.LocationListener() {
-                @Override
-                public void onLocationChanged(Location location) {
-                    Log.e(TAG, "Location regular update using provider");
-                    if (location != null) {
-                        Log.e(TAG, "Location regular update using provider is not null : " + location.getLatitude() + "  " + location.getLongitude());
-                        latitudeSearchPosition = location.getLongitude();
-                        longitudeSearchPosition = location.getLatitude();
-
-                        if (currentLocation == null) currentLocation = location;
-                        if (location.getAccuracy() > currentLocation.getAccuracy()) {
-                            Log.e(TAG, "Bad Accuracy, do nothing.");
-                            return;
-                        }
-
-                        Log.e(TAG, "Good Accuracy.");
-                        currentLocation = location;
-
-                        userPosition = new LatLng(longitudeSearchPosition, latitudeSearchPosition);
-                        if (defaultMarker != null) defaultMarker.remove();
-                        if (userMarker != null) {
-                            userMarker.setPosition(userPosition);
-                        }
-                        else {
-                            userMakerOptions =  new MarkerOptions().
-                                    position(userPosition).
-                                    title("Votre position!").
-                                    icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_CYAN));
-
-                            userMarker= mMap.addMarker(userMakerOptions);
-                            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(userPosition, MapsActivity.ZOOM_LEVEL));
-                        }
-                        SharedPreferences.Editor editor =
-                                getSharedPreferences(Utils.SHARED_PREFERENCES_POSITION,MODE_PRIVATE).edit();
-                        editor.putString("latitude", ""+userPosition.latitude);
-                        editor.putString("longitude", ""+userPosition.longitude);
-                        editor.apply();
-                    }
-                }
-
-                @Override
-                public void onStatusChanged(String s, int i, Bundle bundle) {
-                    Log.e(TAG, "Provider Status Changed.");
-                }
-
-                @Override
-                public void onProviderEnabled(String s) {
-                    Log.e(TAG, "Provider Enabled : " + s);
-                    addUserMarkerPosition();
-                }
-
-                @Override
-                public void onProviderDisabled(String s) {
-                    Log.e(TAG, "Provider Disabled.");
-                }
-            });
-
-
-            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, new android.location.LocationListener() {
-                @Override
-                public void onLocationChanged(Location location) {
-                    Log.e(TAG, "Location regular update using provider 2");
-                    if (location != null) {
-                        Log.e(TAG, "Location regular update using provider is not null 2 : " + location.getLatitude() + "  " + location.getLongitude());
-                        latitudeSearchPosition = location.getLongitude();
-                        longitudeSearchPosition = location.getLatitude();
-
-                        if (currentLocation == null) currentLocation = location;
-                        if (location.getAccuracy() > currentLocation.getAccuracy()) {
-                            Log.e(TAG, "Bad Accuracy, do nothing. 2");
-                            return;
-                        }
-
-                        Log.e(TAG, "Good Accuracy. 2");
-                        currentLocation = location;
-
-                        userPosition = new LatLng(longitudeSearchPosition, latitudeSearchPosition);
-                        if (defaultMarker != null) defaultMarker.remove();
-                        if (userMarker != null) {
-                            userMarker.setPosition(userPosition);
-                        }
-                        else {
-                            userMakerOptions =  new MarkerOptions().
-                                    position(userPosition).
-                                    title("Votre position!").
-                                    icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_CYAN));
-
-                            userMarker= mMap.addMarker(userMakerOptions);
-                            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(userPosition, MapsActivity.ZOOM_LEVEL));
-                        }
-                        SharedPreferences.Editor editor =
-                                getSharedPreferences(Utils.SHARED_PREFERENCES_POSITION,MODE_PRIVATE).edit();
-                        editor.putString("latitude", ""+userPosition.latitude);
-                        editor.putString("longitude", ""+userPosition.longitude);
-                        editor.apply();
-                    }
-                }
-
-                @Override
-                public void onStatusChanged(String s, int i, Bundle bundle) {
-                    Log.e(TAG, "Provider Status Changed.");
-                }
-
-                @Override
-                public void onProviderEnabled(String s) {
-                    Log.e(TAG, "Provider Enabled : " + s);
-                    addUserMarkerPosition();
-                }
-
-                @Override
-                public void onProviderDisabled(String s) {
-                    Log.e(TAG, "Provider Disabled.");
-                }
-            });
+            locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, gpsLocationListener);
+            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, gpsLocationListener);
 
             if (Utils.isGPSActivated(this)) {
                 Log.e(TAG, "Adding user marker position from onResume.");
@@ -328,44 +166,12 @@ public class MapsActivity extends FragmentActivity implements SearchFragment.Sea
     }
 
     @Override
-    public void onMapReady(GoogleMap googleMap) {
-        mMap = googleMap;
-        Singleton.getInstance().setMap(mMap);
-
-        //googleMap.setMapStyle(MapStyleOptions.loadRawResourceStyle(this, R.raw.map_style));
-        googleMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
-
-        if (!Utils.checkPermission(this)) {
-            Log.e(TAG, "onMapReady : No GPS Permissions.");
-            Utils.requestGPSPermissions(this);
-        }
-        if (Utils.checkPermission(this)) {
-            Log.e(TAG, "onMapReady : GPS Permissions Ok.");
-            if (Utils.isGPSActivated(this)) {
-                Log.e(TAG, "onMapReady : GPS Activated.");
-                if (userPosition == null) {
-                    mMap.clear();
-                    addUserMarkerPosition();
-                }
-            } else {
-                Log.e(TAG, "onMapReady : GPS Non Activated.");
-                defaultMarker = mMap.addMarker(new MarkerOptions().position(defaultPosition).title("Alger"));
-                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(defaultPosition, MapsActivity.ZOOM_LEVEL));
-            }
-        } else {
-            Log.e(TAG, "onMapReady : GPS Permissions Non.");
-            defaultMarker = mMap.addMarker(new MarkerOptions().position(defaultPosition).title("Alger"));
-            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(defaultPosition, MapsActivity.ZOOM_LEVEL));
-        }
-        mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
-            @Override
-            public void onMapClick(LatLng latLng) {
-                onMapSelected();
-            }
-        });
+    protected void onPause() {
+        Log.e(TAG,"onPause");
+        super.onPause();
+        locationManager.removeUpdates(gpsLocationListener);
     }
 
-    // onPause ==> locationManager.removeUpdates(this);
     @Override
     protected void onDestroy() {
         Log.e(TAG, "onDestroy");
@@ -398,6 +204,44 @@ public class MapsActivity extends FragmentActivity implements SearchFragment.Sea
     }
 
     @Override
+    public void onMapReady(GoogleMap googleMap) {
+        mMap = googleMap;
+        Singleton.getInstance().setMap(mMap);
+
+        //googleMap.setMapStyle(MapStyleOptions.loadRawResourceStyle(this, R.raw.map_style));
+        googleMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
+
+        if (!Utils.checkPermission(this)) {
+            Log.e(TAG, "onMapReady : No GPS Permissions.");
+            Utils.requestGPSPermissions(this);
+        }
+        if (Utils.checkPermission(this)) {
+            Log.e(TAG, "onMapReady : GPS Permissions Ok.");
+            if (Utils.isGPSActivated(this)) {
+                Log.e(TAG, "onMapReady : GPS Activated.");
+                if (userPosition == null) {
+                    mMap.clear();
+                    addUserMarkerPosition();
+                }
+            } else {
+                Log.e(TAG, "onMapReady : GPS Non Activated.");
+                defaultMarker = mMap.addMarker(new MarkerOptions().position(defaultPosition).title(getResources().getString(R.string.default_marker_title)));
+                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(defaultPosition, MapsActivity.ZOOM_LEVEL));
+            }
+        } else {
+            Log.e(TAG, "onMapReady : GPS Permissions Non.");
+            defaultMarker = mMap.addMarker(new MarkerOptions().position(defaultPosition).title(getResources().getString(R.string.default_marker_title)));
+            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(defaultPosition, MapsActivity.ZOOM_LEVEL));
+        }
+        mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
+            @Override
+            public void onMapClick(LatLng latLng) {
+                onMapSelected();
+            }
+        });
+    }
+
+    @Override
     public void onCategorySelected(int category) {
         if (Utils.isNetworkAvailable(this)) {
             /**
@@ -406,7 +250,7 @@ public class MapsActivity extends FragmentActivity implements SearchFragment.Sea
             searchView.clearFocus();
             getSupportFragmentManager()
                     .beginTransaction()
-                    .add(R.id.map_frame_layout, productsFragment, Utils.FRAGMENT_PRODUCTS)
+                    .add(R.id.map_frame_layout, productsFragment, Constantes.FRAGMENT_PRODUCTS)
                     .addToBackStack(null)
                     .remove(searchFragment)
                     .addToBackStack(null)
@@ -435,17 +279,22 @@ public class MapsActivity extends FragmentActivity implements SearchFragment.Sea
     }
 
     @Override
-    public void setBottomSheetData(@NonNull SalesPoint salesPoint) {
+    public void setBottomSheetData(@NonNull SalesPoint salesPoint, @NonNull ProductSalesPoint productSalesPoint) {
         TextView nameTextView = findViewById(R.id.sales_point_name_details);
         TextView addressTextView = findViewById(R.id.sales_point_address_details);
+        TextView quantityTextView = findViewById(R.id.product_qte_marker);
+        TextView priceTextView = findViewById(R.id.product_price_marker);
 
         nameTextView.setText(salesPoint.getSalesPointName());
         addressTextView.setText(salesPoint.getSalesPointAddress());
+        quantityTextView.setText(""+productSalesPoint.getProductQuantity());
+        priceTextView.setText(""+productSalesPoint.getProductPrice());
     }
 
     @Override
     public void setBottomSheetDataDetails(@NonNull final SalesPoint salesPoint) {
         ImageView salesPointPhoto = findViewById(R.id.sales_point_image_details);
+        TextView ratingMark = findViewById(R.id.rating);
         RatingBar salesPointRating = findViewById(R.id.sales_point_rating_details);
         TextView salesPointPhoneNumber = findViewById(R.id.sales_point_phone_number_details);
         TextView salesPointWebSite = findViewById(R.id.sales_point_website_details);
@@ -455,7 +304,7 @@ public class MapsActivity extends FragmentActivity implements SearchFragment.Sea
             public void onClick(View v) {
                 final Intent intent = new Intent(MapsActivity.this, ItineraireActivity.class);
 
-                intent.putExtra("salesPointID", salesPoint.getSalesPointId());
+                intent.putExtra(Constantes.INTENT_SALES_POINT_ID, salesPoint.getSalesPointId());
                 MapsActivity.this.startActivity(intent);
 
             }
@@ -466,6 +315,8 @@ public class MapsActivity extends FragmentActivity implements SearchFragment.Sea
                 .error(R.drawable.not_avaialble2)
                 .into(salesPointPhoto);
 
+        DecimalFormat decimalFormat = new DecimalFormat("#.#");
+        ratingMark.setText(decimalFormat.format(salesPoint.getSalesPointRating()));
         salesPointRating.setRating((float) salesPoint.getSalesPointRating());
         salesPointPhoneNumber.setText(salesPoint.getSalesPointPhoneNumber());
         salesPointWebSite.setText(salesPoint.getSalesPointWebSite());
@@ -477,6 +328,20 @@ public class MapsActivity extends FragmentActivity implements SearchFragment.Sea
                 && state <= BottomSheetBehavior.STATE_HIDDEN)) {
             sheetBehavior.setState(state);
         }
+    }
+
+    public void initVariables() {
+        db = new DatabaseHelper(this);
+        searchView = findViewById(R.id.search_view);
+        sheetBehavior = BottomSheetBehavior.from(findViewById(R.id.layout_bottom_sheet));
+        showButton = findViewById(R.id.show_list_button);
+        listViewSalesPoints = findViewById(R.id.list_view_sales_points);
+
+        btnWilaya = findViewById(R.id.btn_Wilaya);
+        btnVille = findViewById(R.id.btn_Ville);
+        btnSearchPerimeter = findViewById(R.id.btn_Rayon_Recherche);
+        listItemsWilaya = db.getWilayas();
+        checkedItemsWilaya = new boolean[listItemsWilaya.length];
     }
 
     public void onMapSelected() {
@@ -510,18 +375,56 @@ public class MapsActivity extends FragmentActivity implements SearchFragment.Sea
         }
     }
 
-    public void initVariables() {
-        db = new DatabaseHelper(this);
-        searchView = findViewById(R.id.search_view);
-        sheetBehavior = BottomSheetBehavior.from(findViewById(R.id.layout_bottom_sheet));
-        showButton = findViewById(R.id.show_list_button);
-        listViewSalesPoints = findViewById(R.id.list_view_sales_points);
+    public void addUserMarkerPosition() {
+        if (Utils.checkPermission(this)) {
+            mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+            mFusedLocationClient.getLastLocation()
+                    .addOnSuccessListener(this, new OnSuccessListener<Location>() {
+                        @Override
+                        public void onSuccess(Location location) {
+                            if (location != null) {
+                                Log.e(TAG, "Updating position.");
+                                if (currentLocation == null) currentLocation = location;
+                                if (location.getAccuracy() > currentLocation.getAccuracy()) {
+                                    Log.e(TAG, "Bad Accuracy, do nothing.");
+                                    return;
+                                }
+                                Log.e(TAG, "Good Accuracy.");
 
-        btnWilaya = findViewById(R.id.btn_Wilaya);
-        btnVille = findViewById(R.id.btn_Ville);
-        btnSearchPerimeter = findViewById(R.id.btn_Rayon_Recherche);
-        listItemsWilaya = db.getWilayas();
-        checkedItemsWilaya = new boolean[listItemsWilaya.length];
+                                currentLocation = location;
+
+                                latitudeSearchPosition = location.getLongitude();
+                                longitudeSearchPosition = location.getLatitude();
+
+                                userPosition = new LatLng(longitudeSearchPosition, latitudeSearchPosition);
+                                if (defaultMarker != null) defaultMarker.remove();
+                                if (userMarker != null) {
+                                    userMarker.setPosition(userPosition);
+                                }
+                                else {
+                                    userMakerOptions =  new MarkerOptions().
+                                            position(userPosition).
+                                            title(getResources().getString(R.string.your_position)).
+                                            icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_CYAN));
+
+                                    userMarker= mMap.addMarker(userMakerOptions);
+                                }
+                                SharedPreferences.Editor editor =
+                                        getSharedPreferences(Constantes.SHARED_PREFERENCES_POSITION, MODE_PRIVATE).edit();
+                                editor.putString(Constantes.SHARED_PREFERENCES_POSITION_LATITUDE, ""+userPosition.latitude);
+                                editor.putString(Constantes.SHARED_PREFERENCES_POSITION_LONGITUDE, ""+userPosition.longitude);
+                                editor.apply();
+                                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(userPosition, MapsActivity.ZOOM_LEVEL));
+                            }
+                        }
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Log.e(TAG, "Location update failure :  " + e);
+                        }
+                    });
+        }
     }
 
     public void initSearchView() {
@@ -551,10 +454,10 @@ public class MapsActivity extends FragmentActivity implements SearchFragment.Sea
                         Log.e(TAG, "Setting SearchFragment");
                         getSupportFragmentManager()
                                 .beginTransaction()
-                                .add(R.id.map_frame_layout, searchFragment, Utils.FRAGMENT_SEARCH)
+                                .add(R.id.map_frame_layout, searchFragment, Constantes.FRAGMENT_SEARCH)
                                 .addToBackStack(null)
                                 .commit();
-                        if (getSupportFragmentManager().findFragmentByTag(Utils.FRAGMENT_SEARCH) != null)
+                        if (getSupportFragmentManager().findFragmentByTag(Constantes.FRAGMENT_SEARCH) != null)
                             searchFragment.refreshHistory();
                     }
                 }
@@ -565,7 +468,7 @@ public class MapsActivity extends FragmentActivity implements SearchFragment.Sea
             @Override
             public boolean onQueryTextSubmit(String query) {
                 Log.e(TAG, "SearchView : OnQueryTextSubmit");
-                if (getSupportFragmentManager().findFragmentByTag(Utils.FRAGMENT_SEARCH) != null) {
+                if (getSupportFragmentManager().findFragmentByTag(Constantes.FRAGMENT_SEARCH) != null) {
                     searchFragment.addToHistorySearches(query);
                     searchFragment.refreshHistory();
                     searchQuery(query);
@@ -616,7 +519,7 @@ public class MapsActivity extends FragmentActivity implements SearchFragment.Sea
             searchView.clearFocus();
             getSupportFragmentManager()
                     .beginTransaction()
-                    .add(R.id.map_frame_layout, productsFragment, Utils.FRAGMENT_PRODUCTS)
+                    .add(R.id.map_frame_layout, productsFragment, Constantes.FRAGMENT_PRODUCTS)
                     .addToBackStack(null)
                     .remove(searchFragment)
                     .addToBackStack(null)
@@ -626,7 +529,6 @@ public class MapsActivity extends FragmentActivity implements SearchFragment.Sea
             Toast.makeText(this, getString(R.string.no_internet), Toast.LENGTH_LONG).show();
         }
     }
-
 
     public void refreshMap(List<SalesPoint> temporarySalespointList) {
         mMap.clear();
@@ -649,7 +551,6 @@ public class MapsActivity extends FragmentActivity implements SearchFragment.Sea
             mMap.addMarker(markerOptions);
         }
     }
-
 
     public void initVillesButton() {
         btnVille.setOnClickListener(new View.OnClickListener() {
@@ -725,7 +626,6 @@ public class MapsActivity extends FragmentActivity implements SearchFragment.Sea
             }
         });
     }
-
 
     public void initSearchPerimeterButton() {
         btnSearchPerimeter.setOnClickListener(new View.OnClickListener() {
@@ -931,5 +831,62 @@ public class MapsActivity extends FragmentActivity implements SearchFragment.Sea
                 mDialog.show();
             }
         });
+    }
+
+    private class GPSLocationListener implements android.location.LocationListener {
+        @Override
+        public void onLocationChanged(Location location) {
+            Log.e(TAG, "Location regular update using provider");
+            if (location != null) {
+                Log.e(TAG, "Location regular update using provider is not null : " + location.getLatitude() + "  " + location.getLongitude());
+                latitudeSearchPosition = location.getLongitude();
+                longitudeSearchPosition = location.getLatitude();
+
+                if (currentLocation == null) currentLocation = location;
+                if (location.getAccuracy() > currentLocation.getAccuracy()) {
+                    Log.e(TAG, "Bad Accuracy, do nothing.");
+                    return;
+                }
+
+                Log.e(TAG, "Good Accuracy.");
+                currentLocation = location;
+
+                userPosition = new LatLng(longitudeSearchPosition, latitudeSearchPosition);
+                if (defaultMarker != null) defaultMarker.remove();
+                if (userMarker != null) {
+                    userMarker.setPosition(userPosition);
+                }
+                else {
+                    userMakerOptions =  new MarkerOptions().
+                            position(userPosition).
+                            title(getResources().getString(R.string.your_position)).
+                            icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_CYAN));
+
+                    userMarker= mMap.addMarker(userMakerOptions);
+                    mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(userPosition, MapsActivity.ZOOM_LEVEL));
+                }
+                SharedPreferences.Editor editor =
+                        getSharedPreferences(Constantes.SHARED_PREFERENCES_POSITION,MODE_PRIVATE).edit();
+                editor.putString(Constantes.SHARED_PREFERENCES_POSITION_LATITUDE, ""+userPosition.latitude);
+                editor.putString(Constantes.SHARED_PREFERENCES_POSITION_LONGITUDE, ""+userPosition.longitude);
+                editor.apply();
+            }
+        }
+
+        @Override
+        public void onStatusChanged(String s, int i, Bundle bundle) {
+            Log.e(TAG, "Provider Status Changed.");
+        }
+
+        @Override
+        public void onProviderEnabled(String s) {
+            Log.e(TAG, "Provider Enabled : " + s);
+            addUserMarkerPosition();
+        }
+
+        @Override
+        public void onProviderDisabled(String s) {
+            Log.e(TAG, "Provider Disabled.");
+        }
     }
 }

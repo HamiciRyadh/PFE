@@ -16,12 +16,8 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
-import android.view.View;
 import android.view.WindowManager;
-import android.view.animation.Animation;
-import android.view.animation.Transformation;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.RelativeLayout;
 
 import com.google.android.gms.maps.model.LatLng;
 
@@ -30,10 +26,6 @@ import java.util.Iterator;
 import java.util.List;
 
 import usthb.lfbservices.com.pfe.R;
-import usthb.lfbservices.com.pfe.activities.MapsActivity;
-
-import static android.content.Context.LOCATION_SERVICE;
-
 
 /**
  * List of public and static constants and methods
@@ -41,33 +33,6 @@ import static android.content.Context.LOCATION_SERVICE;
 
 public class Utils
 {
-
-    /**
-     * Name of the file in which the history searches will be saved
-     */
-    public static final String HISTORY_FILE_NAME = "History.dat";
-    /**
-     * TAG for the fragment "SearchFragment" which is used to identify it
-     */
-    public static final String FRAGMENT_SEARCH = "FRAGMENT_SEARCH";
-    /**
-     * TAG for the fragment "ProductsFragment" which is used to identify it
-     */
-    public static final String FRAGMENT_PRODUCTS = "FRAGMENT_PRODUCTS";
-    /**
-     * Base url for retrieving photos from google.
-     */
-    public static final String GOOGLE_PHOTO_BASE_URL = "https://maps.googleapis.com/maps/api/place/photo?";
-    /**
-     * Name of the {@link android.content.SharedPreferences} responsible for storing the user's data
-     */
-    public static final String SHARED_PREFERENCES_USER = "user";
-    public static final String SHARED_PREFERENCES_POSITION = "position";
-
-
-
-
-
     /**
      * Checks whether the network is available or not
      * @param context The current context of the application, which is neccessary to display
@@ -109,7 +74,7 @@ public class Utils
     }
 
     public static Uri buildGooglePictureUri(final Context context, final String photoReference) {
-        return Uri.parse(GOOGLE_PHOTO_BASE_URL
+        return Uri.parse(Constantes.GOOGLE_PHOTO_BASE_URL
                 + "maxwidth=" + getDeviceWidthInPixel(context)
                 + "&photoreference=" + photoReference
                 + "&key="+context.getResources().getString(R.string.google_maps_key));
@@ -136,7 +101,7 @@ public class Utils
     }
 
     public static boolean isGPSActivated(final Context context) {
-        LocationManager service = (LocationManager)context.getSystemService(LOCATION_SERVICE);
+        LocationManager service = (LocationManager)context.getSystemService(context.LOCATION_SERVICE);
         return service.isProviderEnabled(LocationManager.GPS_PROVIDER);
     }
 

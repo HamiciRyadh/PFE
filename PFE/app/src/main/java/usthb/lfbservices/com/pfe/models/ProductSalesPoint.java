@@ -6,7 +6,7 @@ public class ProductSalesPoint {
 
 	private int productId;
 	private String salesPointId;
-	private  int productQuantity;
+	private int productQuantity;
 	private double productPrice ;
 	
 	public ProductSalesPoint() {

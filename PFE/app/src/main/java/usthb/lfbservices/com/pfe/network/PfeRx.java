@@ -1,10 +1,12 @@
 package usthb.lfbservices.com.pfe.network;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomSheetBehavior;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.View;
@@ -30,8 +32,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
-import java.util.Set;
 
 import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -39,17 +39,16 @@ import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 
 import usthb.lfbservices.com.pfe.R;
-import usthb.lfbservices.com.pfe.activities.LoginActivity;
 import usthb.lfbservices.com.pfe.activities.MapsActivity;
 import usthb.lfbservices.com.pfe.adapters.ProductsAdapter;
 import usthb.lfbservices.com.pfe.adapters.SalesPointsAdapter;
-import usthb.lfbservices.com.pfe.adapters.CustomInfoWindowGoogleMap;
 import usthb.lfbservices.com.pfe.models.BottomSheetDataSetter;
 import usthb.lfbservices.com.pfe.models.Product;
 import usthb.lfbservices.com.pfe.models.ProductSalesPoint;
 import usthb.lfbservices.com.pfe.models.Result;
 import usthb.lfbservices.com.pfe.models.SalesPoint;
 import usthb.lfbservices.com.pfe.models.Singleton;
+import usthb.lfbservices.com.pfe.utils.Constantes;
 import usthb.lfbservices.com.pfe.utils.DisposableManager;
 import usthb.lfbservices.com.pfe.utils.Utils;
 
@@ -68,6 +67,11 @@ public class PfeRx extends FragmentActivity {
 
     public static void searchFromProductId(@NonNull final Activity activity,
                                            @NonNull final int productId) {
+        final ProgressDialog progressDialog = new ProgressDialog(activity,
+                R.style.AppTheme_Dark_Dialog);
+        progressDialog.setIndeterminate(true);
+        progressDialog.setMessage(activity.getResources().getString(R.string.server_connexion));
+        progressDialog.show();
 
         pfeAPI.searchFromProductId(productId)
                 .subscribeOn(Schedulers.io())
@@ -77,6 +81,7 @@ public class PfeRx extends FragmentActivity {
                     public void onSubscribe(Disposable d) {
                         Log.e(TAG, "SearchFromProductId : onSubscribe");
                         DisposableManager.add(d);
+                        progressDialog.setMessage(activity.getResources().getString(R.string.retrieving_data));
                     }
 
                     @Override
@@ -139,9 +144,9 @@ public class PfeRx extends FragmentActivity {
                                     Iterator<LatLng> positions = hashMap.keySet().iterator();
                                     LatLngBounds.Builder builder = new LatLngBounds.Builder();
 
-                                    SharedPreferences preferences = activity.getSharedPreferences(Utils.SHARED_PREFERENCES_POSITION,MODE_PRIVATE);
-                                    String sUserLatitude = preferences.getString("latitude", null);
-                                    String sUserLongitude = preferences.getString("longitude", null);
+                                    SharedPreferences preferences = activity.getSharedPreferences(Constantes.SHARED_PREFERENCES_POSITION, MODE_PRIVATE);
+                                    String sUserLatitude = preferences.getString(Constantes.SHARED_PREFERENCES_POSITION_LATITUDE, null);
+                                    String sUserLongitude = preferences.getString(Constantes.SHARED_PREFERENCES_POSITION_LONGITUDE, null);
                                     LatLng userPosition = null;
 
                                     if (sUserLatitude != null && sUserLongitude != null) {
@@ -161,40 +166,33 @@ public class PfeRx extends FragmentActivity {
                                     LatLngBounds bounds = builder.build();
                                     // offset from the edges of the map in pixels
                                     int padding = 200;
-                                    //TODO: Actuellement sa prend le premier marqueur pour zoomer dessus, peut être modifier pour prendre la zone avec le plus de marqueurs?
                                     CameraUpdate cu = CameraUpdateFactory.newLatLngBounds(bounds, padding);
                                     map.animateCamera(cu);
                                 }
                             } else {
-                                Toast.makeText(activity, "Aucun point de vente pour le produit sélectionné", Toast.LENGTH_LONG).show();
+                                Toast.makeText(activity, activity.getResources().getString(R.string.no_corresponding_sales_point), Toast.LENGTH_LONG).show();
                             }
-                            CustomInfoWindowGoogleMap customInfoWindow = new CustomInfoWindowGoogleMap(activity, hashMap);
-                            map.setInfoWindowAdapter(customInfoWindow);
 
                             map.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
                                 @Override
                                 public boolean onMarkerClick(Marker marker) {
-                                    marker.showInfoWindow();
-                                    return false;
-                                }
-                            });
-
-                            map.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
-
-                                @Override
-                                public void onInfoWindowClick(Marker marker) {
-
                                     if (activity instanceof BottomSheetDataSetter) {
                                         for (SalesPoint salesPoint : salesPoints) {
                                             if (salesPoint.getSalesPointLatLng().equals(marker.getPosition())) {
-                                                BottomSheetDataSetter bottomSheetDataSetter = (BottomSheetDataSetter)activity;
-                                                bottomSheetDataSetter.setBottomSheetData(salesPoint);
-                                                PfeRx.getPlaceDetails(activity, salesPoint.getSalesPointId());
+                                                for (ProductSalesPoint productSalesPoint : productSalesPoints) {
+                                                    if (productSalesPoint.getSalespointId().equals(salesPoint.getSalesPointId())) {
+                                                        BottomSheetDataSetter bottomSheetDataSetter = (BottomSheetDataSetter)activity;
+                                                        bottomSheetDataSetter.setBottomSheetData(salesPoint, productSalesPoint);
+                                                        bottomSheetDataSetter.setBottomSheetState(BottomSheetBehavior.STATE_COLLAPSED);
+                                                        PfeRx.getPlaceDetails(activity, salesPoint.getSalesPointId());
+                                                        break;
+                                                    }
+                                                }
                                                 break;
                                             }
                                         }
-
                                     }
+                                    return true;
                                 }
                             });
                         }
@@ -219,8 +217,14 @@ public class PfeRx extends FragmentActivity {
 
                                             if (activity instanceof BottomSheetDataSetter) {
                                                 SalesPoint salesPoint = ((SalesPoint)(adapterView.getItemAtPosition(position)));
-                                                BottomSheetDataSetter bottomSheetDataSetter = (BottomSheetDataSetter)activity;
-                                                bottomSheetDataSetter.setBottomSheetData(salesPoint);
+                                                for (ProductSalesPoint productSalesPoint : productSalesPoints) {
+                                                    if (productSalesPoint.getSalespointId().equals(salesPoint.getSalesPointId())) {
+                                                        BottomSheetDataSetter bottomSheetDataSetter = (BottomSheetDataSetter)activity;
+                                                        bottomSheetDataSetter.setBottomSheetData(salesPoint, productSalesPoint);
+                                                        bottomSheetDataSetter.setBottomSheetState(BottomSheetBehavior.STATE_EXPANDED);
+                                                        break;
+                                                    }
+                                                }
                                                 PfeRx.getPlaceDetails(activity, salesPoint.getSalesPointId());
 
                                                 CameraUpdate cu = CameraUpdateFactory.newLatLngZoom(salesPoint.getSalesPointLatLng(), MapsActivity.ZOOM_LEVEL);
@@ -237,11 +241,14 @@ public class PfeRx extends FragmentActivity {
                     @Override
                     public void onError(Throwable e) {
                         Log.e(TAG, "SearchFromProductId : onError " + e.toString());
+                        Toast.makeText(activity, activity.getResources().getString(R.string.an_error_occured), Toast.LENGTH_LONG).show();
+                        progressDialog.dismiss();
                     }
 
                     @Override
                     public void onComplete() {
                         Log.e(TAG, "SearchFromProductId : onComplete");
+                        progressDialog.dismiss();
                     }
                 });
     }
@@ -293,7 +300,7 @@ public class PfeRx extends FragmentActivity {
                         if (progressBar != null)
                             progressBar.setVisibility(View.GONE);
                         if (emptyTextView != null)
-                            emptyTextView.setText(activity.getString(R.string.error_occured));
+                            emptyTextView.setText(activity.getString(R.string.an_error_occured));
                     }
 
                     @Override
@@ -353,7 +360,6 @@ public class PfeRx extends FragmentActivity {
                         if (activity instanceof BottomSheetDataSetter) {
                             BottomSheetDataSetter bottomSheetDataSetter = (BottomSheetDataSetter)activity;
                             bottomSheetDataSetter.setBottomSheetDataDetails(salesPoint);
-                            bottomSheetDataSetter.setBottomSheetState(BottomSheetBehavior.STATE_EXPANDED);
                         }
                     }
 
@@ -383,7 +389,7 @@ public class PfeRx extends FragmentActivity {
      */
 
     public static void searchCategory(@NonNull final Activity activity,
-                                      final int category) {
+                                      @NonNull final int category) {
 
         final ArrayList<Product> products = new ArrayList<Product>();
         final ProductsAdapter productsAdapter = new ProductsAdapter(activity, R.layout.list_item_products, products);
@@ -452,7 +458,7 @@ public class PfeRx extends FragmentActivity {
                         if (progressBar != null)
                             progressBar.setVisibility(View.GONE);
                         if (emptyTextView != null)
-                            emptyTextView.setText(activity.getString(R.string.error_occured));
+                            emptyTextView.setText(activity.getString(R.string.an_error_occured));
                     }
 
                     /**
@@ -481,6 +487,12 @@ public class PfeRx extends FragmentActivity {
                                @NonNull final String mailAddress,
                                @NonNull final String password) {
 
+        final ProgressDialog progressDialog = new ProgressDialog(activity,
+                R.style.AppTheme_Dark_Dialog);
+        progressDialog.setIndeterminate(true);
+        progressDialog.setMessage(activity.getResources().getString(R.string.server_connexion));
+        progressDialog.show();
+
         pfeAPI.connect(mailAddress, password)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -489,6 +501,7 @@ public class PfeRx extends FragmentActivity {
                     public void onSubscribe(Disposable d) {
                         Log.e(TAG, "Connect : onSubscribe");
                         DisposableManager.add(d);
+                        progressDialog.setMessage(activity.getResources().getString(R.string.checking_informations));
                     }
 
                     @Override
@@ -497,29 +510,39 @@ public class PfeRx extends FragmentActivity {
 
                         if (exists) {
                             SharedPreferences.Editor editor =
-                                    activity.getSharedPreferences(Utils.SHARED_PREFERENCES_USER,MODE_PRIVATE).edit();
-                            editor.putString("email", mailAddress);
-                            editor.putString("password", password);
+                                    activity.getSharedPreferences(Constantes.SHARED_PREFERENCES_USER, MODE_PRIVATE).edit();
+                            editor.putString(Constantes.SHARED_PREFERENCES_USER_EMAIL, mailAddress);
+                            editor.putString(Constantes.SHARED_PREFERENCES_USER_PASSWORD, password);
                             editor.apply();
 
-                            PfeAPI.getInstance().setAuthorization(mailAddress, password);
+                            pfeAPI.setAuthorization(mailAddress, password);
 
                             Intent intent = new Intent(activity, MapsActivity.class);
                             activity.startActivity(intent);
                         } else {
-                            Toast.makeText(activity, "WRONG", Toast.LENGTH_LONG).show();
+                            Toast.makeText(activity, activity.getResources().getString(R.string.invalid_mail_password), Toast.LENGTH_LONG).show();
                         }
                     }
 
                     @Override
                     public void onError(Throwable e) {
                         Log.e(TAG, "Connect : onError " + e.toString());
-                        Toast.makeText(activity, "ERROR", Toast.LENGTH_LONG).show();
+                        progressDialog.dismiss();
+                        Snackbar.make(activity.findViewById(R.id.login_layout),activity.getResources().getString(R.string.an_error_occured), Snackbar.LENGTH_LONG)
+                                .setAction(activity.getResources().getString(R.string.retry), new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View view) {
+                                        PfeRx.connect(activity, mailAddress, password);
+                                    }
+                                })
+                                .setActionTextColor(activity.getResources().getColor(R.color.colorPrimary))
+                                .show();
                     }
 
                     @Override
                     public void onComplete() {
                         Log.e(TAG, "Connect : onComplete");
+                        progressDialog.dismiss();
                     }
                 });
     }
@@ -529,6 +552,12 @@ public class PfeRx extends FragmentActivity {
                                 @NonNull final String mailAddress,
                                 @NonNull final String password) {
 
+        final ProgressDialog progressDialog = new ProgressDialog(activity,
+                R.style.AppTheme_Dark_Dialog);
+        progressDialog.setIndeterminate(true);
+        progressDialog.setMessage(activity.getResources().getString(R.string.server_connexion));
+        progressDialog.show();
+
         pfeAPI.register(mailAddress, password)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -537,6 +566,7 @@ public class PfeRx extends FragmentActivity {
                     public void onSubscribe(Disposable d) {
                         Log.e(TAG, "Register : onSubscribe");
                         DisposableManager.add(d);
+                        progressDialog.setMessage(activity.getResources().getString(R.string.registering_informations));
                     }
 
                     @Override
@@ -545,31 +575,40 @@ public class PfeRx extends FragmentActivity {
 
                         if (registered) {
                             SharedPreferences.Editor editor =
-                                    activity.getSharedPreferences(Utils.SHARED_PREFERENCES_USER,MODE_PRIVATE).edit();
-                            editor.putString("email", mailAddress);
-                            editor.putString("password", password);
+                                    activity.getSharedPreferences(Constantes.SHARED_PREFERENCES_USER, MODE_PRIVATE).edit();
+                            editor.putString(Constantes.SHARED_PREFERENCES_USER_EMAIL, mailAddress);
+                            editor.putString(Constantes.SHARED_PREFERENCES_USER_PASSWORD, password);
                             editor.apply();
 
-                            PfeAPI.getInstance().setAuthorization(mailAddress, password);
+                            pfeAPI.setAuthorization(mailAddress, password);
 
                             Intent intent = new Intent(activity, MapsActivity.class);
                             activity.startActivity(intent);
                         } else {
                             //TODO:Error message for mail address
-                            Toast.makeText(activity, "WRONG", Toast.LENGTH_LONG).show();
+                            Toast.makeText(activity, activity.getResources().getString(R.string.mail_address_used), Toast.LENGTH_LONG).show();
                         }
                     }
 
                     @Override
                     public void onError(Throwable e) {
-                        //TODO:Snackbar for retry
                         Log.e(TAG, "Register : onError " + e.toString());
-                        Toast.makeText(activity, "ERROR", Toast.LENGTH_LONG).show();
+                        progressDialog.dismiss();
+                        Snackbar.make(activity.findViewById(R.id.login_layout),activity.getResources().getString(R.string.an_error_occured), Snackbar.LENGTH_LONG)
+                                .setAction(activity.getResources().getString(R.string.retry), new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View view) {
+                                        PfeRx.register(activity, mailAddress, password);
+                                    }
+                                })
+                                .setActionTextColor(activity.getResources().getColor(R.color.colorPrimary))
+                                .show();
                     }
 
                     @Override
                     public void onComplete() {
                         Log.e(TAG, "Register : onComplete");
+                        progressDialog.dismiss();
                     }
                 });
     }

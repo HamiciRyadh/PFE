@@ -23,7 +23,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="4dp"
-                android:text="Type"
+                android:text="@string/type"
                 android:textColor="#616161"
                 android:textSize="12sp"/>
 
@@ -33,7 +33,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="4dp"
-                android:text="Marque"
+                android:text="@string/trade_mark"
                 android:textColor="#616161"
                 android:textSize="12sp"/>
 
@@ -65,7 +65,6 @@
 
         <ProgressBar
             android:id="@+id/products_progress_bar"
-            style="@style/Widget.AppCompat.ProgressBar"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"

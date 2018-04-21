@@ -14,7 +14,6 @@
         android:focusableInTouchMode="true"
         android:orientation="vertical">
 
-
         <SearchView
             android:id="@+id/search_view"
             android:layout_width="match_parent"
@@ -25,6 +24,8 @@
             android:background="#FFFFFF"
             android:fadingEdge="horizontal|vertical"
             android:iconifiedByDefault="false"
+            android:clickable="true"
+            android:focusable="true"
             android:queryHint="@string/hint_search" />
 
         <RelativeLayout
@@ -48,30 +49,24 @@
                     android:layout_height="match_parent"
                     android:orientation="horizontal">
 
-
-
-
                     <Button
                         android:id="@+id/btn_Wilaya"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_margin="4dp"
-                        android:text="Wilaya"
+                        android:text="@string/wilaya"
                         android:background="@drawable/button"
                         android:textAllCaps="false"
                         android:textColor="#616161"
                         android:textSize="12sp"
                         android:visibility="gone"/>
 
-
-
-
                     <Button
                         android:id="@+id/btn_Ville"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_margin="4dp"
-                        android:text="Ville"
+                        android:text="@string/city"
                         android:background="@drawable/button"
                         android:textAllCaps="false"
                         android:visibility="gone"
@@ -84,19 +79,16 @@
                         android:layout_height="wrap_content"
                         android:layout_margin="4dp"
                         android:padding="4dp"
-                        android:text="Rayon de Recherche"
+                        android:text="@string/search_perimeter"
                         android:background="@drawable/button"
                         android:textColor="#616161"
                         android:textSize="12sp"
                         android:textAllCaps="false"
                         android:visibility="gone"/>
 
-
-
                 </LinearLayout>
 
             </HorizontalScrollView>
-
 
             <ListView
                 android:id="@+id/list_view_sales_points"
@@ -105,8 +97,6 @@
                 android:orientation="vertical"
                 android:visibility="gone"
                 android:layout_marginBottom="48dp"/>
-
-
 
             <Button
                 android:id="@+id/show_list_button"

@@ -128,6 +128,7 @@ public class ProductsFragment extends Fragment {
     public void initVariables() {
         db = new DatabaseHelper(fragmentBelongActivity);
         progressBar = rootView.findViewById(R.id.products_progress_bar);
+        progressBar.getIndeterminateDrawable().setColorFilter(getResources().getColor(R.color.colorPrimary), android.graphics.PorterDuff.Mode.MULTIPLY);
         btn_Marque = rootView.findViewById(R.id.btn_Marque);
         btn_Type = rootView.findViewById(R.id.btn_Type);
         types = db.getTypes();

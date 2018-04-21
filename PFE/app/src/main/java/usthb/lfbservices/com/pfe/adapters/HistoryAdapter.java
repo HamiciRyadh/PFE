@@ -16,11 +16,9 @@ import android.widget.TextView;
 import java.util.ArrayList;
 
 import usthb.lfbservices.com.pfe.R;
-import usthb.lfbservices.com.pfe.models.Category;
-import usthb.lfbservices.com.pfe.models.Product;
 
 /**
- * Created by root on 09/03/18.
+ * Created by ryadh on 09/03/18.
  */
 
 public class HistoryAdapter extends ArrayAdapter<String> {
@@ -28,13 +26,12 @@ public class HistoryAdapter extends ArrayAdapter<String> {
     private static String TAG = HistoryAdapter.class.getName();
 
     private Context context;
-    int layoutResourceId;
+    private int layoutResourceId;
 
     public HistoryAdapter(Context context, int layoutResourceId, ArrayList<String> data) {
         super(context, layoutResourceId, data);
         this.layoutResourceId = layoutResourceId;
         this.context = context;
-//       this.data = data;
     }
 
 

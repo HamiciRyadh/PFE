@@ -32,6 +32,7 @@ import usthb.lfbservices.com.pfe.adapters.CategoryAdapter;
 import usthb.lfbservices.com.pfe.adapters.HistoryAdapter;
 import usthb.lfbservices.com.pfe.database.DatabaseHelper;
 import usthb.lfbservices.com.pfe.models.Category;
+import usthb.lfbservices.com.pfe.utils.Constantes;
 import usthb.lfbservices.com.pfe.utils.Utils;
 
 /**
@@ -158,11 +159,11 @@ public class SearchFragment extends Fragment {
     }
 
     public ArrayList<String> getHistorySearches() {
-        Log.e(TAG, "READING FILE : " + Utils.HISTORY_FILE_NAME);
+        Log.e(TAG, "READING FILE : " + Constantes.HISTORY_FILE_NAME);
         ArrayList<String> list = new ArrayList<String>();
 
         try {
-            File file = new File(fragmentBelongActivity.getFilesDir(), Utils.HISTORY_FILE_NAME);
+            File file = new File(fragmentBelongActivity.getFilesDir(), Constantes.HISTORY_FILE_NAME);
             if (file.exists()) {
                 FileInputStream fis = new FileInputStream(file);
                 ObjectInputStream ois = new ObjectInputStream(fis);
@@ -178,11 +179,11 @@ public class SearchFragment extends Fragment {
         return list;
     }
 
-    public void addToHistorySearches(String history) {
-        Log.e(TAG, "WRITING TO FILE : " + Utils.HISTORY_FILE_NAME);
+    public void addToHistorySearches(final String history) {
+        Log.e(TAG, "WRITING TO FILE : " + Constantes.HISTORY_FILE_NAME);
         listHistorySearches.add(0, history);
         try {
-            File file = new File(fragmentBelongActivity.getFilesDir(), Utils.HISTORY_FILE_NAME);
+            File file = new File(fragmentBelongActivity.getFilesDir(), Constantes.HISTORY_FILE_NAME);
             FileOutputStream fos;
 
             fos = new FileOutputStream(file);

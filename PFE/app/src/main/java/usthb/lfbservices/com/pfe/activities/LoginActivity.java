@@ -27,14 +27,6 @@ public class LoginActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-        SharedPreferences preferences = getSharedPreferences("user",MODE_PRIVATE);
-        String mailAddress = preferences.getString("email", null);
-        String password = preferences.getString("password", null);
-        if (mailAddress != null && password != null) {
-            PfeAPI.getInstance().setAuthorization(mailAddress, password);
-            Intent intent = new Intent(LoginActivity.this, MapsActivity.class);
-            startActivity(intent);
-        }
         initVariables();
     }
 
@@ -55,17 +47,18 @@ public class LoginActivity extends AppCompatActivity {
         signin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                boolean valid = true;
                 final String sMailAddress = mailAddress.getText().toString();
                 final String sPassword = password.getText().toString();
                 if (!FormValidation.isMailAddress(sMailAddress)) {
                    mailAddress.setError(getResources().getString(R.string.invalid_mail_address));
-                } else {
-                   if (!FormValidation.isPassword(sPassword)) {
-                       password.setError(getResources().getString(R.string.invalid_password));
-                    } else {
-                       PfeRx.connect(LoginActivity.this, sMailAddress, sPassword);
-                    }
+                   valid = false;
                 }
+                if (!FormValidation.isPassword(sPassword)) {
+                    password.setError(getResources().getString(R.string.invalid_password));
+                    valid = false;
+                }
+                if (valid) PfeRx.connect(LoginActivity.this, sMailAddress, sPassword);
             }
         });
         signup = findViewById(R.id.signup);
@@ -74,6 +67,8 @@ public class LoginActivity extends AppCompatActivity {
             public void onClick(View view) {
                 Intent intent = new Intent(LoginActivity.this, RegisterActivity.class);
                 startActivity(intent);
+                overridePendingTransition(R.anim.push_left_in, R.anim.push_left_out);
+                finish();
             }
         });
     }

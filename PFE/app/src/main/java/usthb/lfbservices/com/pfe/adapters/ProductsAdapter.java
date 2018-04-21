@@ -16,7 +16,7 @@ import usthb.lfbservices.com.pfe.models.Product;
 import usthb.lfbservices.com.pfe.R;
 
 /**
- * Created by root on 05/03/18.
+ * Created by ryadh on 05/03/18.
  */
 
 public class ProductsAdapter extends ArrayAdapter<Product> {
@@ -42,11 +42,13 @@ public class ProductsAdapter extends ArrayAdapter<Product> {
 
         Product product = getItem(position);
 
-        TextView tradeMarkTextView = listItemView.findViewById(R.id.product_trademark);
-        tradeMarkTextView.setText(product.getProductTradeMark());
+       if (product != null) {
+           TextView tradeMarkTextView = listItemView.findViewById(R.id.product_trademark);
+           if (tradeMarkTextView != null) tradeMarkTextView.setText(product.getProductTradeMark());
 
-        TextView nameTextView = listItemView.findViewById(R.id.product_name);
-        nameTextView.setText(product.getProductName());
+           TextView nameTextView = listItemView.findViewById(R.id.product_name);
+           if (nameTextView != null) nameTextView.setText(product.getProductName());
+       }
 
         return listItemView;
     }

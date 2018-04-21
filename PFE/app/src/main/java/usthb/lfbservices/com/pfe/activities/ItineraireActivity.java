@@ -6,6 +6,7 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.FragmentActivity;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -24,6 +25,7 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -55,7 +57,8 @@ import usthb.lfbservices.com.pfe.R;
 import usthb.lfbservices.com.pfe.models.SalesPoint;
 import usthb.lfbservices.com.pfe.models.Singleton;
 import usthb.lfbservices.com.pfe.network.ItineraireService;
-import usthb.lfbservices.com.pfe.network.PfeService;
+import usthb.lfbservices.com.pfe.network.PfeAPI;
+import usthb.lfbservices.com.pfe.utils.Constantes;
 import usthb.lfbservices.com.pfe.utils.Utils;
 
 public class ItineraireActivity extends FragmentActivity implements OnMapReadyCallback  {
@@ -63,7 +66,6 @@ public class ItineraireActivity extends FragmentActivity implements OnMapReadyCa
     private static final String TAG = ItineraireActivity.class.getName();
     public static final float ZOOM_LEVEL = 18.23f;
 
-    private float searchZoom;
     private AutoCompleteTextView depart;
     private AutoCompleteTextView arrivee;
     private LinearLayout layoutDriving;
@@ -75,10 +77,10 @@ public class ItineraireActivity extends FragmentActivity implements OnMapReadyCa
     private LatLng defaultPosition = new LatLng(36.7525, 3.04197);
     private TextView ShowDistanceDurationDriving;
     private RelativeLayout blockItineraire;
-    private ImageView userLocation;
+    private FloatingActionButton userLocation;
     private TextView ShowDistanceDurationWalking;
     private Polyline line;
-    private ItineraireService service;
+    private PfeAPI pfeAPI = PfeAPI.getInstance();
     private String apiKey;
     private Marker originMarker;
     private Marker destMarker;
@@ -87,6 +89,7 @@ public class ItineraireActivity extends FragmentActivity implements OnMapReadyCa
     private List<SalesPoint> salesPointList;
     private FusedLocationProviderClient mFusedLocationClient;
     private SalesPoint salesPointTemps;
+    private CameraUpdate cameraUpdate;
     private boolean gpsPermissionRequested = false;
 
 
@@ -104,7 +107,6 @@ public class ItineraireActivity extends FragmentActivity implements OnMapReadyCa
         mapFragment.getMapAsync(this);
 
         initVariables();
-        build_retrofit();
         initDepart();
         initArrivee();
         initUserLocation();
@@ -117,13 +119,13 @@ public class ItineraireActivity extends FragmentActivity implements OnMapReadyCa
         mMap.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
         originMarker = mMap.addMarker(new MarkerOptions()
                 .position(defaultPosition)
-                .title("Départ")
+                .title(getResources().getString(R.string.start_point))
                 .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_CYAN)));
         origin = defaultPosition;
 
-        SharedPreferences preferences = getSharedPreferences("position",MODE_PRIVATE);
-        String sUserLatitude = preferences.getString("latitude", null);
-        String sUserLongitude = preferences.getString("longitude", null);
+        SharedPreferences preferences = getSharedPreferences(Constantes.SHARED_PREFERENCES_POSITION, MODE_PRIVATE);
+        String sUserLatitude = preferences.getString(Constantes.SHARED_PREFERENCES_POSITION_LATITUDE, null);
+        String sUserLongitude = preferences.getString(Constantes.SHARED_PREFERENCES_POSITION_LONGITUDE, null);
         LatLng userPosition = null;
 
         if (sUserLatitude != null && sUserLongitude != null) {
@@ -134,7 +136,7 @@ public class ItineraireActivity extends FragmentActivity implements OnMapReadyCa
             }
         }
 
-        String salesPointID = getIntent().getStringExtra("salesPointID");
+        String salesPointID = getIntent().getStringExtra(Constantes.INTENT_SALES_POINT_ID);
         if (salesPointID != null) {
             for (SalesPoint salesPoint : salesPointList) {
                 if (salesPoint.getSalesPointId().equals(salesPointID)) {
@@ -149,12 +151,12 @@ public class ItineraireActivity extends FragmentActivity implements OnMapReadyCa
         if (dest != null ) {
         destMarker = mMap.addMarker(new MarkerOptions()
                 .position(dest)
-                .title("Arrivée")
+                .title(getResources().getString(R.string.destination_point))
                 .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_YELLOW)));
         }
 
         if(userPosition != null ) {
-            depart.setText("Votre Position");
+            depart.setText(getResources().getString(R.string.your_position));
             origin = userPosition;
             originMarker.setPosition(origin);
         }
@@ -163,9 +165,9 @@ public class ItineraireActivity extends FragmentActivity implements OnMapReadyCa
 
         if (!Utils.isGPSActivated(this)) {
             if (userPosition != null) {
-                Toast.makeText(this, "GPS Désactivé, utilisation de la dernière position connue.", Toast.LENGTH_LONG).show();
+                Toast.makeText(this, getResources().getString(R.string.no_gps_use_last_position), Toast.LENGTH_LONG).show();
             } else {
-                Toast.makeText(this, "GPS Désactivé, utilisation de la position par défaut.", Toast.LENGTH_LONG).show();
+                Toast.makeText(this, getResources().getString(R.string.no_gps_default_position), Toast.LENGTH_LONG).show();
             }
         }
 
@@ -205,9 +207,9 @@ public class ItineraireActivity extends FragmentActivity implements OnMapReadyCa
             @Override
             public boolean onMarkerClick(Marker marker) {
                 Log.e(TAG, "onMarkerClick");
-                //TODO: It centers the clicked marker, maybe redo bounds and build etc ..
-                if (mMap.getCameraPosition().zoom > (searchZoom + ItineraireActivity.ZOOM_LEVEL)/2.0f) {
-                    mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(marker.getPosition(), searchZoom));
+                marker.showInfoWindow();
+                if (mMap.getCameraPosition().zoom > ItineraireActivity.ZOOM_LEVEL*0.8f) {
+                    mMap.animateCamera(cameraUpdate);
                 }
                 else {
                     mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(marker.getPosition(), ItineraireActivity.ZOOM_LEVEL));
@@ -230,6 +232,7 @@ public class ItineraireActivity extends FragmentActivity implements OnMapReadyCa
         }
     }
 
+
     public void initVariables(){
         apiKey = getResources().getString(R.string.google_maps_key);
         depart =  findViewById(R.id.editDepart);
@@ -241,15 +244,15 @@ public class ItineraireActivity extends FragmentActivity implements OnMapReadyCa
             @Override
             public void onClick(View v) {
                 Log.e(TAG, "onClick : Driving");
-                get_response("driving", origin, dest);
+                get_response(Constantes.ITINERAIRE_DRIVING, origin, dest);
             }
         });
         layoutWalking = findViewById(R.id.layout_walking);
         layoutWalking.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.e(TAG, "onClick : Driving");
-                get_response("walking", origin, dest);
+                Log.e(TAG, "onClick : Walking");
+                get_response(Constantes.ITINERAIRE_WALKING, origin, dest);
             }
         });
         blockItineraire = findViewById(R.id.block_itineraire);
@@ -303,7 +306,7 @@ public class ItineraireActivity extends FragmentActivity implements OnMapReadyCa
                     depart.setText("");
                 } else {
                     if (origin.equals(userPosition)) {
-                        depart.setText("Votre position.");
+                        depart.setText(getResources().getString(R.string.your_position));
                     }
                 }
             }
@@ -335,7 +338,8 @@ public class ItineraireActivity extends FragmentActivity implements OnMapReadyCa
                 dest = new LatLng(salesPointSelected.getSalesPointLat(),salesPointSelected.getSalesPointLong());
                 Utils.hideKeyboard(ItineraireActivity.this);
                 Log.e(TAG, "onClick : Arrivee");
-                get_response("driving",origin,dest);
+                get_distance(origin, dest);
+                get_response(Constantes.ITINERAIRE_DRIVING,origin,dest);
             }
         });
 
@@ -376,18 +380,18 @@ public class ItineraireActivity extends FragmentActivity implements OnMapReadyCa
                                 .addOnSuccessListener(ItineraireActivity.this, new OnSuccessListener<android.location.Location>() {
                                     @Override
                                     public void onSuccess(android.location.Location location) {
-                                        depart.setText("Votre position");
+                                        depart.setText(getResources().getString(R.string.your_position));
                                         if (location != null) {
                                             userPosition =new LatLng(location.getLatitude(),location.getLongitude());
 
-                                            SharedPreferences.Editor editor = getSharedPreferences("position", MODE_PRIVATE).edit();
-                                            editor.putString("latitude", ""+userPosition.latitude);
-                                            editor.putString("longitude", ""+userPosition.longitude);
+                                            SharedPreferences.Editor editor = getSharedPreferences(Constantes.SHARED_PREFERENCES_POSITION, MODE_PRIVATE).edit();
+                                            editor.putString(Constantes.SHARED_PREFERENCES_POSITION_LATITUDE, ""+userPosition.latitude);
+                                            editor.putString(Constantes.SHARED_PREFERENCES_POSITION_LONGITUDE, ""+userPosition.longitude);
                                             editor.apply();
 
                                             origin = userPosition;
                                             get_distance(userPosition, dest);
-                                            get_response("vehicule", userPosition, dest);
+                                            get_response(Constantes.ITINERAIRE_DRIVING, userPosition, dest);
                                         }
                                     }
                                 })
@@ -410,7 +414,7 @@ public class ItineraireActivity extends FragmentActivity implements OnMapReadyCa
 
     private void get_distance(LatLng origin, LatLng dest) {
 
-        Call<GoogleDirections> call = service.getDistanceDuration(apiKey,"metric", origin.latitude + "," + origin.longitude,dest.latitude + "," + dest.longitude,"walking");
+        Call<GoogleDirections> call = pfeAPI.getDistanceDuration(apiKey,"metric", origin.latitude + "," + origin.longitude,dest.latitude + "," + dest.longitude,Constantes.ITINERAIRE_WALKING);
         call.enqueue(new Callback<GoogleDirections>() {
 
             @Override
@@ -434,19 +438,8 @@ public class ItineraireActivity extends FragmentActivity implements OnMapReadyCa
     }
 
 
-    private void build_retrofit() {
-        String url = "https://maps.googleapis.com/maps/api/";
-        Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(url)
-                .addConverterFactory(GsonConverterFactory.create())
-                .build();
-
-        service = retrofit.create(ItineraireService.class);
-    }
-
-
     private  void get_places(String searchTerm){
-        Call<GoogleAutocompleteResponse> call = service.getAutoCompleteSearchResults(apiKey,searchTerm ,36.7525 +","+ 3.04197,500);
+        Call<GoogleAutocompleteResponse> call = pfeAPI.getAutoCompleteSearchResults(apiKey,searchTerm ,36.7525 +","+ 3.04197,500);
         call.enqueue(new Callback<GoogleAutocompleteResponse>() {
             ArrayAdapter<String> adapterPosition;
 
@@ -476,7 +469,7 @@ public class ItineraireActivity extends FragmentActivity implements OnMapReadyCa
 
     private void get_latlng(String api_key, String id_place){
 
-        Call<GooglePlaceDetails> call = service.getLatLng(api_key,id_place);
+        Call<GooglePlaceDetails> call = pfeAPI.getLatLng(api_key,id_place);
         call.enqueue(new Callback<GooglePlaceDetails>() {
 
             @Override
@@ -485,7 +478,7 @@ public class ItineraireActivity extends FragmentActivity implements OnMapReadyCa
                 Location places = response.body().getResult().getGeometry().getLocation();
                 origin = new LatLng(places.getLat(), places.getLng());
                 get_distance(origin, dest);
-                get_response("driving", origin, dest);
+                get_response(Constantes.ITINERAIRE_DRIVING, origin, dest);
             }
 
             @Override
@@ -501,7 +494,7 @@ public class ItineraireActivity extends FragmentActivity implements OnMapReadyCa
         listLatLng.add(origin);
         listLatLng.add(dest);
 
-        Call<GoogleDirections> call = service.getDistanceDuration(apiKey,"metric", origin.latitude + "," + origin.longitude,dest.latitude + "," + dest.longitude, type);
+        Call<GoogleDirections> call = pfeAPI.getDistanceDuration(apiKey,"metric", origin.latitude + "," + origin.longitude,dest.latitude + "," + dest.longitude, type);
         call.enqueue(new Callback<GoogleDirections>() {
             @Override
             public void onResponse(Call<GoogleDirections> call, Response<GoogleDirections> response) {
@@ -516,7 +509,7 @@ public class ItineraireActivity extends FragmentActivity implements OnMapReadyCa
                     time =  time.replaceAll("hour","h");
                     String timeDistance = time  + " \n (" + distance + ")";
 
-                    if (type.equals("walking")){
+                    if (type.equals(Constantes.ITINERAIRE_WALKING)){
                         ShowDistanceDurationWalking.setText(timeDistance);
                     } else {
                         ShowDistanceDurationDriving.setText(timeDistance);
@@ -527,7 +520,7 @@ public class ItineraireActivity extends FragmentActivity implements OnMapReadyCa
                     line = mMap.addPolyline(new PolylineOptions()
                             .addAll(list)
                             .width(20)
-                            .color(getResources().getColor(R.color.color_Itineraire))
+                            .color(getResources().getColor(R.color.colorPrimary))
                             .geodesic(true)
                     );
                     originMarker.setPosition(origin);
@@ -559,8 +552,8 @@ public class ItineraireActivity extends FragmentActivity implements OnMapReadyCa
         int routePadding = 200;
         LatLngBounds latLngBounds = boundsBuilder.build();
 
-        googleMap.animateCamera(CameraUpdateFactory.newLatLngBounds(latLngBounds, routePadding));
-        searchZoom = googleMap.getCameraPosition().zoom;
+        cameraUpdate = CameraUpdateFactory.newLatLngBounds(latLngBounds, routePadding);
+        googleMap.animateCamera(cameraUpdate);
     }
 
 
@@ -611,5 +604,4 @@ public class ItineraireActivity extends FragmentActivity implements OnMapReadyCa
         }
         return true;
     }
-
 }
