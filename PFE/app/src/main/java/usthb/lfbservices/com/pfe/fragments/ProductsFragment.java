@@ -142,9 +142,10 @@ public class ProductsFragment extends Fragment {
             public void onClick(View view) {
 
                 final List<Product> productsList = Singleton.getInstance().getProductList();
+
+                listItemsMarque = new ArrayList<>();
                 for (int i = 0; i < productsList.size(); i++) {
                     String marque =  productsList.get(i).getProductTradeMark();
-
                     if (!listItemsMarque.contains(marque)) listItemsMarque.add(marque);
                 }
 
@@ -158,6 +159,9 @@ public class ProductsFragment extends Fragment {
                         checkedItemsMarque[i] = true;
                     }
                 }
+
+                final ArrayList<String> listCheckedTradeMarksSave = new ArrayList<String>();
+                listCheckedTradeMarksSave.addAll(listCheckedTradeMarks);
 
                 AlertDialog.Builder mBuilder = new AlertDialog.Builder(fragmentBelongActivity);
                 mBuilder.setTitle(R.string.dialog_title_Marque);
@@ -190,6 +194,8 @@ public class ProductsFragment extends Fragment {
                 mBuilder.setNegativeButton(R.string.dismiss_label, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
+                        listCheckedTradeMarks.clear();
+                        listCheckedTradeMarks.addAll(listCheckedTradeMarksSave);
                         dialogInterface.dismiss();
                     }
                 });
@@ -215,7 +221,12 @@ public class ProductsFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 final List<Product> products = Singleton.getInstance().getProductList();
+                final ArrayList<Integer> mUserItemsTypeSave = new ArrayList<Integer>();
+                mUserItemsTypeSave.addAll(mUserItemsType);
 
+                Log.e(TAG, ""+products.size());
+
+                listItemsType = new ArrayList<>();
                 for (int i=0; i< products.size(); i++ ){
                     int type =  products.get(i).getProductType();
                     if (!listItemsType.contains(types[type])) listItemsType.add(types[type]);
@@ -258,6 +269,8 @@ public class ProductsFragment extends Fragment {
                 mBuilder.setNegativeButton(R.string.dismiss_label, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
+                        mUserItemsType.clear();
+                        mUserItemsType.addAll(mUserItemsTypeSave);
                         dialogInterface.dismiss();
                     }
                 });

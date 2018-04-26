@@ -65,6 +65,7 @@ public class PfeRx extends FragmentActivity {
      */
     private static PfeAPI pfeAPI = PfeAPI.getInstance();
 
+    //TODO: Changer le productId dans la BD en code bar, normalement que des chiffres mais par mesure de précotion passer en VARCHAR?
     public static void searchFromProductId(@NonNull final Activity activity,
                                            @NonNull final int productId) {
         final ProgressDialog progressDialog = new ProgressDialog(activity,
@@ -112,6 +113,23 @@ public class PfeRx extends FragmentActivity {
                         final GoogleMap map = Singleton.getInstance().getMap();
                         if (map != null) {
                             map.clear();
+                            LatLngBounds.Builder builder = new LatLngBounds.Builder();
+
+                            SharedPreferences preferences = activity.getSharedPreferences(Constantes.SHARED_PREFERENCES_POSITION, MODE_PRIVATE);
+                            String sUserLatitude = preferences.getString(Constantes.SHARED_PREFERENCES_POSITION_LATITUDE, null);
+                            String sUserLongitude = preferences.getString(Constantes.SHARED_PREFERENCES_POSITION_LONGITUDE, null);
+                            LatLng userPosition = null;
+
+                            if (sUserLatitude != null && sUserLongitude != null) {
+                                try {
+                                    userPosition = new LatLng(Double.parseDouble(sUserLatitude), Double.parseDouble(sUserLongitude));
+                                } catch (Exception e) {
+                                    Log.e(TAG, "Exception creating user position : " + e);
+                                }
+                            }
+                            if (activity instanceof MapsActivity) {
+                                ((MapsActivity)activity).addUserMarkerPosition(false);
+                            }
 
                             ProductSalesPoint productSalesPointTemps = new ProductSalesPoint();
                             int nbMarkers = 0;
@@ -142,27 +160,13 @@ public class PfeRx extends FragmentActivity {
                                     map.animateCamera(cu);
                                 } else {
                                     Iterator<LatLng> positions = hashMap.keySet().iterator();
-                                    LatLngBounds.Builder builder = new LatLngBounds.Builder();
 
-                                    SharedPreferences preferences = activity.getSharedPreferences(Constantes.SHARED_PREFERENCES_POSITION, MODE_PRIVATE);
-                                    String sUserLatitude = preferences.getString(Constantes.SHARED_PREFERENCES_POSITION_LATITUDE, null);
-                                    String sUserLongitude = preferences.getString(Constantes.SHARED_PREFERENCES_POSITION_LONGITUDE, null);
-                                    LatLng userPosition = null;
-
-                                    if (sUserLatitude != null && sUserLongitude != null) {
-                                        try {
-                                            userPosition = new LatLng(Double.parseDouble(sUserLatitude), Double.parseDouble(sUserLongitude));
-                                        } catch (Exception e) {
-                                            Log.e(TAG, "Exception creating user position : " + e);
-                                        }
-                                    }
-
-                                    Log.e(TAG, "" + userPosition.longitude + "   " + userPosition.latitude);
                                     List<LatLng> latLngList = Utils.getClosestPositions(positions, userPosition ,3);
 
                                     for (LatLng latLng : latLngList) {
                                         builder.include(latLng);
                                     }
+
                                     LatLngBounds bounds = builder.build();
                                     // offset from the edges of the map in pixels
                                     int padding = 200;
@@ -176,6 +180,7 @@ public class PfeRx extends FragmentActivity {
                             map.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
                                 @Override
                                 public boolean onMarkerClick(Marker marker) {
+                                    marker.showInfoWindow();
                                     if (activity instanceof BottomSheetDataSetter) {
                                         for (SalesPoint salesPoint : salesPoints) {
                                             if (salesPoint.getSalesPointLatLng().equals(marker.getPosition())) {
@@ -221,7 +226,7 @@ public class PfeRx extends FragmentActivity {
                                                     if (productSalesPoint.getSalespointId().equals(salesPoint.getSalesPointId())) {
                                                         BottomSheetDataSetter bottomSheetDataSetter = (BottomSheetDataSetter)activity;
                                                         bottomSheetDataSetter.setBottomSheetData(salesPoint, productSalesPoint);
-                                                        bottomSheetDataSetter.setBottomSheetState(BottomSheetBehavior.STATE_EXPANDED);
+                                                        bottomSheetDataSetter.setBottomSheetState(BottomSheetBehavior.STATE_COLLAPSED);
                                                         break;
                                                     }
                                                 }
@@ -254,7 +259,10 @@ public class PfeRx extends FragmentActivity {
     }
 
 
-   public static void searchFromQuery(@NonNull final Activity activity,
+    //TODO: Faire en sorte d'afficher par pages ==> en plus de la requête de base, une autre requête
+    //qui ne sera exécutée qu'une seule fois qui calculera le nombre total de résultats possible
+    //afin de déterminer le nombre de pages de résultats, faire pareil avec catégories
+    public static void searchFromQuery(@NonNull final Activity activity,
                                       @NonNull final String searchString) {
 
         final ArrayList<Product> products = new ArrayList<Product>();

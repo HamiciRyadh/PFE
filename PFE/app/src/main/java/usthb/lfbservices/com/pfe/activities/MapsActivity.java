@@ -46,6 +46,7 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 import usthb.lfbservices.com.pfe.R;
 import usthb.lfbservices.com.pfe.adapters.SalesPointsAdapter;
@@ -155,7 +156,7 @@ public class MapsActivity extends FragmentActivity implements SearchFragment.Sea
 
             if (Utils.isGPSActivated(this)) {
                 Log.e(TAG, "Adding user marker position from onResume.");
-                if (userPosition == null) addUserMarkerPosition();
+                if (userPosition == null) addUserMarkerPosition(true);
             } else {
                 if (!isActivateGPSVisible) {
                     isActivateGPSVisible = true;
@@ -221,17 +222,23 @@ public class MapsActivity extends FragmentActivity implements SearchFragment.Sea
                 Log.e(TAG, "onMapReady : GPS Activated.");
                 if (userPosition == null) {
                     mMap.clear();
-                    addUserMarkerPosition();
+                    addUserMarkerPosition(true);
                 }
             } else {
                 Log.e(TAG, "onMapReady : GPS Non Activated.");
-                defaultMarker = mMap.addMarker(new MarkerOptions().position(defaultPosition).title(getResources().getString(R.string.default_marker_title)));
-                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(defaultPosition, MapsActivity.ZOOM_LEVEL));
+//                defaultMarker = mMap.addMarker(new MarkerOptions().position(defaultPosition)
+//                        .title(getResources().getString(R.string.default_marker_title))
+//                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_CYAN)));
+//                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(defaultPosition, MapsActivity.ZOOM_LEVEL));
+                addUserMarkerPosition(true);
             }
         } else {
             Log.e(TAG, "onMapReady : GPS Permissions Non.");
-            defaultMarker = mMap.addMarker(new MarkerOptions().position(defaultPosition).title(getResources().getString(R.string.default_marker_title)));
-            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(defaultPosition, MapsActivity.ZOOM_LEVEL));
+//            defaultMarker = mMap.addMarker(new MarkerOptions().position(defaultPosition)
+//                    .title(getResources().getString(R.string.default_marker_title))
+//                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_CYAN)));
+//            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(defaultPosition, MapsActivity.ZOOM_LEVEL));
+            addUserMarkerPosition(true);
         }
         mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
             @Override
@@ -375,55 +382,73 @@ public class MapsActivity extends FragmentActivity implements SearchFragment.Sea
         }
     }
 
-    public void addUserMarkerPosition() {
+    public void addUserMarkerPosition(final boolean zoom) {
         if (Utils.checkPermission(this)) {
-            mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
-            mFusedLocationClient.getLastLocation()
-                    .addOnSuccessListener(this, new OnSuccessListener<Location>() {
-                        @Override
-                        public void onSuccess(Location location) {
-                            if (location != null) {
-                                Log.e(TAG, "Updating position.");
-                                if (currentLocation == null) currentLocation = location;
-                                if (location.getAccuracy() > currentLocation.getAccuracy()) {
-                                    Log.e(TAG, "Bad Accuracy, do nothing.");
-                                    return;
+            if (Utils.isGPSActivated(this)) {
+                mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+                mFusedLocationClient.getLastLocation()
+                        .addOnSuccessListener(this, new OnSuccessListener<Location>() {
+                            @Override
+                            public void onSuccess(Location location) {
+                                if (location != null) {
+                                    Log.e(TAG, "Updating position.");
+                                    if (currentLocation == null) currentLocation = location;
+                                    if (location.getAccuracy() > currentLocation.getAccuracy()) {
+                                        Log.e(TAG, "Bad Accuracy, do nothing.");
+                                        return;
+                                    }
+                                    Log.e(TAG, "Good Accuracy.");
+
+                                    currentLocation = location;
+
+                                    latitudeSearchPosition = location.getLongitude();
+                                    longitudeSearchPosition = location.getLatitude();
+
+                                    userPosition = new LatLng(longitudeSearchPosition, latitudeSearchPosition);
+                                    if (defaultMarker != null) defaultMarker.remove();
+                                    if (userMarker != null) {
+                                        userMarker.setPosition(userPosition);
+                                    }
+                                    else {
+                                        userMakerOptions =  new MarkerOptions().
+                                                position(userPosition).
+                                                title(getResources().getString(R.string.your_position)).
+                                                icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_CYAN));
+
+                                        userMarker= mMap.addMarker(userMakerOptions);
+                                    }
+                                    SharedPreferences.Editor editor =
+                                            getSharedPreferences(Constantes.SHARED_PREFERENCES_POSITION, MODE_PRIVATE).edit();
+                                    editor.putString(Constantes.SHARED_PREFERENCES_POSITION_LATITUDE, ""+userPosition.latitude);
+                                    editor.putString(Constantes.SHARED_PREFERENCES_POSITION_LONGITUDE, ""+userPosition.longitude);
+                                    editor.apply();
+                                    if (zoom) mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(userPosition, MapsActivity.ZOOM_LEVEL));
+                                } else {
+                                    if (userPosition != null) {
+                                        mMap.addMarker(new MarkerOptions().position(userPosition)
+                                                .title(getResources().getString(R.string.last_known_position))
+                                                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_CYAN)));
+                                    }
                                 }
-                                Log.e(TAG, "Good Accuracy.");
-
-                                currentLocation = location;
-
-                                latitudeSearchPosition = location.getLongitude();
-                                longitudeSearchPosition = location.getLatitude();
-
-                                userPosition = new LatLng(longitudeSearchPosition, latitudeSearchPosition);
-                                if (defaultMarker != null) defaultMarker.remove();
-                                if (userMarker != null) {
-                                    userMarker.setPosition(userPosition);
-                                }
-                                else {
-                                    userMakerOptions =  new MarkerOptions().
-                                            position(userPosition).
-                                            title(getResources().getString(R.string.your_position)).
-                                            icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_CYAN));
-
-                                    userMarker= mMap.addMarker(userMakerOptions);
-                                }
-                                SharedPreferences.Editor editor =
-                                        getSharedPreferences(Constantes.SHARED_PREFERENCES_POSITION, MODE_PRIVATE).edit();
-                                editor.putString(Constantes.SHARED_PREFERENCES_POSITION_LATITUDE, ""+userPosition.latitude);
-                                editor.putString(Constantes.SHARED_PREFERENCES_POSITION_LONGITUDE, ""+userPosition.longitude);
-                                editor.apply();
-                                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(userPosition, MapsActivity.ZOOM_LEVEL));
                             }
-                        }
-                    })
-                    .addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception e) {
-                            Log.e(TAG, "Location update failure :  " + e);
-                        }
-                    });
+                        })
+                        .addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                Log.e(TAG, "Location update failure :  " + e);
+                            }
+                        });
+            } else {
+                defaultMarker = mMap.addMarker(new MarkerOptions().position(defaultPosition)
+                        .title(getResources().getString(R.string.default_marker_title))
+                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_CYAN)));
+                if (zoom) mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(defaultPosition, MapsActivity.ZOOM_LEVEL));
+            }
+        } else {
+            defaultMarker = mMap.addMarker(new MarkerOptions().position(defaultPosition)
+                    .title(getResources().getString(R.string.default_marker_title))
+                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_CYAN)));
+            if (zoom) mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(defaultPosition, MapsActivity.ZOOM_LEVEL));
         }
     }
 
@@ -530,10 +555,17 @@ public class MapsActivity extends FragmentActivity implements SearchFragment.Sea
         }
     }
 
-    public void refreshMap(List<SalesPoint> temporarySalespointList) {
+    public void refreshMap(@NonNull List<SalesPoint> temporarySalesPointList) {
         mMap.clear();
 
-        for (SalesPoint salesPoint : temporarySalespointList) {
+        if (temporarySalesPointList.isEmpty()) {
+            Toast.makeText(MapsActivity.this, getResources().getString(R.string.nothing_match_filters), Toast.LENGTH_LONG).show();
+            return;
+        }
+
+        LatLngBounds.Builder builder = new LatLngBounds.Builder();
+
+        for (SalesPoint salesPoint : temporarySalesPointList) {
             MarkerOptions markerOptions = new MarkerOptions()
                     .position(new LatLng(salesPoint.getSalesPointLat(), salesPoint.getSalesPointLong()))
                     .title(salesPoint.getSalesPointName())
@@ -549,6 +581,25 @@ public class MapsActivity extends FragmentActivity implements SearchFragment.Sea
                 }
             }
             mMap.addMarker(markerOptions);
+            builder.include(salesPoint.getSalesPointLatLng());
+        }
+
+        if (userPosition != null) {
+            mMap.addMarker(new MarkerOptions().position(userPosition)
+                    .title(getResources().getString(R.string.your_position))
+                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_CYAN)));
+            //TODO: Est ce qu'on ajoute le marquer représentant l'utilisateur à la liste des marqueurs sur les quels centrer?
+            //builder.include(userPosition);
+        }
+
+        if (temporarySalesPointList.size() == 1 ) {
+            mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(temporarySalesPointList.get(0).getSalesPointLatLng(), MapsActivity.ZOOM_LEVEL));
+        } else {
+            LatLngBounds bounds = builder.build();
+            // offset from the edges of the map in pixels
+            int padding = 80;
+            CameraUpdate cu = CameraUpdateFactory.newLatLngBounds(bounds, padding);
+            mMap.animateCamera(cu);
         }
     }
 
@@ -556,6 +607,9 @@ public class MapsActivity extends FragmentActivity implements SearchFragment.Sea
         btnVille.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                final ArrayList<Integer> mUserItemsVilleSave = new ArrayList<Integer>();
+                mUserItemsVilleSave.addAll(mUserItemsVille);
+
                 AlertDialog.Builder mBuilder = new AlertDialog.Builder(MapsActivity.this);
                 mBuilder.setTitle(R.string.dialog_title_Ville);
 
@@ -603,6 +657,8 @@ public class MapsActivity extends FragmentActivity implements SearchFragment.Sea
                 mBuilder.setNegativeButton(R.string.dismiss_label, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
+                        mUserItemsVille.clear();
+                        mUserItemsVille.addAll(mUserItemsVilleSave);
                         dialogInterface.dismiss();
                     }
                 });
@@ -638,6 +694,7 @@ public class MapsActivity extends FragmentActivity implements SearchFragment.Sea
                         Utils.activateGPS(MapsActivity.this);
                     }
                 } else {
+                    final int mUserItemRayonSave = mUserItemRayon;
                     AlertDialog.Builder mBuilder = new AlertDialog.Builder(MapsActivity.this);
                     mBuilder.setTitle(R.string.dialog_title_Perimeter);
                     final String[] listRayon = getResources().getStringArray(R.array.rayon_recherche);
@@ -687,6 +744,7 @@ public class MapsActivity extends FragmentActivity implements SearchFragment.Sea
                                 List<SalesPoint> temporarySalesPointsList = Singleton.getInstance().getSalesPointList();
                                 int nbMarkers = 0;
                                 for (SalesPoint salesPoint : temporarySalesPointsList) {
+
                                     if (Utils.isInsidePerimeter(userPosition, salesPoint.getSalesPointLatLng(), circle.getRadius())) {
                                         builder.include(salesPoint.getSalesPointLatLng());
                                         nbMarkers++;
@@ -709,6 +767,7 @@ public class MapsActivity extends FragmentActivity implements SearchFragment.Sea
                     mBuilder.setNegativeButton(R.string.dismiss_label, new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {
+                            mUserItemRayon = mUserItemRayonSave;
                             dialogInterface.dismiss();
                         }
                     });
@@ -733,6 +792,8 @@ public class MapsActivity extends FragmentActivity implements SearchFragment.Sea
         btnWilaya.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                final boolean[] checkedItemsWilayaSave = checkedItemsWilaya.clone();
+
                 AlertDialog.Builder mBuilder = new AlertDialog.Builder(MapsActivity.this);
                 mBuilder.setTitle(R.string.dialog_title_Wilaya);
                 mBuilder.setMultiChoiceItems(listItemsWilaya, checkedItemsWilaya, new DialogInterface.OnMultiChoiceClickListener() {
@@ -803,6 +864,7 @@ public class MapsActivity extends FragmentActivity implements SearchFragment.Sea
                 mBuilder.setNegativeButton(R.string.dismiss_label, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
+                        checkedItemsWilaya = checkedItemsWilayaSave;
                         dialogInterface.dismiss();
                     }
                 });
@@ -881,7 +943,7 @@ public class MapsActivity extends FragmentActivity implements SearchFragment.Sea
         @Override
         public void onProviderEnabled(String s) {
             Log.e(TAG, "Provider Enabled : " + s);
-            addUserMarkerPosition();
+            addUserMarkerPosition(true);
         }
 
         @Override
