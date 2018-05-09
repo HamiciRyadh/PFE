@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "981774535347",
+    "firebase_url": "https://pfe-lfb.firebaseio.com",
+    "project_id": "pfe-lfb",
+    "storage_bucket": "pfe-lfb.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:981774535347:android:eb21736429bcef55",
+        "android_client_info": {
+          "package_name": "usthb.lfbservices.com.pfe"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "981774535347-4imnt5ttts2asdibaedeut6vll05b77l.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCMpZRWToITSItNBWB749bs0RSeWuZW4e0"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

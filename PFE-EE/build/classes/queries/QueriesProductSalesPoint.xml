@@ -5,15 +5,20 @@
 <mapper namespace="QueriesProductSalesPoint">
 
 <resultMap id = "result" type = "com.lfbservices.pfe.model.ProductSalesPoint">
-   <result property = "salesPointId" column = "salespoint_id"/>
-   <result property = "productId" column = "product_id"/>
+   <result property = "salesPointId" column = "sales_point_id"/>
+   <result property = "productBarcode" column="product_barcode" />
    <result property = "productPrice" column = "product_price"/>
    <result property = "productQuantity" column = "product_quantity"/>
 </resultMap>
 
 
-<select id = "getSalesPointsAndQte" parameterType = "int" resultMap = "result">
-   SELECT *  FROM  ${db.schema}."ProductSalesPoint" WHERE product_id  =  #{productId} ; 
+<select id = "getSalesPointsAndQte" parameterType = "String" resultMap = "result">
+   SELECT *  FROM  ${db.schema}."ProductSalesPoint" WHERE product_barcode  =  #{productBarcode} ; 
+</select>
+
+
+<select id = "getSalesPointById" parameterType = "String" resultMap = "result">
+   SELECT *  FROM  ${db.schema}."ProductSalesPoint" WHERE sales_point_id  =  #{salesPointId} ; 
 </select>
 
 

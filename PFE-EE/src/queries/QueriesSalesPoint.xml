@@ -5,18 +5,27 @@
 <mapper namespace="QueriesSalesPoint">
 
 <resultMap id = "result" type = "com.lfbservices.pfe.model.SalesPoint">
-   <result property = "salesPointId" column = "salespoint_id"/>
-   <result property = "salesPointLat" column = "salespoint_lat"/>
-   <result property = "salesPointLong" column = "salespoint_long"/>
-   <result property = "salesPointName" column = "salespoint_name"/>
-   <result property = "salesPointAddress" column = "salespoint_address"/>
+   <result property = "salesPointId" column = "sales_point_id"/>
+   <result property = "salesPointLat" column = "sales_point_lat"/>
+   <result property = "salesPointLong" column = "sales_point_lng"/>
+   <result property = "salesPointName" column = "sales_point_name"/>
 </resultMap>
 
 
-<select id = "getSalesPointById" resultMap = "result">
-  SELECT * FROM  ${db.schema}."SalesPoint" 
-                        WHERE  salesPoint_id = #{salespointId};
+<select id = "getSalesPointById" parameterType="String" resultMap = "result">
+  SELECT * FROM  ${db.schema}."SalesPoint" WHERE  sales_point_id = #{salesPointId};
 </select>
 
+
+<update id="updateSalesPointById" parameterType="com.lfbservices.pfe.model.SalesPoint">
+		UPDATE ${db.schema}."SalesPoint"  SET
+
+		sales_point_name = #{salesPointName},
+		sales_point_lat = #{salesPointLat},
+		sales_point_lng = #{salesPointLong}
+
+		WHERE sales_point_id = #{salesPointId};
+	</update>
+ 
 
 </mapper>

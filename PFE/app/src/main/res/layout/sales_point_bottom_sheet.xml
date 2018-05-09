@@ -24,23 +24,52 @@
             android:layout_height="match_parent"
             android:orientation="vertical">
 
+
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="100dp"
                 android:orientation="vertical">
-                <TextView
-                    android:id="@+id/sales_point_name_details"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:textColor="#581845"
-                    android:textSize="24sp"
-                    android:textStyle="bold"
-                    android:gravity="center"
-                    tools:text="SARL LFB Services" />
 
-               <LinearLayout
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="100"
+                    android:orientation="horizontal">
+                    <ImageView
+                        android:id="@+id/notify_me"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="15dp"
+                        android:layout_marginStart="15dp"
+                        android:layout_gravity="center"
+                        android:src="@drawable/notification" />
+
+                    <TextView
+                        android:id="@+id/sales_point_name_details"
+                        android:layout_width="0dp"
+                        android:layout_weight="100"
+                        android:layout_height="match_parent"
+                        android:gravity="center"
+                        android:textColor="#581845"
+                        android:textSize="24sp"
+                        android:textStyle="bold"
+                        tools:text="LFB SERVICES" />
+
+                    <ImageView
+                        android:id="@+id/add_to_favorite"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:layout_marginRight="15dp"
+                        android:layout_marginEnd="15dp"
+                        android:src="@drawable/favoris" />
+
+                </LinearLayout>
+
+
+                <LinearLayout
                    android:layout_width="match_parent"
-                   android:layout_height="match_parent"
+                   android:layout_height="wrap_content"
                    android:orientation="horizontal">
 
                    <LinearLayout
@@ -188,7 +217,8 @@
                     android:gravity="center_vertical|left"
                     android:textAppearance="?android:textAppearanceMedium"
                     android:textSize="@dimen/history_text_size"
-                    tools:text="023 23 85 47" />
+                    tools:text="023 23 85 47"
+                    />
             </LinearLayout>
 
 

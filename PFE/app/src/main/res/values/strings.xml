@@ -9,7 +9,7 @@
     <string name="reduce">Diminuer</string>
     <string name="no">Non</string>
     <string name="retry">Réessayer</string>
-    <string name="your_position">Votre position.</string>
+    <string name="your_position">Votre position</string>
     <string name="start_point">Départ</string>
     <string name="destination_point">Arrivée</string>
     <string name="default_marker_title">Position par défaut</string>
@@ -33,6 +33,8 @@
 
     <!-- Dialog boxes -->
     <string name="dialog_message_activate_gps">Veuillez activer le GPS.</string>
+    <string name="dialog_message_require_connexion">Cette option n\'est accessible qu\'aux utilisateurs authentifiés.</string>
+    <string name="go_to_connect_dialog_option">Me connecter</string>
     <string name="dialog_title_Wilaya">Filtrer par Wilaya</string>
     <string name="dialog_title_Ville">Filtrer par Ville</string>
     <string name="dialog_title_Marque">Filtrer par Marque</string>
@@ -64,6 +66,15 @@
     <string name="server_connexion">Connexion au serveur ...</string>
     <string name="checking_informations">Vérification des informations ...</string>
     <string name="retrieving_data">Récupération des données ...</string>
+
+    <!-- Navigation Drawer -->
+    <string name="home">Acceuil</string>
+    <string name="favorite">Favoris</string>
+    <string name="notifications">Notifications</string>
+    <string name="parameters">Paramètres</string>
+    <string name="about_us">A propos de nous</string>
+    <string name="disconnect">Se déconnecter</string>
+    <string name="connect">Se connecter</string>
 
     <string-array name="rayon_recherche">
         <item>10 km</item>
@@ -125,5 +136,11 @@
         <item>Hydra</item>
         <item>Birkhadem</item>
     </string-array>
+    <string name="title_activity_main">MainActivity</string>
+
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+
+    <string name="action_settings">Settings</string>
 
 </resources>

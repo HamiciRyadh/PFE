@@ -117,8 +117,8 @@ public class PfeAPI {
         return pfeService.getPlaceDetails(salesPointId);
     }
 
-    public Observable<Result> searchFromProductId(final int productId) {
-        return pfeService.searchFromProductId(productId);
+    public Observable<Result> searchFromProductBarcode(final String productBarcode) {
+        return pfeService.searchFromProductBarcode(productBarcode);
     }
 
     public Observable<List<Product>> searchFromQuery(final String value) {

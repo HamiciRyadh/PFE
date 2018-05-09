@@ -1,5 +1,6 @@
 package com.lfbservices.pfe.model;
 
+
 /**
 * <b> Product est la classe qui represente un produit</b>
 * <p>
@@ -17,36 +18,62 @@ package com.lfbservices.pfe.model;
 
 public class Product {
 	
-	private int productId;
+	private String productBarcode;
 	private String productName;
 	private int productType;
 	private int productCategory;
 	private String productTradeMark;
+	//private Map<String,String> productCaracteristics;
 	
 	
 	public Product() {
-		this(0,"",0,0,"");
+		this("","",0,0,"");
 	}
 	
 	
-	public Product(int productId, String productName, int productType, int productCategory,
+	public Product(String productBarcode, String productName, int productType, int productCategory,
 			String productTradeMark) {
+		super();
+		this.productBarcode = productBarcode;
+		this.productName = productName;
+		this.productType = productType;
+		this.productCategory = productCategory;
+		this.productTradeMark = productTradeMark;
+	}
+	
+	
+	/*
+
+
+	public Product(String productId, String productName, int productType, int productCategory, String productTradeMark,
+			Map<String, String> caracteristics) {
 		super();
 		this.productId = productId;
 		this.productName = productName;
 		this.productType = productType;
 		this.productCategory = productCategory;
 		this.productTradeMark = productTradeMark;
+		this.productCaracteristics = caracteristics;
 	}
 
 
-	public int getProductId() {
-		return productId;
+	public Map<String, String> getCaracteristics() {
+		return productCaracteristics;
 	}
 
 
-	public void setProductId(int productId) {
-		this.productId = productId;
+	public void setCaracteristics(Map<String, String> caracteristics) {
+		this.caracteristics = caracteristics;
+	}
+*/
+
+	public String getProductBarcode() {
+		return productBarcode;
+	}
+
+
+	public void setProductBarcode(String productBarcode) {
+		this.productBarcode = productBarcode;
 	}
 
 

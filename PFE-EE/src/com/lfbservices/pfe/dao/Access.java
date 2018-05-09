@@ -7,6 +7,7 @@ import java.util.Map;
 
 import org.apache.ibatis.session.SqlSession;
 
+import com.lfbservices.pfe.model.KeyValue;
 import com.lfbservices.pfe.model.Product;
 import com.lfbservices.pfe.model.ProductSalesPoint;
 import com.lfbservices.pfe.model.SalesPoint;
@@ -40,10 +41,10 @@ public class Access {
 		return listProducts;
 	}
 
-	public static Product getProductById(final int id) throws Exception {
+	public static Product getProductById(final String productBarcode) throws Exception {
 		SqlSession session = DBConnectionFactory.getNewSession();
 
-		Product product = session.selectOne("QueriesProduct.getProductById", id);
+		Product product = session.selectOne("QueriesProduct.getProductById", productBarcode);
 
 		session.commit();
 		session.close();
@@ -84,7 +85,7 @@ public class Access {
 
 	}
 
-	public static void deleteProduct(final int productId) throws Exception {
+	public static void deleteProduct(final String productId) throws Exception {
 		SqlSession session = DBConnectionFactory.getNewSession();
 
 		session.delete("QueriesProduct.deleteProductById", productId);
@@ -93,21 +94,41 @@ public class Access {
 		session.close();
 
 	}
-
-	/********************************	Queries for SalesPoints		*************************************/
-
 	
-	public static List<ProductSalesPoint> getSalesPointQte(final int productId) throws Exception {
+	
+	public static List<KeyValue> getProductCaracteristic(final String productBarcode) throws SQLException, IOException {
+
+		SqlSession session = DBConnectionFactory.getNewSession();
+
+		List<KeyValue> listProducts = session.selectList("QueriesProduct.getProductCaracteristic", productBarcode);
+
+		session.commit();
+		session.close();
+
+		return listProducts;
+
+	}
+	
+
+	/********************************	Queries for ProductSalesPoint	*************************************/
+	
+	
+	public static List<ProductSalesPoint> getProductSalesPointList(final String productBarcode) throws Exception {
 		SqlSession session = DBConnectionFactory.getNewSession();
 
 		List<ProductSalesPoint> listProductSalesPoint = session.selectList("QueriesProductSalesPoint.getSalesPointsAndQte",
-				productId);
+				productBarcode);
 
 		session.commit();
 		session.close();
 
 		return listProductSalesPoint;
 	}
+	
+	
+
+	/********************************	Queries for SalesPoints		*************************************/
+
 
 	public static SalesPoint getSalesPointById(final String salesPointId) throws Exception {
 		SqlSession session = DBConnectionFactory.getNewSession();

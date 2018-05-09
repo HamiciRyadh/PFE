@@ -6,20 +6,20 @@ package usthb.lfbservices.com.pfe.models;
 
 public class Product {
 
-    private int productId;
+    private String productBarcode;
     private String productName;
     private int productType;
     private String productTradeMark;
 
 
     public Product() {
-        this(0,"Unknown",0,"Unknown");
+        this("","Unknown",0,"Unknown");
     }
 
 
-    public Product(int productId, String productName, int productType, String productTradeMark) {
+    public Product(String productBarcode, String productName, int productType, String productTradeMark) {
         super();
-        this.productId = productId;
+        this.productBarcode = productBarcode;
         this.productName = productName;
         this.productType = productType;
         this.productTradeMark = productTradeMark;
@@ -27,12 +27,12 @@ public class Product {
 
 
 
-    public int getProductId() {
-        return productId;
+    public String getProductBarcode() {
+        return productBarcode;
     }
 
-    public void setProductId(int productId) {
-        this.productId = productId;
+    public void setProductBarcode(String productBarcode) {
+        this.productBarcode = productBarcode;
     }
 
     public String getProductName() {

@@ -21,22 +21,22 @@ import usthb.lfbservices.com.pfe.models.SalesPoint;
 public interface PfeService
 {
 
-    @GET("Products/Place/details/{salesPointId}")
-    Observable<SalesPoint> getPlaceDetails(@Path("salesPointId") String salesPointId);
+    @GET("Products/Place/details/{sales_point_id}")
+    Observable<SalesPoint> getPlaceDetails(@Path("sales_point_id") String salesPointId);
 
     @GET("Products/Search")
     Observable<List<Product>> searchFromQuery(@Query("value") String value);
 
-    @GET("Products/Search/{productId}")
-    Observable<Result> searchFromProductId(@Path("productId") int productId);
+    @GET("Products/Search/{product_barcode}")
+    Observable<Result> searchFromProductBarcode(@Path("product_barcode") String productBarcode);
 
     /**
      * Gives a List of Products for a given Category
      * @param category The id of the Category
      * @return A List of Products corresponding to the specified Category
      */
-    @GET("Products/Category/{categoryId}")
-    Observable<List<Product>> searchCategory(@Path("categoryId") int category);
+    @GET("Products/Category/{category_id}")
+    Observable<List<Product>> searchCategory(@Path("category_id") int category);
 
     @POST("User/Connect")
     @FormUrlEncoded

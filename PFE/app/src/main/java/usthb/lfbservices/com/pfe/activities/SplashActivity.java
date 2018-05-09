@@ -2,8 +2,12 @@ package usthb.lfbservices.com.pfe.activities;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.provider.Settings;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
+
+import com.google.firebase.iid.FirebaseInstanceId;
 
 import usthb.lfbservices.com.pfe.network.PfeAPI;
 import usthb.lfbservices.com.pfe.utils.Constantes;
@@ -19,14 +23,15 @@ public class SplashActivity extends AppCompatActivity {
         String password = preferences.getString(Constantes.SHARED_PREFERENCES_USER_PASSWORD, null);
         if (mailAddress != null && password != null) {
             PfeAPI.getInstance().setAuthorization(mailAddress, password);
-            Intent intent = new Intent(SplashActivity.this, MapsActivity.class);
-            startActivity(intent);
-            finish();
         }
-        else {
-            Intent intent = new Intent(this, LoginActivity.class);
-            startActivity(intent);
-            finish();
-        }
+
+        Intent intent = new Intent(SplashActivity.this, MainActivity.class);
+        startActivity(intent);
+        finish();
+
+        /*
+        String android_id = FirebaseInstanceId.getInstance().getToken();
+            Log.e("Android ID", "android id " + android_id.toString());
+            */
     }
 }

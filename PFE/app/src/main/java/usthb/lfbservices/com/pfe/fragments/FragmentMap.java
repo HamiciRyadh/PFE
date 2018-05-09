@@ -1,27 +1,28 @@
-package usthb.lfbservices.com.pfe.activities;
+package usthb.lfbservices.com.pfe.fragments;
 
+import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Build;
-import android.support.annotation.NonNull;
-import android.support.design.widget.BottomSheetBehavior;
-import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.support.design.widget.BottomSheetBehavior;
+import android.support.design.widget.FloatingActionButton;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
-import android.view.WindowManager;
-
+import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.ImageView;
 import android.widget.ListView;
-import android.widget.RatingBar;
 import android.widget.SearchView;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -40,39 +41,39 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.squareup.picasso.Picasso;
 
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 
 import usthb.lfbservices.com.pfe.R;
 import usthb.lfbservices.com.pfe.adapters.SalesPointsAdapter;
 import usthb.lfbservices.com.pfe.database.DatabaseHelper;
-import usthb.lfbservices.com.pfe.fragments.ProductsFragment;
-import usthb.lfbservices.com.pfe.fragments.SearchFragment;
-import usthb.lfbservices.com.pfe.models.BottomSheetDataSetter;
 import usthb.lfbservices.com.pfe.models.ProductSalesPoint;
 import usthb.lfbservices.com.pfe.models.SalesPoint;
 import usthb.lfbservices.com.pfe.models.Singleton;
 import usthb.lfbservices.com.pfe.network.PfeRx;
 import usthb.lfbservices.com.pfe.utils.Constantes;
-import usthb.lfbservices.com.pfe.utils.DisposableManager;
 import usthb.lfbservices.com.pfe.utils.Utils;
 
-public class MapsActivity extends FragmentActivity implements SearchFragment.SearchFragmentActions
-        , ProductsFragment.ProductsFragmentActions, BottomSheetDataSetter, OnMapReadyCallback {
+import static android.content.Context.LOCATION_SERVICE;
+import static android.content.Context.MODE_PRIVATE;
 
+/**
+ * Created by ryadh on 06/05/18.
+ */
 
-    private static final String TAG = MapsActivity.class.getName();
+public class FragmentMap extends Fragment  implements OnMapReadyCallback {
+
+    private static final String TAG = "FragmentMap";
+
+    private MapActions implementation;
+    private View rootView;
+    private FragmentActivity fragmentBelongActivity;
 
     public static final float ZOOM_LEVEL = 16.77f;
 
     private SearchView searchView;
-    private SearchFragment searchFragment;
-    private ProductsFragment productsFragment;
 
     private GoogleMap mMap;
     private SupportMapFragment mapFragment;
@@ -80,6 +81,7 @@ public class MapsActivity extends FragmentActivity implements SearchFragment.Sea
     private BottomSheetBehavior sheetBehavior;
     private Button showButton;
     private ListView listViewSalesPoints;
+    private FloatingActionButton userLocation;
 
     private Button btnWilaya;
     private Button btnSearchPerimeter;
@@ -94,15 +96,17 @@ public class MapsActivity extends FragmentActivity implements SearchFragment.Sea
     private int mUserItemRayon = -1;
     private String[] listVille = null;
 
+
     private double latitudeSearchPosition;
     private double longitudeSearchPosition;
 
     private boolean hasData = false;
     private LatLng userPosition;
     private Marker userMarker;
-    private MarkerOptions userMakerOptions;
+    private static MarkerOptions userMakerOptions;
     private Circle circle = null ;
     private LatLng defaultPosition = new LatLng(36.7525, 3.04197);
+    private boolean addMarker = true;
 
     private FusedLocationProviderClient mFusedLocationClient;
     private LocationManager locationManager;
@@ -112,133 +116,73 @@ public class MapsActivity extends FragmentActivity implements SearchFragment.Sea
     private boolean isActivateGPSVisible = false;
     private GPSLocationListener gpsLocationListener = new GPSLocationListener();
 
+    public FragmentMap() {
+    }
 
+
+    @Nullable
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_maps);
+    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        Log.e(TAG, "onCreateView");
+        rootView = inflater.inflate(R.layout.activity_maps, container, false);
+        fragmentBelongActivity = getActivity();
 
-        mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
-        mapFragment.getMapAsync(this);
-
-        if (findViewById(R.id.map_frame_layout) != null) {
-            if (savedInstanceState != null) return;
-
-            searchFragment = new SearchFragment();
-            productsFragment = new ProductsFragment();
+        if (rootView != null) {
+            mapFragment = SupportMapFragment.newInstance();
+            mapFragment.getMapAsync(this);
+            getChildFragmentManager().beginTransaction().replace(R.id.map, mapFragment).commit();
         }
-        locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
 
+        locationManager = (LocationManager) fragmentBelongActivity.getSystemService(LOCATION_SERVICE);
         if (Build.VERSION.SDK_INT >= 23) {
-            if (!Utils.checkPermission(this)) {
-                Utils.requestGPSPermissions(this);
+            if (!Utils.checkPermission(fragmentBelongActivity)) {
+                Utils.requestGPSPermissions(fragmentBelongActivity);
             }
         }
 
-        this.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
-
         initVariables();
+        initBottomSheet();
         initWilayaButton();
         initVillesButton();
         initSearchPerimeterButton();
         initSearchView();
-        initBottomSheet();
-    }
+        initUserLocation();
 
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        Log.e(TAG, "OnResume");
-        if (Utils.checkPermission(this)) {
-            locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, gpsLocationListener);
-            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, gpsLocationListener);
-
-            if (Utils.isGPSActivated(this)) {
-                Log.e(TAG, "Adding user marker position from onResume.");
-                if (userPosition == null) addUserMarkerPosition(true);
-            } else {
-                if (!isActivateGPSVisible) {
-                    isActivateGPSVisible = true;
-                    Utils.activateGPS(this);
-                }
-            }
-        }
-    }
-
-    @Override
-    protected void onPause() {
-        Log.e(TAG,"onPause");
-        super.onPause();
-        locationManager.removeUpdates(gpsLocationListener);
-    }
-
-    @Override
-    protected void onDestroy() {
-        Log.e(TAG, "onDestroy");
-        DisposableManager.dispose();
-        super.onDestroy();
-    }
-
-    @Override
-    public void onBackPressed() {
-        Log.e(TAG, "OnBackPressed");
-        if (showButton != null) {
-            showButton.setVisibility(View.GONE);
-        }
-        if (listViewSalesPoints != null) {
-            listViewSalesPoints.setVisibility(View.GONE);
-        }
-        if (sheetBehavior != null) {
-            sheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
-        }
-        if (btnWilaya != null) {
-            btnWilaya.setVisibility(View.GONE);
-        }
-        if (btnVille != null) {
-            btnVille.setVisibility(View.GONE);
-        }
-        if (btnSearchPerimeter != null) {
-            btnSearchPerimeter.setVisibility(View.GONE);
-        }
-        super.onBackPressed();
+        return rootView;
     }
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
+        Log.e(TAG, "onMapReady");
         mMap = googleMap;
         Singleton.getInstance().setMap(mMap);
+        SharedPreferences sharedPreferences = fragmentBelongActivity.getSharedPreferences(Constantes.SHARED_PREFERENCES_POSITION, fragmentBelongActivity.MODE_PRIVATE);
+        String sLat = sharedPreferences.getString(Constantes.SHARED_PREFERENCES_POSITION_LATITUDE,null);
+        String sLong = sharedPreferences.getString(Constantes.SHARED_PREFERENCES_POSITION_LONGITUDE,null);
 
-        //googleMap.setMapStyle(MapStyleOptions.loadRawResourceStyle(this, R.raw.map_style));
-        googleMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
-
-        if (!Utils.checkPermission(this)) {
-            Log.e(TAG, "onMapReady : No GPS Permissions.");
-            Utils.requestGPSPermissions(this);
+        if (sLat != null && sLong != null) {
+            double lat = Double.parseDouble(sLat);
+            double lon = Double.parseDouble(sLong);
+            userPosition = new LatLng(lat, lon);
         }
-        if (Utils.checkPermission(this)) {
-            Log.e(TAG, "onMapReady : GPS Permissions Ok.");
-            if (Utils.isGPSActivated(this)) {
-                Log.e(TAG, "onMapReady : GPS Activated.");
-                if (userPosition == null) {
-                    mMap.clear();
-                    addUserMarkerPosition(true);
-                }
+
+        if (Utils.checkPermission(fragmentBelongActivity)) {
+            if (addMarker && userPosition != null) {
+                userMakerOptions = new MarkerOptions().
+                        position(userPosition).
+                        title(getResources().getString(R.string.your_position)).
+                        icon(BitmapDescriptorFactory.fromResource(R.drawable.marker_blue));
+
+                userMarker = mMap.addMarker(userMakerOptions);
+                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(userPosition, ZOOM_LEVEL));
             } else {
-                Log.e(TAG, "onMapReady : GPS Non Activated.");
-//                defaultMarker = mMap.addMarker(new MarkerOptions().position(defaultPosition)
-//                        .title(getResources().getString(R.string.default_marker_title))
-//                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_CYAN)));
-//                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(defaultPosition, MapsActivity.ZOOM_LEVEL));
                 addUserMarkerPosition(true);
             }
         } else {
-            Log.e(TAG, "onMapReady : GPS Permissions Non.");
-//            defaultMarker = mMap.addMarker(new MarkerOptions().position(defaultPosition)
-//                    .title(getResources().getString(R.string.default_marker_title))
-//                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_CYAN)));
-//            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(defaultPosition, MapsActivity.ZOOM_LEVEL));
-            addUserMarkerPosition(true);
+            defaultMarker = mMap.addMarker(new MarkerOptions().position(defaultPosition)
+                    .title(getResources().getString(R.string.default_marker_title))
+                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.marker_blue)));
+            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(defaultPosition, ZOOM_LEVEL));
         }
         mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
             @Override
@@ -249,145 +193,231 @@ public class MapsActivity extends FragmentActivity implements SearchFragment.Sea
     }
 
     @Override
-    public void onCategorySelected(int category) {
-        if (Utils.isNetworkAvailable(this)) {
-            /**
-             * Remove focus from searchView so that the keyboark doesn't appear.
-             */
+    public void onAttach(Context context) {
+        Log.e(TAG, "onAttach");
+        super.onAttach(context);
+        addMarker = true;
+        try {
+            implementation = (MapActions) context;
+        } catch (ClassCastException e) {
+            throw new ClassCastException(context.toString()
+                    + " must implement MapActions");
+        }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        Log.e(TAG, "OnResume");
+        if (Utils.checkPermission(fragmentBelongActivity)) {
+            if (addMarker && userPosition != null) {
+                if (userMarker != null) userMarker.setPosition(userPosition);
+                else {
+                    userMakerOptions =  new MarkerOptions().
+                            position(userPosition).
+                            title(getResources().getString(R.string.your_position)).
+                            icon(BitmapDescriptorFactory.fromResource(R.drawable.marker_blue));
+
+                    userMarker = mMap.addMarker(userMakerOptions);
+                }
+                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(userPosition, ZOOM_LEVEL));
+            }
+            locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, gpsLocationListener);
+            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, gpsLocationListener);
+
+            if (Utils.isGPSActivated(fragmentBelongActivity)) {
+                Log.e(TAG, "Adding user marker position from onResume.");
+            } else {
+                if (!isActivateGPSVisible) {
+                    isActivateGPSVisible = true;
+                    Utils.activateGPS(fragmentBelongActivity);
+                }
+            }
+        }
+    }
+
+    public void initVariables() {
+        db = new DatabaseHelper(fragmentBelongActivity);
+        searchView = rootView.findViewById(R.id.search_view);
+        Log.e(TAG, "SearchView : " + (searchView == null));
+        sheetBehavior = BottomSheetBehavior.from(rootView.findViewById(R.id.layout_bottom_sheet));
+        showButton = rootView.findViewById(R.id.show_list_button);
+        listViewSalesPoints = rootView.findViewById(R.id.list_view_sales_points);
+        userLocation = rootView.findViewById(R.id.geolocalisation);
+        Log.e(TAG, "UserLocation : " + (userLocation == null));
+        btnWilaya = rootView.findViewById(R.id.btn_Wilaya);
+        btnVille = rootView.findViewById(R.id.btn_Ville);
+        btnSearchPerimeter = rootView.findViewById(R.id.btn_Rayon_Recherche);
+        listItemsWilaya = db.getWilayas();
+        checkedItemsWilaya = new boolean[listItemsWilaya.length];
+    }
+
+    public void initSearchView() {
+        btnWilaya.setVisibility(View.GONE);
+        btnSearchPerimeter.setVisibility(View.GONE);
+
+        final ProductsFragment productsFragment = implementation.getActivityProductsFragment();
+        final SearchFragment searchFragment = implementation.getActivitySearchFragment();
+
+        searchView.setOnQueryTextFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                Log.e(TAG, "SearchView : OnQueryTextFocusChange");
+                //DisposableManager.dispose();
+                if (hasFocus) {
+
+                    if (showButton.getVisibility() != View.GONE)
+                        showButton.setVisibility(View.GONE);
+                    if (btnWilaya != null) btnWilaya.setVisibility(View.GONE);
+                    if (btnVille != null) btnVille.setVisibility(View.GONE);
+                    if (btnSearchPerimeter != null) btnSearchPerimeter.setVisibility(View.GONE);
+                    if (sheetBehavior != null) sheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
+                    if (listViewSalesPoints != null) listViewSalesPoints.setVisibility(View.GONE);
+                    if (userLocation != null) userLocation.setVisibility(View.GONE);
+                    if (productsFragment.isAdded()) {
+                        getChildFragmentManager()
+                                .beginTransaction()
+                                .remove(productsFragment)
+                                .commit();
+                    }
+                    if (!searchFragment.isVisible()) {
+                        Log.e(TAG, "Setting SearchFragment");
+                        getChildFragmentManager()
+                                .beginTransaction()
+                                .add(R.id.map_frame_layout, searchFragment, Constantes.FRAGMENT_SEARCH)
+                                .addToBackStack(null)
+                                .commit();
+                        if (getChildFragmentManager().findFragmentByTag(Constantes.FRAGMENT_SEARCH) != null)
+                            searchFragment.refreshHistory();
+                    }
+                }
+            }
+        });
+
+
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                Log.e(TAG, "SearchView : OnQueryTextSubmit");
+                if (getChildFragmentManager().findFragmentByTag(Constantes.FRAGMENT_SEARCH) != null) {
+                    searchFragment.addToHistorySearches(query);
+                    searchFragment.refreshHistory();
+                    searchQuery(query);
+                }
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                Log.e(TAG, "SearchView : OnQueryTextChange");
+                return false;
+            }
+        });
+    }
+
+    public void initUserLocation() {
+        if (userLocation != null) {
+            userLocation.setVisibility(View.VISIBLE);
+            userLocation.setOnClickListener(new View.OnClickListener() {
+
+                @Override
+                public void onClick(View view) {
+
+                    SharedPreferences preferences = fragmentBelongActivity.getSharedPreferences(Constantes.SHARED_PREFERENCES_POSITION, MODE_PRIVATE);
+                    String sUserLatitude = preferences.getString(Constantes.SHARED_PREFERENCES_POSITION_LATITUDE, null);
+                    String sUserLongitude = preferences.getString(Constantes.SHARED_PREFERENCES_POSITION_LONGITUDE, null);
+                    LatLng sUserPosition = null;
+
+                    if (sUserLatitude != null && sUserLongitude != null) {
+                        try {
+                            sUserPosition = new LatLng(Double.parseDouble(sUserLatitude), Double.parseDouble(sUserLongitude));
+                        } catch (Exception e) {
+                            Log.e(TAG, "Exception creating user position : " + e);
+                        }
+                    }
+
+                    if (sUserPosition != null) userPosition = sUserPosition;
+                    if (userPosition != null) {
+                        if (defaultMarker != null) defaultMarker.remove();
+                                userMarker = mMap.addMarker(new MarkerOptions().
+                                position(userPosition).
+                                title(getResources().getString((Utils.isNetworkAvailable(fragmentBelongActivity) ? R.string.your_position : R.string.last_known_position))).
+                                icon(BitmapDescriptorFactory.fromResource(R.drawable.marker_blue)));
+
+                        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(userPosition, FragmentMap.ZOOM_LEVEL));
+                    } else {
+                        if (userMarker != null) userMarker.remove();
+                        defaultMarker = mMap.addMarker(new MarkerOptions().
+                                position(defaultPosition).
+                                title(getResources().getString(R.string.default_marker_title)).
+                                icon(BitmapDescriptorFactory.fromResource(R.drawable.marker_blue)));
+                    }
+                }
+            });
+        }
+    }
+
+    public void searchQuery(@NonNull String query) {
+        if (Utils.isNetworkAvailable(fragmentBelongActivity)) {
+            ProductsFragment productsFragment = implementation.getActivityProductsFragment();
+            SearchFragment searchFragment = implementation.getActivitySearchFragment();
             searchView.clearFocus();
-            getSupportFragmentManager()
+             getChildFragmentManager()
                     .beginTransaction()
                     .add(R.id.map_frame_layout, productsFragment, Constantes.FRAGMENT_PRODUCTS)
                     .addToBackStack(null)
                     .remove(searchFragment)
                     .addToBackStack(null)
                     .commit();
-            PfeRx.searchCategory(this, category);
+            PfeRx.searchFromQuery(fragmentBelongActivity, query);
         } else {
-            Toast.makeText(this, getString(R.string.no_internet), Toast.LENGTH_LONG).show();
+            Toast.makeText(fragmentBelongActivity, getString(R.string.no_internet), Toast.LENGTH_LONG).show();
         }
     }
 
-    @Override
-    public void onProductSelected(final int productId) {
-        if (Utils.isNetworkAvailable(this)) {
-            getSupportFragmentManager()
+    public void onCategorySelected(int category) {
+        if (Utils.isNetworkAvailable(fragmentBelongActivity)) {
+            SearchFragment searchFragment = implementation.getActivitySearchFragment();
+            ProductsFragment productsFragment = implementation.getActivityProductsFragment();
+            clearSearchViewFocus();
+            getChildFragmentManager()
+                    .beginTransaction()
+                    .add(R.id.map_frame_layout, productsFragment, Constantes.FRAGMENT_PRODUCTS)
+                    .addToBackStack(null)
+                    .remove(searchFragment)
+                    .addToBackStack(null)
+                    .commit();
+            PfeRx.searchCategory(fragmentBelongActivity, category);
+        } else {
+            Toast.makeText(fragmentBelongActivity, getString(R.string.no_internet), Toast.LENGTH_LONG).show();
+        }
+    }
+
+    public void onProductSelected(final String productBarcode) {
+        if (Utils.isNetworkAvailable(fragmentBelongActivity)) {
+            addUserMarkerPosition(false);
+            checkedItemsWilaya = new boolean[listItemsWilaya.length];
+            mUserItemsVille = new ArrayList<>();
+            mUserItemRayon = -1;
+            ProductsFragment productsFragment = implementation.getActivityProductsFragment();
+            getChildFragmentManager()
                     .beginTransaction()
                     .remove(productsFragment)
                     .addToBackStack(null)
                     .commit();
-            PfeRx.searchFromProductId(this, productId);
-
-            btnWilaya.setVisibility(View.VISIBLE);
-            btnSearchPerimeter.setVisibility(View.VISIBLE);
+            PfeRx.searchFromProductId(fragmentBelongActivity, productBarcode);
+            hideWilayaAndPerimeter();
         } else {
-            Toast.makeText(this, getResources().getString(R.string.no_internet), Toast.LENGTH_LONG).show();
-        }
-    }
-
-    @Override
-    public void setBottomSheetData(@NonNull SalesPoint salesPoint, @NonNull ProductSalesPoint productSalesPoint) {
-        TextView nameTextView = findViewById(R.id.sales_point_name_details);
-        TextView addressTextView = findViewById(R.id.sales_point_address_details);
-        TextView quantityTextView = findViewById(R.id.product_qte_marker);
-        TextView priceTextView = findViewById(R.id.product_price_marker);
-
-        nameTextView.setText(salesPoint.getSalesPointName());
-        addressTextView.setText(salesPoint.getSalesPointAddress());
-        quantityTextView.setText(""+productSalesPoint.getProductQuantity());
-        priceTextView.setText(""+productSalesPoint.getProductPrice());
-    }
-
-    @Override
-    public void setBottomSheetDataDetails(@NonNull final SalesPoint salesPoint) {
-        ImageView salesPointPhoto = findViewById(R.id.sales_point_image_details);
-        TextView ratingMark = findViewById(R.id.rating);
-        RatingBar salesPointRating = findViewById(R.id.sales_point_rating_details);
-        TextView salesPointPhoneNumber = findViewById(R.id.sales_point_phone_number_details);
-        TextView salesPointWebSite = findViewById(R.id.sales_point_website_details);
-        ImageView salesPointItineraire = findViewById(R.id.sales_point_itineraire);
-        salesPointItineraire.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                final Intent intent = new Intent(MapsActivity.this, ItineraireActivity.class);
-
-                intent.putExtra(Constantes.INTENT_SALES_POINT_ID, salesPoint.getSalesPointId());
-                MapsActivity.this.startActivity(intent);
-
-            }
-        });
-
-        Picasso.get()
-                .load(Utils.buildGooglePictureUri(MapsActivity.this,salesPoint.getSalesPointPhotoReference()))
-                .error(R.drawable.not_avaialble2)
-                .into(salesPointPhoto);
-
-        DecimalFormat decimalFormat = new DecimalFormat("#.#");
-        ratingMark.setText(decimalFormat.format(salesPoint.getSalesPointRating()));
-        salesPointRating.setRating((float) salesPoint.getSalesPointRating());
-        salesPointPhoneNumber.setText(salesPoint.getSalesPointPhoneNumber());
-        salesPointWebSite.setText(salesPoint.getSalesPointWebSite());
-    }
-
-    @Override
-    public void setBottomSheetState(int state) {
-        if (state == BottomSheetBehavior.PEEK_HEIGHT_AUTO || (state >= BottomSheetBehavior.STATE_DRAGGING
-                && state <= BottomSheetBehavior.STATE_HIDDEN)) {
-            sheetBehavior.setState(state);
-        }
-    }
-
-    public void initVariables() {
-        db = new DatabaseHelper(this);
-        searchView = findViewById(R.id.search_view);
-        sheetBehavior = BottomSheetBehavior.from(findViewById(R.id.layout_bottom_sheet));
-        showButton = findViewById(R.id.show_list_button);
-        listViewSalesPoints = findViewById(R.id.list_view_sales_points);
-
-        btnWilaya = findViewById(R.id.btn_Wilaya);
-        btnVille = findViewById(R.id.btn_Ville);
-        btnSearchPerimeter = findViewById(R.id.btn_Rayon_Recherche);
-        listItemsWilaya = db.getWilayas();
-        checkedItemsWilaya = new boolean[listItemsWilaya.length];
-    }
-
-    public void onMapSelected() {
-        Log.e(TAG, "Zoom : " + mMap.getCameraPosition().zoom);
-        if (showButton.getVisibility() == View.VISIBLE) this.hasData = true;
-        if (searchView.getVisibility() == View.VISIBLE) {
-            searchView.animate()
-                    .translationY(searchView.getHeight())
-                    .alpha(0.0f)
-                    .setDuration(300);
-            searchView.setVisibility(View.GONE);
-            if (sheetBehavior != null) sheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
-            if (showButton != null) showButton.setVisibility(View.GONE);
-            if (btnWilaya != null) btnWilaya.setVisibility(View.GONE);
-            if (btnVille != null) btnVille.setVisibility(View.GONE);
-            if (btnSearchPerimeter != null) btnSearchPerimeter.setVisibility(View.GONE);
-            if (listViewSalesPoints != null) listViewSalesPoints.setVisibility(View.GONE);
-        } else {
-            searchView.animate()
-                    .translationY(0)
-                    .alpha(1.0f)
-                    .setDuration(300);
-            searchView.setVisibility(View.VISIBLE);
-            if (this.hasData) {
-                if (showButton != null) showButton.setVisibility(View.VISIBLE);
-                showButton.setText(getResources().getString(R.string.sales_points_show_list));
-                if (btnWilaya != null) btnWilaya.setVisibility(View.VISIBLE);
-                if (mUserItemsWilaya.size() != 0) btnVille.setVisibility(View.VISIBLE);
-                if (btnSearchPerimeter != null) btnSearchPerimeter.setVisibility(View.VISIBLE);
-            }
+            Toast.makeText(fragmentBelongActivity, getResources().getString(R.string.no_internet), Toast.LENGTH_LONG).show();
         }
     }
 
     public void addUserMarkerPosition(final boolean zoom) {
-        if (Utils.checkPermission(this)) {
-            if (Utils.isGPSActivated(this)) {
-                mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+        if (Utils.checkPermission(fragmentBelongActivity)) {
+            if (Utils.isGPSActivated(fragmentBelongActivity)) {
+                mFusedLocationClient = LocationServices.getFusedLocationProviderClient(fragmentBelongActivity);
                 mFusedLocationClient.getLastLocation()
-                        .addOnSuccessListener(this, new OnSuccessListener<Location>() {
+                        .addOnSuccessListener(fragmentBelongActivity, new OnSuccessListener<Location>() {
                             @Override
                             public void onSuccess(Location location) {
                                 if (location != null) {
@@ -413,21 +443,21 @@ public class MapsActivity extends FragmentActivity implements SearchFragment.Sea
                                         userMakerOptions =  new MarkerOptions().
                                                 position(userPosition).
                                                 title(getResources().getString(R.string.your_position)).
-                                                icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_CYAN));
+                                                icon(BitmapDescriptorFactory.fromResource(R.drawable.marker_blue));
 
                                         userMarker= mMap.addMarker(userMakerOptions);
                                     }
                                     SharedPreferences.Editor editor =
-                                            getSharedPreferences(Constantes.SHARED_PREFERENCES_POSITION, MODE_PRIVATE).edit();
+                                            fragmentBelongActivity.getSharedPreferences(Constantes.SHARED_PREFERENCES_POSITION, MODE_PRIVATE).edit();
                                     editor.putString(Constantes.SHARED_PREFERENCES_POSITION_LATITUDE, ""+userPosition.latitude);
                                     editor.putString(Constantes.SHARED_PREFERENCES_POSITION_LONGITUDE, ""+userPosition.longitude);
                                     editor.apply();
-                                    if (zoom) mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(userPosition, MapsActivity.ZOOM_LEVEL));
+                                    if (zoom) mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(userPosition, FragmentMap.ZOOM_LEVEL));
                                 } else {
                                     if (userPosition != null) {
-                                        mMap.addMarker(new MarkerOptions().position(userPosition)
+                                        userMarker = mMap.addMarker(new MarkerOptions().position(userPosition)
                                                 .title(getResources().getString(R.string.last_known_position))
-                                                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_CYAN)));
+                                                .icon(BitmapDescriptorFactory.fromResource(R.drawable.marker_blue)));
                                     }
                                 }
                             }
@@ -441,72 +471,56 @@ public class MapsActivity extends FragmentActivity implements SearchFragment.Sea
             } else {
                 defaultMarker = mMap.addMarker(new MarkerOptions().position(defaultPosition)
                         .title(getResources().getString(R.string.default_marker_title))
-                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_CYAN)));
-                if (zoom) mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(defaultPosition, MapsActivity.ZOOM_LEVEL));
+                        .icon(BitmapDescriptorFactory.fromResource(R.drawable.marker_blue)));
+                if (zoom) mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(defaultPosition, FragmentMap.ZOOM_LEVEL));
             }
         } else {
             defaultMarker = mMap.addMarker(new MarkerOptions().position(defaultPosition)
                     .title(getResources().getString(R.string.default_marker_title))
-                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_CYAN)));
-            if (zoom) mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(defaultPosition, MapsActivity.ZOOM_LEVEL));
+                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.marker_blue)));
+            if (zoom) mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(defaultPosition, FragmentMap.ZOOM_LEVEL));
         }
     }
 
-    public void initSearchView() {
-        btnWilaya.setVisibility(View.GONE);
-        btnSearchPerimeter.setVisibility(View.GONE);
-
-        searchView.setOnQueryTextFocusChangeListener(new View.OnFocusChangeListener() {
-            @Override
-            public void onFocusChange(View v, boolean hasFocus) {
-                Log.e(TAG, "SearchView : OnQueryTextFocusChange");
-                //DisposableManager.dispose();
-                if (hasFocus) {
-                    if (showButton.getVisibility() != View.GONE)
-                        showButton.setVisibility(View.GONE);
-                    if (btnWilaya != null) btnWilaya.setVisibility(View.GONE);
-                    if (btnVille != null) btnVille.setVisibility(View.GONE);
-                    if (btnSearchPerimeter != null) btnSearchPerimeter.setVisibility(View.GONE);
-                    if (sheetBehavior != null) sheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
-                    if (listViewSalesPoints != null) listViewSalesPoints.setVisibility(View.GONE);
-                    if (productsFragment.isAdded()) {
-                        getSupportFragmentManager()
-                                .beginTransaction()
-                                .remove(productsFragment)
-                                .commit();
-                    }
-                    if (!searchFragment.isVisible()) {
-                        Log.e(TAG, "Setting SearchFragment");
-                        getSupportFragmentManager()
-                                .beginTransaction()
-                                .add(R.id.map_frame_layout, searchFragment, Constantes.FRAGMENT_SEARCH)
-                                .addToBackStack(null)
-                                .commit();
-                        if (getSupportFragmentManager().findFragmentByTag(Constantes.FRAGMENT_SEARCH) != null)
-                            searchFragment.refreshHistory();
-                    }
+    public void onMapSelected() {
+        Log.e(TAG, "Zoom : " + mMap.getCameraPosition().zoom);
+        if (showButton.getVisibility() == View.VISIBLE) this.hasData = true;
+        SearchFragment searchFragment = implementation.getActivitySearchFragment();
+        if (searchFragment.isVisible()) return;
+        if (searchView.getVisibility() == View.VISIBLE) {
+            Log.e(TAG, "enter1");
+            searchView.animate()
+                    .translationY(searchView.getHeight())
+                    .alpha(0.0f)
+                    .setDuration(300);
+            searchView.setVisibility(View.GONE);
+            if (sheetBehavior != null) sheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
+            if (showButton != null) showButton.setVisibility(View.GONE);
+            if (btnWilaya != null) btnWilaya.setVisibility(View.GONE);
+            if (btnVille != null) btnVille.setVisibility(View.GONE);
+            if (btnSearchPerimeter != null) btnSearchPerimeter.setVisibility(View.GONE);
+            if (listViewSalesPoints != null) listViewSalesPoints.setVisibility(View.GONE);
+            Log.e(TAG, "UserLocation 1: " + (userLocation == null));
+            if (userLocation != null) userLocation.setVisibility(View.GONE);
+        } else {
+            Log.e(TAG, "enter2");
+            searchView.animate()
+                    .translationY(0)
+                    .alpha(1.0f)
+                    .setDuration(300);
+            searchView.setVisibility(View.VISIBLE);
+            Log.e(TAG, "UserLocation 2: " + (userLocation == null));
+            if(userLocation != null) userLocation.setVisibility(View.VISIBLE);
+            if (this.hasData) {
+                if (showButton != null) {
+                    showButton.setVisibility(View.VISIBLE);
+                    showButton.setText(getResources().getString(R.string.sales_points_show_list));
                 }
+                if (btnWilaya != null) btnWilaya.setVisibility(View.VISIBLE);
+                if (mUserItemsWilaya.size() != 0) btnVille.setVisibility(View.VISIBLE);
+                if (btnSearchPerimeter != null) btnSearchPerimeter.setVisibility(View.VISIBLE);
             }
-        });
-
-        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-            @Override
-            public boolean onQueryTextSubmit(String query) {
-                Log.e(TAG, "SearchView : OnQueryTextSubmit");
-                if (getSupportFragmentManager().findFragmentByTag(Constantes.FRAGMENT_SEARCH) != null) {
-                    searchFragment.addToHistorySearches(query);
-                    searchFragment.refreshHistory();
-                    searchQuery(query);
-                }
-                return false;
-            }
-
-            @Override
-            public boolean onQueryTextChange(String newText) {
-                Log.e(TAG, "SearchView : OnQueryTextChange");
-                return false;
-            }
-        });
+        }
     }
 
     public void initBottomSheet() {
@@ -534,32 +548,15 @@ public class MapsActivity extends FragmentActivity implements SearchFragment.Sea
 
             @Override
             public void onSlide(@NonNull View bottomSheet, float slideOffset) {
-
             }
         });
-    }
-
-    public void searchQuery(@NonNull String query) {
-        if (Utils.isNetworkAvailable(this)) {
-            searchView.clearFocus();
-            getSupportFragmentManager()
-                    .beginTransaction()
-                    .add(R.id.map_frame_layout, productsFragment, Constantes.FRAGMENT_PRODUCTS)
-                    .addToBackStack(null)
-                    .remove(searchFragment)
-                    .addToBackStack(null)
-                    .commit();
-            PfeRx.searchFromQuery(this, query);
-        } else {
-            Toast.makeText(this, getString(R.string.no_internet), Toast.LENGTH_LONG).show();
-        }
     }
 
     public void refreshMap(@NonNull List<SalesPoint> temporarySalesPointList) {
         mMap.clear();
 
         if (temporarySalesPointList.isEmpty()) {
-            Toast.makeText(MapsActivity.this, getResources().getString(R.string.nothing_match_filters), Toast.LENGTH_LONG).show();
+            Toast.makeText(fragmentBelongActivity, getResources().getString(R.string.nothing_match_filters), Toast.LENGTH_LONG).show();
             return;
         }
 
@@ -574,9 +571,9 @@ public class MapsActivity extends FragmentActivity implements SearchFragment.Sea
             for (ProductSalesPoint productSalesPoint : Singleton.getInstance().getProductSalesPointList()) {
                 if (productSalesPoint.getSalespointId().equals(salesPoint.getSalesPointId())) {
                     if (productSalesPoint.getProductQuantity() > 0) {
-                        markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN));
+                        markerOptions.icon(BitmapDescriptorFactory.fromResource(R.drawable.marker_green));
                     } else {
-                        markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED));
+                        markerOptions.icon(BitmapDescriptorFactory.fromResource(R.drawable.marker_red));
                     }
                 }
             }
@@ -587,13 +584,13 @@ public class MapsActivity extends FragmentActivity implements SearchFragment.Sea
         if (userPosition != null) {
             mMap.addMarker(new MarkerOptions().position(userPosition)
                     .title(getResources().getString(R.string.your_position))
-                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_CYAN)));
+                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.marker_blue)));
             //TODO: Est ce qu'on ajoute le marquer représentant l'utilisateur à la liste des marqueurs sur les quels centrer?
             //builder.include(userPosition);
         }
 
         if (temporarySalesPointList.size() == 1 ) {
-            mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(temporarySalesPointList.get(0).getSalesPointLatLng(), MapsActivity.ZOOM_LEVEL));
+            mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(temporarySalesPointList.get(0).getSalesPointLatLng(), FragmentMap.ZOOM_LEVEL));
         } else {
             LatLngBounds bounds = builder.build();
             // offset from the edges of the map in pixels
@@ -610,7 +607,7 @@ public class MapsActivity extends FragmentActivity implements SearchFragment.Sea
                 final ArrayList<Integer> mUserItemsVilleSave = new ArrayList<Integer>();
                 mUserItemsVilleSave.addAll(mUserItemsVille);
 
-                AlertDialog.Builder mBuilder = new AlertDialog.Builder(MapsActivity.this);
+                AlertDialog.Builder mBuilder = new AlertDialog.Builder(fragmentBelongActivity);
                 mBuilder.setTitle(R.string.dialog_title_Ville);
 
                 mBuilder.setMultiChoiceItems(listVille, checkedItemsVille, new DialogInterface.OnMultiChoiceClickListener() {
@@ -687,15 +684,15 @@ public class MapsActivity extends FragmentActivity implements SearchFragment.Sea
         btnSearchPerimeter.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (!Utils.isGPSActivated(MapsActivity.this)) {
-                    if (!Utils.checkPermission(MapsActivity.this)) {
-                        Utils.requestGPSPermissions(MapsActivity.this);
+                if (!Utils.isGPSActivated(fragmentBelongActivity)) {
+                    if (!Utils.checkPermission(fragmentBelongActivity)) {
+                        Utils.requestGPSPermissions(fragmentBelongActivity);
                     } else {
-                        Utils.activateGPS(MapsActivity.this);
+                        Utils.activateGPS(fragmentBelongActivity);
                     }
                 } else {
                     final int mUserItemRayonSave = mUserItemRayon;
-                    AlertDialog.Builder mBuilder = new AlertDialog.Builder(MapsActivity.this);
+                    AlertDialog.Builder mBuilder = new AlertDialog.Builder(fragmentBelongActivity);
                     mBuilder.setTitle(R.string.dialog_title_Perimeter);
                     final String[] listRayon = getResources().getStringArray(R.array.rayon_recherche);
                     mBuilder.setSingleChoiceItems(listRayon, mUserItemRayon, new DialogInterface.OnClickListener() {
@@ -758,8 +755,8 @@ public class MapsActivity extends FragmentActivity implements SearchFragment.Sea
                                     CameraUpdate cu = CameraUpdateFactory.newLatLngBounds(bounds, padding);
                                     mMap.animateCamera(cu);
                                 } else {
-                                    mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(userPosition, MapsActivity.ZOOM_LEVEL));
-                                    Toast.makeText(MapsActivity.this, getResources().getString(R.string.no_marker_in_search_area), Toast.LENGTH_LONG).show();
+                                    mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(userPosition, FragmentMap.ZOOM_LEVEL));
+                                    Toast.makeText(fragmentBelongActivity, getResources().getString(R.string.no_marker_in_search_area), Toast.LENGTH_LONG).show();
                                 }
                             }
                         }
@@ -794,7 +791,7 @@ public class MapsActivity extends FragmentActivity implements SearchFragment.Sea
             public void onClick(View view) {
                 final boolean[] checkedItemsWilayaSave = checkedItemsWilaya.clone();
 
-                AlertDialog.Builder mBuilder = new AlertDialog.Builder(MapsActivity.this);
+                AlertDialog.Builder mBuilder = new AlertDialog.Builder(fragmentBelongActivity);
                 mBuilder.setTitle(R.string.dialog_title_Wilaya);
                 mBuilder.setMultiChoiceItems(listItemsWilaya, checkedItemsWilaya, new DialogInterface.OnMultiChoiceClickListener() {
                     @Override
@@ -895,6 +892,98 @@ public class MapsActivity extends FragmentActivity implements SearchFragment.Sea
         });
     }
 
+    public void clearSearchViewFocus() {
+        searchView.clearFocus();
+    }
+
+    public void hideWilayaAndPerimeter() {
+        btnWilaya.setVisibility(View.VISIBLE);
+        btnSearchPerimeter.setVisibility(View.VISIBLE);
+    }
+
+    public void changeSheetBehaviorState(int state) {
+        sheetBehavior.setState(state);
+    }
+
+    public void onBackPressed() {
+        if (showButton != null) {
+            showButton.setVisibility(View.GONE);
+        }
+        if (listViewSalesPoints != null) {
+            listViewSalesPoints.setVisibility(View.GONE);
+        }
+        if (userLocation != null) {
+            userLocation.setVisibility(View.GONE);
+        }
+        if (sheetBehavior != null) {
+            sheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
+        }
+        if (btnWilaya != null) {
+            btnWilaya.setVisibility(View.GONE);
+        }
+        if (btnVille != null) {
+            btnVille.setVisibility(View.GONE);
+        }
+        if (btnSearchPerimeter != null) {
+            btnSearchPerimeter.setVisibility(View.GONE);
+        }
+    }
+
+    public void hideSearchFragment() {
+            SearchFragment searchFragment = implementation.getActivitySearchFragment();
+            if (searchFragment != null) {
+                if (getChildFragmentManager().findFragmentByTag(Constantes.FRAGMENT_SEARCH) != null)
+                    getChildFragmentManager()
+                            .beginTransaction()
+                            .remove(searchFragment)
+                            .commit();
+        }
+    }
+
+    public void removeSearchFragment() {
+        SearchFragment searchFragment = implementation.getActivitySearchFragment();
+        if (getChildFragmentManager().findFragmentByTag(Constantes.FRAGMENT_SEARCH) != null)
+            getChildFragmentManager()
+                    .beginTransaction()
+                    .remove(searchFragment)
+                    .commit();
+    }
+
+    public void removeProductFragment() {
+        ProductsFragment productsFragment = implementation.getActivityProductsFragment();
+        if (getChildFragmentManager().findFragmentByTag(Constantes.FRAGMENT_PRODUCTS) != null)
+            getChildFragmentManager()
+                    .beginTransaction()
+                    .remove(productsFragment)
+                    .commit();
+    }
+
+    public void removeFragments() {
+        removeSearchFragment();
+        removeProductFragment();
+    }
+
+    public void popSearchFragment() {
+        removeProductFragment();
+        //getChildFragmentManager().popBackStack(Constantes.FRAGMENT_SEARCH, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+        Log.e(TAG, "BackStackCount : " + getChildFragmentManager().getBackStackEntryCount());
+        getChildFragmentManager().popBackStackImmediate();
+        Log.e(TAG, "BackStackCount 2: " + getChildFragmentManager().getBackStackEntryCount());
+    }
+
+    public void popProductsFragment() {
+        onBackPressed();
+        hasData = false;
+        Log.e(TAG, "BackStackCount : " + getChildFragmentManager().getBackStackEntryCount());
+        getChildFragmentManager().popBackStackImmediate();
+        Log.e(TAG, "BackStackCount 2: " + getChildFragmentManager().getBackStackEntryCount());
+       // getChildFragmentManager().popBackStack(Constantes.FRAGMENT_PRODUCTS, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+    }
+
+    public boolean hasData() {
+        return (hasData || (showButton.getVisibility() == View.VISIBLE));
+    }
+
     private class GPSLocationListener implements android.location.LocationListener {
         @Override
         public void onLocationChanged(Location location) {
@@ -915,20 +1004,29 @@ public class MapsActivity extends FragmentActivity implements SearchFragment.Sea
 
                 userPosition = new LatLng(longitudeSearchPosition, latitudeSearchPosition);
                 if (defaultMarker != null) defaultMarker.remove();
-                if (userMarker != null) {
-                    userMarker.setPosition(userPosition);
+                if (addMarker && userMarker != null) {
+                    if (userPosition != null) {
+                        addMarker = false;
+                        userMarker.setPosition(userPosition);
+                    }
                 }
                 else {
-                    userMakerOptions =  new MarkerOptions().
-                            position(userPosition).
-                            title(getResources().getString(R.string.your_position)).
-                            icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_CYAN));
+                    if (userMarker != null) {
+                        if (userPosition != null) {
+                            userMarker.setPosition(userPosition);
+                        }
+                    } else {
+                        userMakerOptions =  new MarkerOptions().
+                                position(userPosition).
+                                title(getResources().getString(R.string.your_position)).
+                                icon(BitmapDescriptorFactory.fromResource(R.drawable.marker_blue));
 
-                    userMarker= mMap.addMarker(userMakerOptions);
-                    mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(userPosition, MapsActivity.ZOOM_LEVEL));
+                        userMarker = mMap.addMarker(userMakerOptions);
+                    }
+                    mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(userPosition, FragmentMap.ZOOM_LEVEL));
                 }
                 SharedPreferences.Editor editor =
-                        getSharedPreferences(Constantes.SHARED_PREFERENCES_POSITION,MODE_PRIVATE).edit();
+                        fragmentBelongActivity.getSharedPreferences(Constantes.SHARED_PREFERENCES_POSITION,MODE_PRIVATE).edit();
                 editor.putString(Constantes.SHARED_PREFERENCES_POSITION_LATITUDE, ""+userPosition.latitude);
                 editor.putString(Constantes.SHARED_PREFERENCES_POSITION_LONGITUDE, ""+userPosition.longitude);
                 editor.apply();
@@ -950,5 +1048,11 @@ public class MapsActivity extends FragmentActivity implements SearchFragment.Sea
         public void onProviderDisabled(String s) {
             Log.e(TAG, "Provider Disabled.");
         }
+    }
+
+    public interface MapActions {
+
+        ProductsFragment getActivityProductsFragment();
+        SearchFragment getActivitySearchFragment();
     }
 }
