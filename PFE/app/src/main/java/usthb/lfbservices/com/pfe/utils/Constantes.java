@@ -10,14 +10,13 @@ public class Constantes {
      * Name of the file in which the history searches will be saved
      */
     public static final String HISTORY_FILE_NAME = "History.dat";
-    /**
-     * TAG for the fragment "SearchFragment" which is used to identify it
-     */
+
     public static final String FRAGMENT_SEARCH = "FRAGMENT_SEARCH";
-    /**
-     * TAG for the fragment "ProductsFragment" which is used to identify it
-     */
     public static final String FRAGMENT_PRODUCTS = "FRAGMENT_PRODUCTS";
+    public static final String FRAGMENT_MAP = "FRAGMENT_MAP";
+    public static final String FRAGMENT_FAVORITE = "FRAGMENT_FAVORITE";
+    public static final String FRAGMENT_NOTIFICATIONS = "FRAGMENT_NOTIFICATIONS";
+    public static final String FRAGMENT_PARAMETERS = "FRAGMENTS_PARAMETERS";
     /**
      * Base url for retrieving photos from google.
      */

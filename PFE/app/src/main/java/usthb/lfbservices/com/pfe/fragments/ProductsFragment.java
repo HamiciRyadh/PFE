@@ -73,7 +73,7 @@ public class ProductsFragment extends Fragment {
                 @Override
                 public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                     Product product = (Product)parent.getAdapter().getItem(position);
-                    implementation.onProductSelected(product.getProductId());
+                    implementation.onProductSelected(product.getProductBarcode());
                 }
             });
         }
@@ -89,7 +89,8 @@ public class ProductsFragment extends Fragment {
     public void onAttach(Context context) {
         Log.e(TAG, "onAttach");
         super.onAttach(context);
-
+        listCheckedTradeMarks = new ArrayList<>();
+        mUserItemsType = new ArrayList<>();
         try {
             implementation = (ProductsFragmentActions)context;
         } catch (ClassCastException e) {
@@ -101,6 +102,7 @@ public class ProductsFragment extends Fragment {
     @Override
     public void onResume() {
         Log.e(TAG, "RESUME");
+
         if (savedProductsAdapter != null) {
             listView.setAdapter(savedProductsAdapter);
             if (progressBar != null) progressBar.setVisibility(View.GONE);
@@ -113,7 +115,7 @@ public class ProductsFragment extends Fragment {
     public void onPause() {
         Log.e(TAG, "PAUSE");
         savedProductsAdapter = (ProductsAdapter)listView.getAdapter();
-        savedListProducts = new ArrayList<Product>();
+        savedListProducts = new ArrayList<>();
         ProductsAdapter productsAdapter = (ProductsAdapter)listView.getAdapter();
         if (productsAdapter != null) {
             for (int i = 0; i < productsAdapter.getCount(); i++) {
@@ -142,9 +144,10 @@ public class ProductsFragment extends Fragment {
             public void onClick(View view) {
 
                 final List<Product> productsList = Singleton.getInstance().getProductList();
+
+                listItemsMarque = new ArrayList<>();
                 for (int i = 0; i < productsList.size(); i++) {
                     String marque =  productsList.get(i).getProductTradeMark();
-
                     if (!listItemsMarque.contains(marque)) listItemsMarque.add(marque);
                 }
 
@@ -158,6 +161,9 @@ public class ProductsFragment extends Fragment {
                         checkedItemsMarque[i] = true;
                     }
                 }
+
+                final ArrayList<String> listCheckedTradeMarksSave = new ArrayList<String>();
+                listCheckedTradeMarksSave.addAll(listCheckedTradeMarks);
 
                 AlertDialog.Builder mBuilder = new AlertDialog.Builder(fragmentBelongActivity);
                 mBuilder.setTitle(R.string.dialog_title_Marque);
@@ -190,6 +196,8 @@ public class ProductsFragment extends Fragment {
                 mBuilder.setNegativeButton(R.string.dismiss_label, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
+                        listCheckedTradeMarks.clear();
+                        listCheckedTradeMarks.addAll(listCheckedTradeMarksSave);
                         dialogInterface.dismiss();
                     }
                 });
@@ -215,7 +223,12 @@ public class ProductsFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 final List<Product> products = Singleton.getInstance().getProductList();
+                final ArrayList<Integer> mUserItemsTypeSave = new ArrayList<Integer>();
+                mUserItemsTypeSave.addAll(mUserItemsType);
 
+                Log.e(TAG, ""+products.size());
+
+                listItemsType = new ArrayList<>();
                 for (int i=0; i< products.size(); i++ ){
                     int type =  products.get(i).getProductType();
                     if (!listItemsType.contains(types[type])) listItemsType.add(types[type]);
@@ -258,6 +271,8 @@ public class ProductsFragment extends Fragment {
                 mBuilder.setNegativeButton(R.string.dismiss_label, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
+                        mUserItemsType.clear();
+                        mUserItemsType.addAll(mUserItemsTypeSave);
                         dialogInterface.dismiss();
                     }
                 });
@@ -328,6 +343,6 @@ public class ProductsFragment extends Fragment {
 
     public interface ProductsFragmentActions {
 
-        void onProductSelected(int productId);
+        void onProductSelected(final String productBarcode);
     }
 }

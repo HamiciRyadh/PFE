@@ -34,6 +34,9 @@ public class SalesPoint {
 	
 	//photo, les horaires d'ouvertures
 	
+	public SalesPoint() {
+		
+	}
 	
 	public SalesPoint(String salesPointId, double salesPointLat, double salesPointLong, String salesPointName,
 			String salesPointAddress, String salesPointWilaya){
@@ -45,6 +48,14 @@ public class SalesPoint {
 		this.salesPointAddress = salesPointAddress;
 		this.salesPointWilaya = salesPointWilaya;
 
+	}
+	
+	public SalesPoint(String salesPointId, double salesPointLat, double salesPointLong, String salesPointName){
+		super();
+		this.salesPointId = salesPointId;
+		this.salesPointLat = salesPointLat;
+		this.salesPointLong = salesPointLong;
+		this.salesPointName = salesPointName;
 	}
 	
 	

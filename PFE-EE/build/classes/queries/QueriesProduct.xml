@@ -5,12 +5,19 @@
 <mapper namespace="QueriesProduct">
 
 	<resultMap id="result" type="com.lfbservices.pfe.model.Product">
-		<result property="productId" column="product_id" />
+		<result property="productBarcode" column="product_barcode" />
 		<result property="productName" column="product_name" />
 		<result property="productType" column="product_type" />
 		<result property="productCategory" column="product_category" />
 		<result property="productTradeMark" column="product_trade_mark" />
 	</resultMap>
+	
+	<resultMap id="KeyValue" type="com.lfbservices.pfe.model.KeyValue">
+		<result property="key" column="type_caracteristic_name" />
+		<result property="value" column="product_caracteristic_value" />
+		
+	</resultMap>
+	
 
 	<select id="getAllProducts" resultMap="result">
 		SELECT * FROM
@@ -18,14 +25,14 @@
 	</select>
 
 
-	<select id="getProductById" parameterType="int" resultMap="result">
-		SELECT * FROM ${db.schema}."Product" WHERE product_id = #{id};
+	<select id="getProductById" parameterType="String" resultMap="result">
+		SELECT * FROM ${db.schema}."Product" WHERE product_barcode = #{productBarcode};
 	</select>
 
 
 	<select id="getProductsByCategory" parameterType="int"
 		resultMap="result">
-		SELECT product_id, product_name, product_type,
+		SELECT product_barcode, product_name, product_type,
 		product_trade_mark
 		FROM ${db.schema}."Product" product INNER JOIN
 		${db.schema}."Type" type ON
@@ -45,12 +52,11 @@
 	</select>
 
 
-
 	<insert id="insertProduct" parameterType="com.lfbservices.pfe.model.Product">
 		INSERT INTO
 		${db.schema}."Product"
-		(product_id,product_name,product_type,product_category,product_trade_mark)
-		VALUES (#{productId},#{productName}, #{productType},
+		(product_barcode,product_name,product_type,product_category,product_trade_mark)
+		VALUES (#{productBarcode},#{productName}, #{productType},
 		#{productCategory}, #{productTradeMark});
 	</insert>
 
@@ -59,19 +65,25 @@
 		${db.schema}."Product" SET
 
 		product_name = #{productName},
-		product_type =
-		#{productType},
+		product_type = #{productType},
 		product_category = #{productCategory},
 		product_trade_mark =#{productTradeMark}
 
-		WHERE product_id =
-		#{productId};
+		WHERE product_barcode = #{productBarcode};
 	</update>
 
-	<delete id="deleteProductById" parameterType="int">
-		DELETE from
-		${db.schema}."Product" WHERE product_id = #{productId};
+	<delete id="deleteProductById" parameterType="String">
+		DELETE from ${db.schema}."Product" WHERE product_barcode = #{productBarcode};
 	</delete>
 
+
+	<select id="getProductCaracteristic" parameterType="String" resultMap="KeyValue">
+		SELECT type_caracteristic_name, product_caracteristic_value 	    
+        FROM ${db.schema}."Product" p, ${db.schema}."TypeCaracteristic" tcar , ${db.schema}."ProductCaracteristic" pcar
+		  WHERE p.product_barcode = #{productBarcode} 
+		  AND tcar.type_id = p.product_type
+		  AND pcar.type_caracteristic_id = tcar.type_caracteristic_id
+		  AND pcar.product_barcode = p.product_barcode;
+	</select>
 
 </mapper>

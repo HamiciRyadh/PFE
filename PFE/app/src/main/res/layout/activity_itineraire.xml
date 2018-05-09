@@ -119,23 +119,23 @@
                 android:id="@+id/layout_walking"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
-                android:layout_weight="50"
+                android:layout_weight="40"
                 android:gravity="center">
 
                 <ImageButton
                     android:id="@+id/btnWalk"
-                    android:layout_width="37dp"
-                    android:layout_height="37dp"
+                    android:layout_width="24dp"
+                    android:layout_height="27dp"
                     android:layout_gravity="center|right"
-                    android:background="@drawable/walking"
-                    android:layout_marginRight="15dp"/>
+                    android:layout_marginRight="15dp"
+                    android:background="@drawable/walking" />
 
                 <TextView
                     android:id="@+id/show_distance_time_walking"
                     android:layout_width="93dp"
                     android:layout_height="wrap_content"
                     android:textSize="15sp"
-                    tools:text="2h (45km)"/>
+                    tools:text="2h (45km)" />
             </LinearLayout>
 
         </LinearLayout>
@@ -144,7 +144,7 @@
     </RelativeLayout>
 
 
-    <android.support.design.widget.FloatingActionButton
+    <ImageView
         android:id="@+id/btn_location"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

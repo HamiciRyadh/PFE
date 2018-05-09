@@ -6,12 +6,14 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomSheetBehavior;
+import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -39,9 +41,10 @@ import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 
 import usthb.lfbservices.com.pfe.R;
-import usthb.lfbservices.com.pfe.activities.MapsActivity;
+import usthb.lfbservices.com.pfe.activities.MainActivity;
 import usthb.lfbservices.com.pfe.adapters.ProductsAdapter;
 import usthb.lfbservices.com.pfe.adapters.SalesPointsAdapter;
+import usthb.lfbservices.com.pfe.fragments.FragmentMap;
 import usthb.lfbservices.com.pfe.models.BottomSheetDataSetter;
 import usthb.lfbservices.com.pfe.models.Product;
 import usthb.lfbservices.com.pfe.models.ProductSalesPoint;
@@ -65,15 +68,15 @@ public class PfeRx extends FragmentActivity {
      */
     private static PfeAPI pfeAPI = PfeAPI.getInstance();
 
+    //TODO: Changer le productId dans la BD en code bar, normalement que des chiffres mais par mesure de précotion passer en VARCHAR?
     public static void searchFromProductId(@NonNull final Activity activity,
-                                           @NonNull final int productId) {
-        final ProgressDialog progressDialog = new ProgressDialog(activity,
-                R.style.AppTheme_Dark_Dialog);
+                                           @NonNull final String productBarcode) {
+        final ProgressDialog progressDialog = new ProgressDialog(activity, R.style.AppTheme_Dark_Dialog);
         progressDialog.setIndeterminate(true);
         progressDialog.setMessage(activity.getResources().getString(R.string.server_connexion));
         progressDialog.show();
 
-        pfeAPI.searchFromProductId(productId)
+        pfeAPI.searchFromProductBarcode(productBarcode)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Observer<Result>() {
@@ -107,11 +110,25 @@ public class PfeRx extends FragmentActivity {
                         final SalesPointsAdapter salesPointsAdapter1 = new SalesPointsAdapter(activity, R.layout.list_item_salespoint_product, (ArrayList) salesPoints);
 
                         final ListView listSalesPoints = activity.findViewById(R.id.list_view_sales_points);
-                        listSalesPoints.setAdapter(salesPointsAdapter1);
+                        if (listSalesPoints != null) listSalesPoints.setAdapter(salesPointsAdapter1);
 
                         final GoogleMap map = Singleton.getInstance().getMap();
                         if (map != null) {
                             map.clear();
+                            LatLngBounds.Builder builder = new LatLngBounds.Builder();
+
+                            SharedPreferences preferences = activity.getSharedPreferences(Constantes.SHARED_PREFERENCES_POSITION, MODE_PRIVATE);
+                            String sUserLatitude = preferences.getString(Constantes.SHARED_PREFERENCES_POSITION_LATITUDE, null);
+                            String sUserLongitude = preferences.getString(Constantes.SHARED_PREFERENCES_POSITION_LONGITUDE, null);
+                            LatLng userPosition = null;
+
+                            if (sUserLatitude != null && sUserLongitude != null) {
+                                try {
+                                    userPosition = new LatLng(Double.parseDouble(sUserLatitude), Double.parseDouble(sUserLongitude));
+                                } catch (Exception e) {
+                                    Log.e(TAG, "Exception creating user position : " + e);
+                                }
+                            }
 
                             ProductSalesPoint productSalesPointTemps = new ProductSalesPoint();
                             int nbMarkers = 0;
@@ -126,9 +143,9 @@ public class PfeRx extends FragmentActivity {
                                     if (productSalesPoint.getSalespointId().equals(salesPoint.getSalesPointId())) {
                                         productSalesPointTemps = productSalesPoint;
                                         if (productSalesPoint.getProductQuantity() > 0) {
-                                            markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN));
+                                            markerOptions.icon(BitmapDescriptorFactory.fromResource(R.drawable.marker_green));
                                         } else {
-                                            markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED));
+                                            markerOptions.icon(BitmapDescriptorFactory.fromResource(R.drawable.marker_red));
                                         }
                                     }
                                 }
@@ -138,31 +155,17 @@ public class PfeRx extends FragmentActivity {
                             }
                             if (nbMarkers > 0) {
                                 if (nbMarkers == 1) {
-                                    CameraUpdate cu = CameraUpdateFactory.newLatLngZoom((LatLng)hashMap.keySet().toArray()[0], MapsActivity.ZOOM_LEVEL);
+                                    CameraUpdate cu = CameraUpdateFactory.newLatLngZoom((LatLng)hashMap.keySet().toArray()[0], FragmentMap.ZOOM_LEVEL);
                                     map.animateCamera(cu);
                                 } else {
                                     Iterator<LatLng> positions = hashMap.keySet().iterator();
-                                    LatLngBounds.Builder builder = new LatLngBounds.Builder();
 
-                                    SharedPreferences preferences = activity.getSharedPreferences(Constantes.SHARED_PREFERENCES_POSITION, MODE_PRIVATE);
-                                    String sUserLatitude = preferences.getString(Constantes.SHARED_PREFERENCES_POSITION_LATITUDE, null);
-                                    String sUserLongitude = preferences.getString(Constantes.SHARED_PREFERENCES_POSITION_LONGITUDE, null);
-                                    LatLng userPosition = null;
-
-                                    if (sUserLatitude != null && sUserLongitude != null) {
-                                        try {
-                                            userPosition = new LatLng(Double.parseDouble(sUserLatitude), Double.parseDouble(sUserLongitude));
-                                        } catch (Exception e) {
-                                            Log.e(TAG, "Exception creating user position : " + e);
-                                        }
-                                    }
-
-                                    Log.e(TAG, "" + userPosition.longitude + "   " + userPosition.latitude);
                                     List<LatLng> latLngList = Utils.getClosestPositions(positions, userPosition ,3);
 
                                     for (LatLng latLng : latLngList) {
                                         builder.include(latLng);
                                     }
+
                                     LatLngBounds bounds = builder.build();
                                     // offset from the edges of the map in pixels
                                     int padding = 200;
@@ -176,6 +179,7 @@ public class PfeRx extends FragmentActivity {
                             map.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
                                 @Override
                                 public boolean onMarkerClick(Marker marker) {
+                                    marker.showInfoWindow();
                                     if (activity instanceof BottomSheetDataSetter) {
                                         for (SalesPoint salesPoint : salesPoints) {
                                             if (salesPoint.getSalesPointLatLng().equals(marker.getPosition())) {
@@ -197,45 +201,48 @@ public class PfeRx extends FragmentActivity {
                             });
                         }
 
-                        showList.setVisibility(View.VISIBLE);
-                        showList.setOnClickListener(new View.OnClickListener() {
+                        if (showList != null) {
+                            showList.setVisibility(View.VISIBLE);
+                            showList.setOnClickListener(new View.OnClickListener() {
 
-                            @Override
-                            public void onClick(View view) {
-                                final ListView listView = activity.findViewById(R.id.list_view_sales_points);
-                                if (listView.getVisibility() == View.VISIBLE) {
-                                    showList.setText(activity.getString(R.string.sales_points_show_list));
-                                    listView.setVisibility(View.GONE);
-                                }
-                                else {
-                                    showList.setText(activity.getString(R.string.reduce));
-                                    final SalesPointsAdapter salesPointsAdapter = new SalesPointsAdapter(activity, R.layout.sales_point_list, (ArrayList) salesPoints);
-                                    listView.setAdapter(salesPointsAdapter);
-                                    listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                                        @Override
-                                        public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
+                                @Override
+                                public void onClick(View view) {
+                                    final ListView listView = activity.findViewById(R.id.list_view_sales_points);
+                                    if (listView.getVisibility() == View.VISIBLE) {
+                                        showList.setText(activity.getString(R.string.sales_points_show_list));
+                                        listView.setVisibility(View.GONE);
+                                    }
+                                    else {
+                                        showList.setText(activity.getString(R.string.reduce));
+                                        final SalesPointsAdapter salesPointsAdapter = new SalesPointsAdapter(activity, R.layout.sales_point_list, (ArrayList) salesPoints);
+                                        if (listView != null) {
+                                            listView.setAdapter(salesPointsAdapter);
+                                            listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                                                @Override
+                                                public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
+                                                    if (activity instanceof BottomSheetDataSetter) {
+                                                        SalesPoint salesPoint = ((SalesPoint)(adapterView.getItemAtPosition(position)));
+                                                        for (ProductSalesPoint productSalesPoint : productSalesPoints) {
+                                                            if (productSalesPoint.getSalespointId().equals(salesPoint.getSalesPointId())) {
+                                                                BottomSheetDataSetter bottomSheetDataSetter = (BottomSheetDataSetter)activity;
+                                                                bottomSheetDataSetter.setBottomSheetData(salesPoint, productSalesPoint);
+                                                                bottomSheetDataSetter.setBottomSheetState(BottomSheetBehavior.STATE_COLLAPSED);
+                                                                break;
+                                                            }
+                                                        }
+                                                        PfeRx.getPlaceDetails(activity, salesPoint.getSalesPointId());
 
-                                            if (activity instanceof BottomSheetDataSetter) {
-                                                SalesPoint salesPoint = ((SalesPoint)(adapterView.getItemAtPosition(position)));
-                                                for (ProductSalesPoint productSalesPoint : productSalesPoints) {
-                                                    if (productSalesPoint.getSalespointId().equals(salesPoint.getSalesPointId())) {
-                                                        BottomSheetDataSetter bottomSheetDataSetter = (BottomSheetDataSetter)activity;
-                                                        bottomSheetDataSetter.setBottomSheetData(salesPoint, productSalesPoint);
-                                                        bottomSheetDataSetter.setBottomSheetState(BottomSheetBehavior.STATE_EXPANDED);
-                                                        break;
+                                                        CameraUpdate cu = CameraUpdateFactory.newLatLngZoom(salesPoint.getSalesPointLatLng(), FragmentMap.ZOOM_LEVEL);
+                                                        map.animateCamera(cu);
                                                     }
                                                 }
-                                                PfeRx.getPlaceDetails(activity, salesPoint.getSalesPointId());
-
-                                                CameraUpdate cu = CameraUpdateFactory.newLatLngZoom(salesPoint.getSalesPointLatLng(), MapsActivity.ZOOM_LEVEL);
-                                                map.animateCamera(cu);
-                                            }
+                                            });
+                                            listView.setVisibility(View.VISIBLE);
                                         }
-                                    });
-                                    listView.setVisibility(View.VISIBLE);
+                                    }
                                 }
-                            }
-                        });
+                            });
+                        }
                     }
 
                     @Override
@@ -254,7 +261,10 @@ public class PfeRx extends FragmentActivity {
     }
 
 
-   public static void searchFromQuery(@NonNull final Activity activity,
+    //TODO: Faire en sorte d'afficher par pages ==> en plus de la requête de base, une autre requête
+    //qui ne sera exécutée qu'une seule fois qui calculera le nombre total de résultats possible
+    //afin de déterminer le nombre de pages de résultats, faire pareil avec catégories
+    public static void searchFromQuery(@NonNull final Activity activity,
                                       @NonNull final String searchString) {
 
         final ArrayList<Product> products = new ArrayList<Product>();
@@ -283,7 +293,7 @@ public class PfeRx extends FragmentActivity {
                         Singleton.getInstance().setProductList(products);
                         productsAdapter.addAll(products);
                         ListView listView = activity.findViewById(R.id.list_view_products);
-                        listView.setAdapter(productsAdapter);
+                        if (listView != null) listView.setAdapter(productsAdapter);
                     }
 
                     @Override
@@ -294,8 +304,10 @@ public class PfeRx extends FragmentActivity {
                         View progressBar = activity.findViewById(R.id.products_progress_bar);
                         TextView emptyTextView = activity.findViewById(R.id.empty_list_products);
 
-                        listView.setAdapter(productsAdapter);
-                        listView.setEmptyView(emptyTextView);
+                        if (listView != null) {
+                            listView.setAdapter(productsAdapter);
+                            listView.setEmptyView(emptyTextView);
+                        }
 
                         if (progressBar != null)
                             progressBar.setVisibility(View.GONE);
@@ -452,9 +464,10 @@ public class PfeRx extends FragmentActivity {
                         View progressBar = activity.findViewById(R.id.products_progress_bar);
                         TextView emptyTextView = activity.findViewById(R.id.empty_list_products);
 
-                        listView.setAdapter(productsAdapter);
-                        listView.setEmptyView(emptyTextView);
-
+                        if (listView != null) {
+                            listView.setAdapter(productsAdapter);
+                            listView.setEmptyView(emptyTextView);
+                        }
                         if (progressBar != null)
                             progressBar.setVisibility(View.GONE);
                         if (emptyTextView != null)
@@ -517,8 +530,10 @@ public class PfeRx extends FragmentActivity {
 
                             pfeAPI.setAuthorization(mailAddress, password);
 
-                            Intent intent = new Intent(activity, MapsActivity.class);
+                            Intent intent = new Intent(activity, MainActivity.class);
+                            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
                             activity.startActivity(intent);
+                            activity.finish();
                         } else {
                             Toast.makeText(activity, activity.getResources().getString(R.string.invalid_mail_password), Toast.LENGTH_LONG).show();
                         }
@@ -582,8 +597,10 @@ public class PfeRx extends FragmentActivity {
 
                             pfeAPI.setAuthorization(mailAddress, password);
 
-                            Intent intent = new Intent(activity, MapsActivity.class);
+                            Intent intent = new Intent(activity, MainActivity.class);
+                            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
                             activity.startActivity(intent);
+                            activity.finish();
                         } else {
                             //TODO:Error message for mail address
                             Toast.makeText(activity, activity.getResources().getString(R.string.mail_address_used), Toast.LENGTH_LONG).show();

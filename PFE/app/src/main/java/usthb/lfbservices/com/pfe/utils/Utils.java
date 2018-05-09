@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationManager;
@@ -26,6 +27,10 @@ import java.util.Iterator;
 import java.util.List;
 
 import usthb.lfbservices.com.pfe.R;
+import usthb.lfbservices.com.pfe.activities.LoginActivity;
+import usthb.lfbservices.com.pfe.network.PfeAPI;
+
+import static android.content.Context.MODE_PRIVATE;
 
 /**
  * List of public and static constants and methods
@@ -127,6 +132,35 @@ public class Utils
             AlertDialog mDialog = mBuilder.create();
             mDialog.show();
         }
+    }
+
+    public static boolean isUserConnected(final Context context) {
+        SharedPreferences preferences = context.getSharedPreferences(Constantes.SHARED_PREFERENCES_USER, MODE_PRIVATE);
+        String mailAddress = preferences.getString(Constantes.SHARED_PREFERENCES_USER_EMAIL, null);
+        String password = preferences.getString(Constantes.SHARED_PREFERENCES_USER_PASSWORD, null);
+        return  (mailAddress != null && password != null);
+    }
+
+    public static void showConnectDialog(final Context context) {
+        AlertDialog.Builder mBuilder = new AlertDialog.Builder(context);
+        mBuilder.setMessage(R.string.dialog_message_require_connexion);
+
+        mBuilder.setCancelable(false);
+        mBuilder.setPositiveButton(R.string.go_to_connect_dialog_option, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int which) {
+                Intent intent = new Intent(context, LoginActivity.class);
+                context.startActivity(intent);
+            }
+        });
+        mBuilder.setNegativeButton(R.string.dismiss_label, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                dialogInterface.dismiss();
+            }
+        });
+        AlertDialog mDialog = mBuilder.create();
+        mDialog.show();
     }
 
     public static boolean isInsidePerimeter(LatLng center, LatLng position, double radius) {

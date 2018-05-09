@@ -17,24 +17,24 @@ package com.lfbservices.pfe.model;
 
 public class ProductSalesPoint {
 
-	private int productId;
+	private String productBarcode;
 	private String salesPointId;
 	private  int productQuantity;
 	private double productPrice ;
 	
 	public ProductSalesPoint() {
-		this(0,"",0,0.0);
+		this("","",0,0.0);
 	}
 	
-	public ProductSalesPoint(int productId, String salesPointId, int productQuantity, double productPrice) {
+	public ProductSalesPoint(String productBarcode, String salesPointId, int productQuantity, double productPrice) {
 		super();
-		this.productId = productId;
+		this.productBarcode = productBarcode;
 		this.salesPointId = salesPointId;
 		this.productQuantity = productQuantity;
 		this.productPrice = productPrice;
 	}
-	public int getProductId() {
-		return productId;
+	public String getProductBarcode() {
+		return productBarcode;
 	}
 	public String getSalesPointId() {
 		return salesPointId;
@@ -45,8 +45,8 @@ public class ProductSalesPoint {
 	public double getProductPrice() {
 		return productPrice;
 	}
-	public void setProductId(int productId) {
-		this.productId = productId;
+	public void setProductBarcode(String productBarcode) {
+		this.productBarcode = productBarcode;
 	}
 	public void setSalesPointId(String salesPointId) {
 		this.salesPointId = salesPointId;

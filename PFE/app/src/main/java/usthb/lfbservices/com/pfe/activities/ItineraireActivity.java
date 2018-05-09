@@ -6,7 +6,6 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
-import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.FragmentActivity;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -46,8 +45,6 @@ import java.util.List;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
-import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
 import usthb.lfbservices.com.pfe.itinerary.autocomplete.GoogleAutocompleteResponse;
 import usthb.lfbservices.com.pfe.itinerary.autocomplete.Prediction;
 import usthb.lfbservices.com.pfe.itinerary.direction.GoogleDirections;
@@ -56,7 +53,6 @@ import usthb.lfbservices.com.pfe.itinerary.place.Location;
 import usthb.lfbservices.com.pfe.R;
 import usthb.lfbservices.com.pfe.models.SalesPoint;
 import usthb.lfbservices.com.pfe.models.Singleton;
-import usthb.lfbservices.com.pfe.network.ItineraireService;
 import usthb.lfbservices.com.pfe.network.PfeAPI;
 import usthb.lfbservices.com.pfe.utils.Constantes;
 import usthb.lfbservices.com.pfe.utils.Utils;
@@ -77,7 +73,7 @@ public class ItineraireActivity extends FragmentActivity implements OnMapReadyCa
     private LatLng defaultPosition = new LatLng(36.7525, 3.04197);
     private TextView ShowDistanceDurationDriving;
     private RelativeLayout blockItineraire;
-    private FloatingActionButton userLocation;
+    private ImageView userLocation;
     private TextView ShowDistanceDurationWalking;
     private Polyline line;
     private PfeAPI pfeAPI = PfeAPI.getInstance();
@@ -120,7 +116,7 @@ public class ItineraireActivity extends FragmentActivity implements OnMapReadyCa
         originMarker = mMap.addMarker(new MarkerOptions()
                 .position(defaultPosition)
                 .title(getResources().getString(R.string.start_point))
-                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_CYAN)));
+                .icon(BitmapDescriptorFactory.fromResource(R.drawable.marker_blue)));
         origin = defaultPosition;
 
         SharedPreferences preferences = getSharedPreferences(Constantes.SHARED_PREFERENCES_POSITION, MODE_PRIVATE);
@@ -152,7 +148,7 @@ public class ItineraireActivity extends FragmentActivity implements OnMapReadyCa
         destMarker = mMap.addMarker(new MarkerOptions()
                 .position(dest)
                 .title(getResources().getString(R.string.destination_point))
-                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_YELLOW)));
+                .icon(BitmapDescriptorFactory.fromResource(R.drawable.marker_yellow)));
         }
 
         if(userPosition != null ) {
@@ -361,7 +357,6 @@ public class ItineraireActivity extends FragmentActivity implements OnMapReadyCa
 
 
     public void initUserLocation() {
-        //TODO: If we don't stop MapsActivity, we can still retrieve new data from there, or use the same code here
         userLocation.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

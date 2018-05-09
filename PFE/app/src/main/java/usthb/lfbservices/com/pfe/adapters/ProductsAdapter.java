@@ -8,6 +8,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -43,11 +44,19 @@ public class ProductsAdapter extends ArrayAdapter<Product> {
         Product product = getItem(position);
 
        if (product != null) {
-           TextView tradeMarkTextView = listItemView.findViewById(R.id.product_trademark);
+           final TextView tradeMarkTextView = listItemView.findViewById(R.id.product_trademark);
            if (tradeMarkTextView != null) tradeMarkTextView.setText(product.getProductTradeMark());
 
-           TextView nameTextView = listItemView.findViewById(R.id.product_name);
+           final TextView nameTextView = listItemView.findViewById(R.id.product_name);
            if (nameTextView != null) nameTextView.setText(product.getProductName());
+
+           final ImageView productDetails = listItemView.findViewById(R.id.product_details);
+           if (productDetails != null) productDetails.setOnClickListener(new View.OnClickListener() {
+               @Override
+               public void onClick(View v) {
+                   //TODO: Insert code here to redirect user to product details
+               }
+           });
        }
 
         return listItemView;
