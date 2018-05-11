@@ -27,24 +27,8 @@ public class Client
 		httpPUTMethodExample();
 		httpDELETEMethodExample();
 		*/
-		
-		try {
-            ArrayList<String> list = new ArrayList<>();
-            File file = new File("TEST.txt");
-            FileInputStream fos;
-
-            fos = new FileInputStream(file);
-
-            ObjectInputStream oos = new ObjectInputStream(fos);
-           
-            list = (ArrayList<String>)oos.readObject();
-            System.out.println(list.get(0));
-            oos.close();
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+		httpGETCollectionExample();
+	
 	}
 	
 	private static void httpGETCollectionExample() 
@@ -55,7 +39,7 @@ public class Client
 		ClientConfig clientConfig = new ClientConfig();
 
 		javax.ws.rs.client.Client client = ClientBuilder.newClient( clientConfig );
-		WebTarget webTarget = client.target("http://localhost:8080/PFE-EE/api").path("Products");
+		WebTarget webTarget = client.target("http://localhost:8080/PFE-EE/api").path("Products/UpdateProductSalesPoint?sales_point_id=ChIJgbWj2jyxjxIRTEiyXgwGVqA&product_barcode=4&product_quantity=13&product_price=58000");
 		
 		Invocation.Builder invocationBuilder =	webTarget.request(MediaType.APPLICATION_XML);
 		Response response = invocationBuilder.header("Authorization", "Basic aGFtaWNpcnlhZGhAZ21haWwuY29tOmFkbWlu").get();

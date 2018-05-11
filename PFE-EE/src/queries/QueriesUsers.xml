@@ -73,8 +73,8 @@
 	
 	<select id = "getDevicesIdsForNotification" parameterType="map" resultType="String">
 	   SELECT ud.user_device_id FROM ${db.schema}."UserDevice" ud 
-	   WHERE ud.user_id IN (SELECT user_id FROM ${db.schema}."Notifications" 
-	   WHERE sales_point_id = #{salesPointId} AND product_barcode = #{product_barcode}); 
+	   WHERE ud.user_id IN (SELECT n.user_id FROM ${db.schema}."Notifications" n 
+	   WHERE n.sales_point_id = #{salesPointId} AND n.product_barcode = #{productBarcode}); 
 	</select>
 	
 	<delete id = "deleteUser" parameterType = "string">

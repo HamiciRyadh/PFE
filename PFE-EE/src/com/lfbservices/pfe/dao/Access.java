@@ -379,7 +379,7 @@ public class Access {
 	}
 	
 	public static List<String> getDevicesIdsForNotification(final String salesPointId, final String productBarcode, final int productQuantity,
-												   final double productPrice) {
+												   			final double productPrice) {
 		final SqlSession session = DBConnectionFactory.getNewSession();
 		
 		final Map<String,Object> parameters = new HashMap<String,Object>();
@@ -389,7 +389,10 @@ public class Access {
 		parameters.put("productPrice", productPrice);
 		
 		final List<String> devicesIds = session.selectList("QueriesUsers.getDevicesIdsForNotification", parameters);
-
+		 
+		devicesIds.add(salesPointId);
+		devicesIds.add(productBarcode);
+		 
 		session.commit();
 		session.close();
 		

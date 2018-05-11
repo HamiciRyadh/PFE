@@ -236,29 +236,29 @@ INSERT INTO public."Category"(category_id, category_name) VALUES
 
 
 INSERT INTO public."Type"(type_id, type_name, category_id) VALUES 
-  (0,'Ordinateur Portable', 0),
-  (1,'Imprimante & Scanner ', 0),
-  (2,'Ordinateur de Bureau', 0),
-  (3,'Écran  & Data Show', 0),
-  (4,'Smartphone', 1),
-  (5,'Tablette', 1),
-  (6,'Téléphone fixe', 1),
-  (7,'Téléphone Portable', 1);
+  (0, 'Ordinateur Portable', 0),
+  (1, 'Imprimante & Scanner ', 0),
+  (2, 'Ordinateur de Bureau', 0),
+  (3, 'Écran  & Data Show', 0),
+  (4, 'Smartphone', 1),
+  (5, 'Tablette', 1),
+  (6, 'Téléphone fixe', 1),
+  (7, 'Téléphone Portable', 1);
 
 
 INSERT INTO public."Product"(product_barcode, product_name, product_type, product_trade_mark) VALUES 
-  ('1','ELITEBOOK 2570 I5-3360 4G 320 ', 0, 'HP'),
-  ('2','SCRANJET PRO 2500 F1', 1, 'HP'),
-  ('3','COMPAQ 8300', 2, 'HP'),
-  ('4','PROBOOK 450 G2 i5 4GB 500', 0, 'HP'),
-  ('5',' THINKPAD L450 i5-5200U', 0, 'LENOVO'),
-  ('6',' LATITUDE 3560', 0, 'DELL'),
-  ('7','E5-571 i3 5G 4GB 500GB', 0, 'ACER'),
-  ('8','G50-80 i3 4GB 500GB', 0, 'LENOVO'),
-  ('9','CHROMEBOOK EXYNOS 5250HD 16GO', 0, 'SAMSUNG'),
-  ('10','GALAXY NOTE 5', 7, 'SAMSUNG'),
-  ('R28J23QCXGZ','GALAXY J7 PRIME ', 7, 'SAMSUNG'),
-  ('12','ATIV BOOK 9 900X3K', 0, 'SAMSUNG');
+  ('1', 'ELITEBOOK 2570 I5-3360 4G 320 ', 0, 'HP'),
+  ('2', 'SCRANJET PRO 2500 F1', 1, 'HP'),
+  ('3', 'COMPAQ 8300', 2, 'HP'),
+  ('4', 'PROBOOK 450 G2 i5 4GB 500', 0, 'HP'),
+  ('5', 'THINKPAD L450 i5-5200U', 0, 'LENOVO'),
+  ('6', 'LATITUDE 3560', 0, 'DELL'),
+  ('7', 'E5-571 i3 5G 4GB 500GB', 0, 'ACER'),
+  ('8', 'G50-80 i3 4GB 500GB', 0, 'LENOVO'),
+  ('9', 'CHROMEBOOK EXYNOS 5250HD 16GO', 0, 'SAMSUNG'),
+  ('10', 'GALAXY NOTE 5', 7, 'SAMSUNG'),
+  ('R28J23QCXGZ', 'GALAXY J7 PRIME ', 7, 'SAMSUNG'),
+  ('12', 'ATIV BOOK 9 900X3K', 0, 'SAMSUNG');
 
 
 #Password is admin for every user

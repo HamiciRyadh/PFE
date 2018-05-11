@@ -402,7 +402,7 @@ public class Service {
 	
 	
 	@Path("/UpdateProductSalesPoint")
-	@POST
+	@GET
 	@PermitAll
 	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
 	public void updateProductSalesPoint(
