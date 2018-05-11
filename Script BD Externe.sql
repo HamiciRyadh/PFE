@@ -213,7 +213,6 @@ CREATE TABLE public."UserDevice"
 (
   user_id integer NOT NULL,
   user_device_id character varying(250) NOT NULL,
-  user_device_connected boolean NOT NULL,
   CONSTRAINT "UserDevice_pkey" PRIMARY KEY (user_id, user_device_id),
   CONSTRAINT fk_user_id FOREIGN KEY (user_id)
       REFERENCES public."User" (user_id) MATCH SIMPLE
@@ -262,13 +261,25 @@ INSERT INTO public."Product"(product_barcode, product_name, product_type, produc
   ('12','ATIV BOOK 9 900X3K', 0, 'SAMSUNG');
 
 
-INSERT INTO public."SalesPoint"(sales_point_id) VALUES 
-  ('ChIJ_X0pNnMMjxIRBAPluP77cXY'),
-  ('ChIJgbWj2jyxjxIRTEiyXgwGVqA'),
-  ('ChIJeWdnsPetjxIRYJD8lV-bhFI'),
-  ('ChIJlfTOBUOtjxIRgwNIAYmOxqU'),
-  ('ChIJWwbqnpitjxIR3zoXR3V6VD0'),
-  ('ChIJraM3b5lwjxIRiCsvRUEF9DQ');
+#Password is admin for every user
+INSERT INTO public."User"(user_mail_address, user_password) VALUES 
+  ('hamiciryadh@gmail.com', 'd033e22ae348aeb5660fc2140aec35850c4da997'),
+  ('bradai.imene@outlook.fr', 'd033e22ae348aeb5660fc2140aec35850c4da997');
+
+INSERT INTO public."Administrator"(admin_id, admin_mail_address, admin_password) VALUES 
+  (0, 'admin@pfe.com', 'd033e22ae348aeb5660fc2140aec35850c4da997');
+
+INSERT INTO public."Merchant"(merchant_id, merchant_mail_address, merchant_password, admin_id) VALUES 
+  (0, 'merchant@lfbservices.com', 'd033e22ae348aeb5660fc2140aec35850c4da997', 0);
+
+
+INSERT INTO public."SalesPoint"(sales_point_id, merchant_id) VALUES 
+  ('ChIJ_X0pNnMMjxIRBAPluP77cXY', 0),
+  ('ChIJgbWj2jyxjxIRTEiyXgwGVqA', 0),
+  ('ChIJeWdnsPetjxIRYJD8lV-bhFI', 0),
+  ('ChIJlfTOBUOtjxIRgwNIAYmOxqU', 0),
+  ('ChIJWwbqnpitjxIR3zoXR3V6VD0', 0),
+  ('ChIJraM3b5lwjxIRiCsvRUEF9DQ', 0);
 
 
 INSERT INTO public."ProductSalesPoint"(sales_point_id, product_barcode, product_quantity, product_price) VALUES 
@@ -294,4 +305,4 @@ INSERT INTO public."ProductCaracteristic"(type_caracteristic_id, product_barcode
   (1, '4', 'Intel Core i3-4005U'),
   (2, '4', '15.6 pouces'),
   (3, '4', '4 GO'),
-  (4, '4', ' Radeon HD 8670M Dual');
+  (4, '4', 'Radeon HD 8670M Dual');

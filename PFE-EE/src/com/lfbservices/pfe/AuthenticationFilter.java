@@ -1,6 +1,7 @@
 package com.lfbservices.pfe;
 
 import java.lang.reflect.Method;
+import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -18,7 +19,6 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.Provider;
 
 import com.lfbservices.pfe.dao.Access;
-import com.lfbservices.pfe.model.User;
  
 /**
  * This filter verify the access permissions for a user
@@ -98,18 +98,27 @@ public class AuthenticationFilter implements javax.ws.rs.container.ContainerRequ
         //If both match then get the defined role for user from database and continue; else return isAllowed [false]
         //Access the database and do this part yourself
         //String userRole = userMgr.getUserRole(mailAddress);
-         
-        //TODO: use Encryption with password for comparing data with the DB
-        User user = new User(mailAddress, password);
-        try {
-        	if (mailAddress.equals("hamiciryadh@gmail.com") && password.equals("admin")) {
-            	return true;
-            }
-            if (Access.userExists(user)) {
-                String userRole = AuthenticationFilter.ADMIN;
                  
-                //Step 2. Verify user role
-                if(rolesSet.contains(userRole)) {
+        String encryptedPassword = "";
+        try {
+			encryptedPassword = Encryption.sha1(password);
+		} catch (NoSuchAlgorithmException e) {
+			e.printStackTrace();
+			return false;
+		}
+        String userRole = null;
+        try {
+        	if (Access.adminExists(mailAddress, encryptedPassword)) {
+                userRole = AuthenticationFilter.ADMIN;
+            }
+        	else if (Access.merchantExists(mailAddress, encryptedPassword)) {
+                userRole = AuthenticationFilter.MERCHANT;
+            }
+        	else if (Access.userExists(mailAddress, encryptedPassword)) {
+                userRole = AuthenticationFilter.USER;
+        	}
+            if (userRole != null) {
+            	if(rolesSet.contains(userRole)) {
                     isAllowed = true;
                 }
             }
@@ -119,6 +128,7 @@ public class AuthenticationFilter implements javax.ws.rs.container.ContainerRequ
         
         return isAllowed;
     }
+    
     
     
     public static String[] extractMailAddressPassword(String authorization) {

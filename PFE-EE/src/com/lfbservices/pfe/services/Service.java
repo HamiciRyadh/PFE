@@ -12,7 +12,6 @@ import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
-import javax.ws.rs.HeaderParam;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
@@ -39,11 +38,7 @@ public class Service {
 	@GET
 	@PermitAll
 	@Produces(MediaType.APPLICATION_JSON)
-	public List<Product> getProducts(@HeaderParam(AuthenticationFilter.AUTHORIZATION_PROPERTY) String authorization) throws Exception {
-		//final String[] authentication = AuthenticationFilter.extractMailAddressPassword(authorization);
-		//final String mailAddress = authentication[0];
-		//TODO: Do the same thing EVERYWHERE we need to query using user data to update the DB
-		
+	public List<Product> getProducts() throws Exception {
 		return Access.getProducts(); 
 	}
 	
@@ -56,7 +51,6 @@ public class Service {
 	@PermitAll
 	@Produces(MediaType.APPLICATION_JSON)
 	public Product getProductById(@DefaultValue("") @PathParam("product_barcode") String productBarcode) throws Exception {
-		//TODO: Verify all the parameters
 		if (productBarcode .trim().equals("")) {
 		    throw new WebApplicationException(
 		      Response.status(HttpURLConnection.HTTP_BAD_REQUEST)
@@ -80,7 +74,7 @@ public class Service {
 			@DefaultValue("") @QueryParam("value") String value,
 			@DefaultValue("") @QueryParam("tradeMark") String tradeMark,
 			@DefaultValue("-1") @QueryParam("type") int type) throws Exception {
-		//TODO: Verify all the parameters
+
 		if (value.trim().equals("")) {
 		    throw new WebApplicationException(
 		      Response.status(HttpURLConnection.HTTP_BAD_REQUEST)
@@ -88,7 +82,7 @@ public class Service {
 		        .build()
 		    );
 		}
-		Map<String, Object> extraParameters = new HashMap<String, Object>();
+		final Map<String, Object> extraParameters = new HashMap<String, Object>();
 		extraParameters.put("value", "%"+value.toUpperCase()+"%");
 		
 		if (!tradeMark.trim().equals("")) extraParameters.put("tradeMark", "%"+tradeMark.toUpperCase()+"%");
@@ -146,10 +140,10 @@ public class Service {
 			}		
 		
 		SalesPoint salesPoint;
-		List<SalesPoint> listSalesPoints = new ArrayList<SalesPoint>();
+		final List<SalesPoint> listSalesPoints = new ArrayList<SalesPoint>();
 
-		List<ProductSalesPoint> listProductSalesPoints = Access.getProductSalesPointList(productBarcode);
-		List<ProductSalesPoint> listProductSalesPointsToRemove = new ArrayList<ProductSalesPoint>();
+		final List<ProductSalesPoint> listProductSalesPoints = Access.getProductSalesPointList(productBarcode);
+		final List<ProductSalesPoint> listProductSalesPointsToRemove = new ArrayList<ProductSalesPoint>();
 
 		for (ProductSalesPoint productSalesPoint : listProductSalesPoints) {
 			salesPoint = GoogleAPI.details(productSalesPoint.getSalesPointId());
@@ -196,8 +190,8 @@ public class Service {
 		String string = "{}";
 		try {
 			string = FcmNotifications.pushFCMNotification(
-					"dBvnn9yneCU:APA91bGKMiu8B-2jtdmLXSJltCwZqV7oYlRAuY7t7LJg78RJ9B8TaMN2mltlulPBURUo7o-BC5g0HO9YQNJDJP4GiCMgRdlC3ZYCKg7pE8SA2ZHfr7lBKMdNp2LgNfui5_QKUhxqW-Wu",
-					"hello", "sadjooooooo");
+					"fR92nDDOevQ:APA91bHPklTOxG0DbXkHsVDAoP6m5Qzqor2rmEfW_ya925tbSMsaWMpnsTUmnaa7cui5btqCd1uhWzZyA9HFIXk1Lm-UI0n8RGhpD4RR4XiPoOmE8neKRyHp3JVCL3m0rpf_FEDD67d-",
+					"salesPointId", "productBarcode", 10, 5000.00d);
 		} catch (Exception e) {
 			throw new WebApplicationException(
 				      Response.status(HttpURLConnection.HTTP_BAD_REQUEST)
@@ -216,7 +210,6 @@ public class Service {
 	@PermitAll
 	@Produces(MediaType.APPLICATION_JSON)
 	public SalesPoint getPlaceDetails(@DefaultValue("") @PathParam("sales_point_id") String salesPointId) throws Exception {
-		//TODO: Verify all the parameters
 		if (salesPointId == null || salesPointId.trim().equals("")) {
 		    throw new WebApplicationException(
 		      Response.status(HttpURLConnection.HTTP_BAD_REQUEST)
@@ -236,7 +229,6 @@ public class Service {
 	@PermitAll
 	@Produces(MediaType.APPLICATION_JSON)
 	public List<Product> getProductsByCategory(@DefaultValue("-1") @PathParam("category_id") int categoryId) throws Exception {
-		//TODO: Verify all the parameters
 		if (categoryId == -1) {
 		    throw new WebApplicationException(
 		      Response.status(HttpURLConnection.HTTP_BAD_REQUEST)
@@ -251,25 +243,22 @@ public class Service {
 		
 
 	
-	// http://localhost:8080/PFE-EE/api/Products/add?id=5&name=probook&type=1&category=1&tradeMark=HP
+	// http://localhost:8080/PFE-EE/api/Products/add?barcode=5&name=probook&type=1&category=1&tradeMark=HP
 	@Path("/add")
 	@PUT
-	@RolesAllowed({AuthenticationFilter.ADMIN,AuthenticationFilter.MERCHANT})
+	@RolesAllowed({AuthenticationFilter.MERCHANT})
 	@Consumes(MediaType.APPLICATION_JSON)
 	public void insertProduct(
 			@DefaultValue("-1") @QueryParam("barcode") String productBarcode, 
 			@DefaultValue("") @QueryParam("name") String productName, 
 			@DefaultValue("-1") @QueryParam("type") int productType,
-			@DefaultValue("-1") @QueryParam("category") int productCategory, 
 			@DefaultValue("") @QueryParam("tradeMark") String productTradeMark) throws Exception {
 		
-		//TODO: Verify all the parameters
-		List<String> missingParameters = new ArrayList<String>();
+		final List<String> missingParameters = new ArrayList<String>();
 		
 		if (productBarcode.trim().equals("")) missingParameters.add("productBarcode");
 		if (productName.trim().equals("")) missingParameters.add("productName");
 		if (productType == -1) missingParameters.add("productType");
-		if (productCategory == -1) missingParameters.add("productCategory");
 		if (productTradeMark.trim().equals("")) missingParameters.add("productTradeMark");
 		
 		if (missingParameters.size() != 0) {
@@ -280,7 +269,7 @@ public class Service {
 		    );
 		}
 		
-		Product product = new Product(productBarcode, productName, productType, productCategory, productTradeMark);
+		Product product = new Product(productBarcode, productName, productType, productTradeMark);
 		Access.insertProduct(product);
 	}
 	
@@ -290,23 +279,20 @@ public class Service {
 	// http://localhost:8080/PFE-EE/api/Products/update/5?name=probook350&type=1&category=1&tradeMark=hp
 	@Path("/update/{product_barcode}")
 	@POST
-	@RolesAllowed({AuthenticationFilter.ADMIN,AuthenticationFilter.MERCHANT})
+	@RolesAllowed({AuthenticationFilter.MERCHANT})
 	@Produces(MediaType.APPLICATION_JSON)
 	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
 	public void updateProduct(
 			@DefaultValue("") @PathParam("product_barcode") String productBarcode, 
 			@DefaultValue("") @QueryParam("name") String productName,
 			@DefaultValue("-1") @QueryParam("type") int productType, 
-			@DefaultValue("-1") @QueryParam("category") int productCategory, 
 			@DefaultValue("") @QueryParam("tradeMark") String productTradeMark) throws Exception {
 		
-		//TODO: Verify all the parameters
-		List<String> missingParameters = new ArrayList<String>();
+		final List<String> missingParameters = new ArrayList<String>();
 		
 		if (productBarcode.trim().equals("")) missingParameters.add("productBarcode");
 		if (productName.trim().equals("")) missingParameters.add("productName");
 		if (productType == -1) missingParameters.add("productType");
-		if (productCategory == -1) missingParameters.add("productCategory");
 		if (productTradeMark.trim().equals("")) missingParameters.add("productTradeMark");
 		
 		if (missingParameters.size() != 0) {
@@ -320,7 +306,6 @@ public class Service {
 		Product product = this.getProductById(productBarcode);
 		product.setProductName(productName);
 		product.setProductType(productType);
-		product.setProductCategory(productCategory);
 		product.setProductTradeMark(productTradeMark);
 		Access.updateProduct(product);
 	}
@@ -331,10 +316,9 @@ public class Service {
 	// http://localhost:8080/PFE-EE/api/Products/delete/5
 	@Path("/delete/{product_barcode}")
 	@DELETE
-	@RolesAllowed({AuthenticationFilter.ADMIN,AuthenticationFilter.MERCHANT})
+	@RolesAllowed({AuthenticationFilter.MERCHANT})
 	@Consumes(MediaType.APPLICATION_JSON)
 	public void deleteProduct(@DefaultValue("") @PathParam("product_barcode") String productBarcode) throws Exception {
-		//TODO: Verify all the parameters
 		if (productBarcode.trim().equals("")) {
 		    throw new WebApplicationException(
 		      Response.status(HttpURLConnection.HTTP_BAD_REQUEST)
@@ -357,7 +341,7 @@ public class Service {
 		if (productBarcode.trim().equals("")) {
 		    throw new WebApplicationException(
 		      Response.status(HttpURLConnection.HTTP_BAD_REQUEST)
-		        .entity("productBarcode parameter is mandatory.")
+		        .entity("product_barcode parameter is mandatory.")
 		        .build()
 		    );
 		}
@@ -391,12 +375,12 @@ public class Service {
 	@GET
 	@PermitAll
 	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
-	public void updateProduct(
-			@DefaultValue("") @PathParam("sales_point_id") String sales_point_id) throws Exception {
+	public void updateSalesPoint(
+			@DefaultValue("") @PathParam("sales_point_id") String salesPointId) throws Exception {
 		
-		List<String> missingParameters = new ArrayList<String>();
+		final List<String> missingParameters = new ArrayList<String>();
 		
-		if (sales_point_id.trim().equals("")) missingParameters.add("sales_point_id");
+		if (salesPointId.trim().equals("")) missingParameters.add("sales_point_id");
 		if (missingParameters.size() != 0) {
 		    throw new WebApplicationException(
 		      Response.status(HttpURLConnection.HTTP_BAD_REQUEST)
@@ -405,13 +389,51 @@ public class Service {
 		    );
 		}
 		
-		SalesPoint salespoint = Access.getSalesPointById(sales_point_id);
-		SalesPoint info = GoogleAPI.salespointInformations(sales_point_id);
+		SalesPoint salespoint = Access.getSalesPointById(salesPointId);
+		SalesPoint info = GoogleAPI.salespointInformations(salesPointId);
 	
 		salespoint.setSalesPointName(info.getSalesPointName());
 		salespoint.setSalesPointLat(info.getSalesPointLat());
 		salespoint.setSalesPointLong(info.getSalesPointLong());
 		
 		Access.updateSalesPoint(salespoint);
-	}	
+	}
+	
+	
+	
+	@Path("/UpdateProductSalesPoint")
+	@POST
+	@PermitAll
+	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+	public void updateProductSalesPoint(
+			@DefaultValue("") @QueryParam("sales_point_id") String salesPointId,
+			@DefaultValue("") @QueryParam("product_barcode") String productBarcode,
+			@DefaultValue("-1") @QueryParam("product_quantity") int productQuantity,
+			@DefaultValue("-1") @QueryParam("product_price") double productPrice) throws Exception {
+		
+		final List<String> missingParameters = new ArrayList<String>();
+		
+		if (salesPointId.trim().equals("")) missingParameters.add("sales_point_id");
+		if (productBarcode.trim().equals("")) missingParameters.add("product_barcode");
+		if (productQuantity == -1) missingParameters.add("product_quantity");
+		if (productPrice == -1) missingParameters.add("product_price");
+		if (missingParameters.size() != 0) {
+		    throw new WebApplicationException(
+		      Response.status(HttpURLConnection.HTTP_BAD_REQUEST)
+		        .entity("Missing parameters : " + missingParameters)
+		        .build()
+		    );
+		}
+		
+		final ProductSalesPoint productSalesPoint = new ProductSalesPoint(productBarcode, salesPointId, productQuantity, productPrice);
+		final boolean updated = Access.updateProductSalesPoint(productSalesPoint);
+		if (updated) {
+			final List<String> devicesIds = Access.getDevicesIdsForNotification(salesPointId, productBarcode, productQuantity, productPrice);
+			if (devicesIds != null) {
+				for (String deviceId : devicesIds) {
+					FcmNotifications.pushFCMNotification(deviceId, salesPointId, productBarcode, productQuantity, productPrice);
+				}
+			}
+		}
+	}
 }

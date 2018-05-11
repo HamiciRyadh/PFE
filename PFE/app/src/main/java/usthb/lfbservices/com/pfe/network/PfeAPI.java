@@ -1,6 +1,7 @@
 package usthb.lfbservices.com.pfe.network;
 
 import android.util.Base64;
+import android.util.Log;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -113,6 +114,11 @@ public class PfeAPI {
         return okHttpClient;
     }
 
+    public void setAuthorization(final String mailAddress, final String password) {
+        authorization = android.util.Base64.encodeToString((mailAddress + ":" + password).getBytes(), Base64.NO_WRAP);
+    }
+
+
     public Observable<SalesPoint> getPlaceDetails(String salesPointId) {
         return pfeService.getPlaceDetails(salesPointId);
     }
@@ -136,6 +142,7 @@ public class PfeAPI {
     }
 
     public Observable<Boolean> connect(final String mailAddress, final String password) {
+        Log.e("Header Authorization : ", "Basic " + android.util.Base64.encodeToString((mailAddress + ":" + password).getBytes(), Base64.NO_WRAP));
         return pfeService.connect(mailAddress, password);
     }
 
@@ -143,9 +150,20 @@ public class PfeAPI {
         return pfeService.register(mailAddress, password);
     }
 
+    public Observable<Boolean> setFirebaseTokenId(final String deviceId) {
+        return pfeService.setFirebaseTokenId(deviceId);
+    }
 
-    public void setAuthorization(final String mailAddress, final String password) {
-        authorization = android.util.Base64.encodeToString((mailAddress + ":" + password).getBytes(), Base64.NO_WRAP);
+    public Observable<Boolean> updateFirebaseTokenId(final String previousDeviceId, final String newDeviceId) {
+        return pfeService.updateFirebaseTokenId(previousDeviceId, newDeviceId);
+    }
+
+    public Observable<Boolean> removeFirebaseTokenId(final String deviceId) {
+        return pfeService.removeFirebaseTokenId(deviceId);
+    }
+
+    public Observable<Boolean> addToNotificationList(final String salesPointId, final String productBarcode) {
+        return pfeService.addToNotificationList(salesPointId, productBarcode);
     }
 
     public Call<GoogleDirections> getDistanceDuration(final String apiKey, final String units, final String origin,

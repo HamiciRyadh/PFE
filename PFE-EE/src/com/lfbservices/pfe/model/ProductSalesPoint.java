@@ -19,7 +19,7 @@ public class ProductSalesPoint {
 
 	private String productBarcode;
 	private String salesPointId;
-	private  int productQuantity;
+	private int productQuantity;
 	private double productPrice ;
 	
 	public ProductSalesPoint() {

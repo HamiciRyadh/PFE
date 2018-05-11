@@ -16,10 +16,11 @@
    SELECT *  FROM  ${db.schema}."ProductSalesPoint" WHERE product_barcode  =  #{productBarcode} ; 
 </select>
 
-
-<select id = "getSalesPointById" parameterType = "String" resultMap = "result">
-   SELECT *  FROM  ${db.schema}."ProductSalesPoint" WHERE sales_point_id  =  #{salesPointId} ; 
-</select>
-
+<update id="updateProductSalesPoint" parameterType="com.lfbservices.pfe.model.ProductSalesPoint">
+		UPDATE ${db.schema}."ProductSalesPoint" SET
+		product_price = #{productPrice},
+		product_quantity = #{productQuantity} 
+		WHERE product_barcode = #{productBarcode} AND sales_point_id = #{salesPointId};
+	</update>
 
 </mapper>

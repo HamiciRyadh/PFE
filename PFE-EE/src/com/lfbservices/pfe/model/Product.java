@@ -21,23 +21,19 @@ public class Product {
 	private String productBarcode;
 	private String productName;
 	private int productType;
-	private int productCategory;
 	private String productTradeMark;
-	//private Map<String,String> productCaracteristics;
 	
 	
 	public Product() {
-		this("","",0,0,"");
+		this("","",0,"");
 	}
 	
 	
-	public Product(String productBarcode, String productName, int productType, int productCategory,
-			String productTradeMark) {
+	public Product(String productBarcode, String productName, int productType, String productTradeMark) {
 		super();
 		this.productBarcode = productBarcode;
 		this.productName = productName;
 		this.productType = productType;
-		this.productCategory = productCategory;
 		this.productTradeMark = productTradeMark;
 	}
 	
@@ -94,16 +90,6 @@ public class Product {
 
 	public void setProductType(int productType) {
 		this.productType = productType;
-	}
-
-
-	public int getProductCategory() {
-		return productCategory;
-	}
-
-
-	public void setProductCategory(int productCategory) {
-		this.productCategory = productCategory;
 	}
 
 

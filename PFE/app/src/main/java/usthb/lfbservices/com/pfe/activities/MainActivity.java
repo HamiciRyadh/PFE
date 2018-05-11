@@ -36,6 +36,7 @@ import usthb.lfbservices.com.pfe.fragments.SearchFragment;
 import usthb.lfbservices.com.pfe.models.BottomSheetDataSetter;
 import usthb.lfbservices.com.pfe.models.ProductSalesPoint;
 import usthb.lfbservices.com.pfe.models.SalesPoint;
+import usthb.lfbservices.com.pfe.network.PfeRx;
 import usthb.lfbservices.com.pfe.utils.Constantes;
 import usthb.lfbservices.com.pfe.utils.DisposableManager;
 import usthb.lfbservices.com.pfe.utils.Utils;
@@ -201,6 +202,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                             .apply();
                     navigationView.getMenu().getItem(4).setTitle(R.string.connect);
                     navigationView.getMenu().getItem(0).setChecked(true);
+                    final String deviceId = Utils.getStoredFirebaseTokenId(MainActivity.this);
+                    PfeRx.removeFirebaseTokenId(deviceId);
                 } else {
                     Intent intent = new Intent(MainActivity.this, LoginActivity.class);
                     startActivity(intent);
@@ -226,42 +229,17 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     @Override
-    public void setBottomSheetData(@NonNull SalesPoint salesPoint, @NonNull ProductSalesPoint productSalesPoint) {
-        TextView nameTextView = findViewById(R.id.sales_point_name_details);
-        TextView addressTextView = findViewById(R.id.sales_point_address_details);
-        TextView quantityTextView = findViewById(R.id.product_qte_marker);
-        TextView priceTextView = findViewById(R.id.product_price_marker);
-
-        nameTextView.setText(salesPoint.getSalesPointName());
-        addressTextView.setText(salesPoint.getSalesPointAddress());
-        quantityTextView.setText(""+productSalesPoint.getProductQuantity());
-        priceTextView.setText(""+productSalesPoint.getProductPrice());
-    }
-
-    @Override
-    public void setBottomSheetDataDetails(@NonNull final SalesPoint salesPoint) {
-        ImageView salesPointPhoto = findViewById(R.id.sales_point_image_details);
-        TextView ratingMark = findViewById(R.id.rating);
-        RatingBar salesPointRating = findViewById(R.id.sales_point_rating_details);
-        final TextView salesPointPhoneNumber = findViewById(R.id.sales_point_phone_number_details);
-        final TextView salesPointWebSite = findViewById(R.id.sales_point_website_details);
-        ImageView salesPointItineraire = findViewById(R.id.sales_point_itineraire);
-        salesPointItineraire.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                final Intent intent = new Intent(MainActivity.this, ItineraireActivity.class);
-                intent.putExtra(Constantes.INTENT_SALES_POINT_ID, salesPoint.getSalesPointId());
-                startActivity(intent);
-
-            }
-        });
-
-        Picasso.get()
-                .load(Utils.buildGooglePictureUri(MainActivity.this,salesPoint.getSalesPointPhotoReference()))
-                .error(R.drawable.not_avaialble2)
-                .into(salesPointPhoto);
-
+    public void setBottomSheetData(@NonNull final SalesPoint salesPoint, @NonNull final ProductSalesPoint productSalesPoint) {
+        final TextView nameTextView = findViewById(R.id.sales_point_name_details);
+        final TextView quantityTextView = findViewById(R.id.product_qte_marker);
+        final TextView priceTextView = findViewById(R.id.product_price_marker);
         final ImageView notifyMe = findViewById(R.id.notify_me);
+        final ImageView addToFavorite = findViewById(R.id.add_to_favorite);
+
+        if (nameTextView != null) nameTextView.setText(salesPoint.getSalesPointName());
+        if (quantityTextView != null) quantityTextView.setText(""+productSalesPoint.getProductQuantity());
+        if (priceTextView != null) priceTextView.setText(""+productSalesPoint.getProductPrice());
+
         if (notifyMe != null) {
             notifyMe.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -269,12 +247,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     if (!Utils.isUserConnected(MainActivity.this)) {
                         Utils.showConnectDialog(MainActivity.this);
                     } else {
-                        //TODO: Insert code here
+                        PfeRx.addToNotificationsList(salesPoint.getSalesPointId(), productSalesPoint.getProductBarcode());
                     }
                 }
             });
         }
-        final ImageView addToFavorite = findViewById(R.id.add_to_favorite);
+
         if (addToFavorite != null) {
             addToFavorite.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -287,35 +265,67 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 }
             });
         }
+    }
+
+    @Override
+    public void setBottomSheetDataDetails(@NonNull final SalesPoint salesPoint) {
+        final TextView addressTextView = findViewById(R.id.sales_point_address_details);
+        final ImageView salesPointPhoto = findViewById(R.id.sales_point_image_details);
+        final TextView ratingMark = findViewById(R.id.rating);
+        final RatingBar salesPointRating = findViewById(R.id.sales_point_rating_details);
+        final TextView salesPointPhoneNumber = findViewById(R.id.sales_point_phone_number_details);
+        final TextView salesPointWebSite = findViewById(R.id.sales_point_website_details);
+        final ImageView salesPointItineraire = findViewById(R.id.sales_point_itineraire);
+
+        if (addressTextView != null) addressTextView.setText(salesPoint.getSalesPointAddress());
+
+        if (salesPointItineraire != null) salesPointItineraire.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                final Intent intent = new Intent(MainActivity.this, ItineraireActivity.class);
+                intent.putExtra(Constantes.INTENT_SALES_POINT_ID, salesPoint.getSalesPointId());
+                startActivity(intent);
+
+            }
+        });
+
+        if (salesPoint.getSalesPointPhotoReference() != null) {
+            Picasso.get()
+                    .load(Utils.buildGooglePictureUri(MainActivity.this,salesPoint.getSalesPointPhotoReference()))
+                    .error(R.drawable.not_avaialble2)
+                    .into(salesPointPhoto);
+        }
 
         final DecimalFormat decimalFormat = new DecimalFormat("#.#");
-        ratingMark.setText(decimalFormat.format(salesPoint.getSalesPointRating()));
-        salesPointRating.setRating((float) salesPoint.getSalesPointRating());
-        salesPointPhoneNumber.setText(salesPoint.getSalesPointPhoneNumber());
-        salesPointPhoneNumber.setPaintFlags(salesPointPhoneNumber.getPaintFlags() ^ Paint.UNDERLINE_TEXT_FLAG);
-        salesPointPhoneNumber.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String phone = salesPointPhoneNumber.getText().toString();
-                Intent intent = new Intent(Intent.ACTION_DIAL, Uri.fromParts("tel", phone, null));
-                startActivity(intent);
-            }
-        });
+        if (ratingMark != null) ratingMark.setText(decimalFormat.format(salesPoint.getSalesPointRating()));
+        if (salesPointRating != null) salesPointRating.setRating((float) salesPoint.getSalesPointRating());
 
-        salesPointWebSite.setText(salesPoint.getSalesPointWebSite());
-        salesPointPhoneNumber.setPaintFlags(salesPointPhoneNumber.getPaintFlags() ^ Paint.UNDERLINE_TEXT_FLAG);
-        salesPointWebSite.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String url = salesPointWebSite.getText().toString();
-                if (!url.startsWith("http://") && !url.startsWith("https://"))
-                    url = "http://" + url;
-                Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
-                startActivity(browserIntent);
-            }
-        });
+        if (salesPointPhoneNumber != null) {
+            salesPointPhoneNumber.setText(salesPoint.getSalesPointPhoneNumber());
+            salesPointPhoneNumber.setPaintFlags(salesPointPhoneNumber.getPaintFlags() ^ Paint.UNDERLINE_TEXT_FLAG);
+            salesPointPhoneNumber.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    String phone = salesPointPhoneNumber.getText().toString();
+                    Intent intent = new Intent(Intent.ACTION_DIAL, Uri.fromParts("tel", phone, null));
+                    startActivity(intent);
+                }
+            });
+        }
 
-
+        if (salesPointWebSite != null) {
+            salesPointWebSite.setText(salesPoint.getSalesPointWebSite());
+            salesPointWebSite.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    String url = salesPointWebSite.getText().toString();
+                    if (!url.startsWith("http://") && !url.startsWith("https://"))
+                        url = "http://" + url;
+                    Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+                    startActivity(browserIntent);
+                }
+            });
+        }
     }
 
     @Override

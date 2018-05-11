@@ -2,6 +2,7 @@ package com.lfbservices.pfe.dao;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -19,9 +20,9 @@ public class Access {
 
 	public static List<Product> getProducts() throws SQLException, IOException {
 
-		SqlSession session = DBConnectionFactory.getNewSession();
+		final SqlSession session = DBConnectionFactory.getNewSession();
 
-		List<Product> listProducts = session.selectList("QueriesProduct.getAllProducts");
+		final List<Product> listProducts = session.selectList("QueriesProduct.getAllProducts");
 
 		session.commit();
 		session.close();
@@ -31,9 +32,9 @@ public class Access {
 	}
 
 	public static List<Product> getProductsByCategory(final int categoryId) throws Exception {
-		SqlSession session = DBConnectionFactory.getNewSession();
+		final SqlSession session = DBConnectionFactory.getNewSession();
 
-		List<Product> listProducts = session.selectList("QueriesProduct.getProductsByCategory", categoryId);
+		final List<Product> listProducts = session.selectList("QueriesProduct.getProductsByCategory", categoryId);
 
 		session.commit();
 		session.close();
@@ -42,9 +43,9 @@ public class Access {
 	}
 
 	public static Product getProductById(final String productBarcode) throws Exception {
-		SqlSession session = DBConnectionFactory.getNewSession();
+		final SqlSession session = DBConnectionFactory.getNewSession();
 
-		Product product = session.selectOne("QueriesProduct.getProductById", productBarcode);
+		final Product product = session.selectOne("QueriesProduct.getProductById", productBarcode);
 
 		session.commit();
 		session.close();
@@ -53,10 +54,9 @@ public class Access {
 	}
 
 	public static List<Product> getProductsByName(final Map<String,Object> value) throws Exception {
-		SqlSession session = DBConnectionFactory.getNewSession();
-
+		final SqlSession session = DBConnectionFactory.getNewSession();
 		
-		List<Product> listProducts = session.selectList("QueriesProduct.getProductsByName", value);
+		final List<Product> listProducts = session.selectList("QueriesProduct.getProductsByName", value);
 
 		session.commit();
 		session.close();
@@ -65,7 +65,7 @@ public class Access {
 	}
 	
 	public static void insertProduct(final Product product) throws Exception {
-		SqlSession session = DBConnectionFactory.getNewSession();
+		final SqlSession session = DBConnectionFactory.getNewSession();
 
 		session.insert("QueriesProduct.insertProduct", product);
 
@@ -76,7 +76,7 @@ public class Access {
 
 	public static void updateProduct(final Product product) throws Exception {
 
-		SqlSession session = DBConnectionFactory.getNewSession();
+		final SqlSession session = DBConnectionFactory.getNewSession();
 
 		session.update("QueriesProduct.updateProductById", product);
 
@@ -86,7 +86,7 @@ public class Access {
 	}
 
 	public static void deleteProduct(final String productId) throws Exception {
-		SqlSession session = DBConnectionFactory.getNewSession();
+		final SqlSession session = DBConnectionFactory.getNewSession();
 
 		session.delete("QueriesProduct.deleteProductById", productId);
 
@@ -98,9 +98,9 @@ public class Access {
 	
 	public static List<KeyValue> getProductCaracteristic(final String productBarcode) throws SQLException, IOException {
 
-		SqlSession session = DBConnectionFactory.getNewSession();
+		final SqlSession session = DBConnectionFactory.getNewSession();
 
-		List<KeyValue> listProducts = session.selectList("QueriesProduct.getProductCaracteristic", productBarcode);
+		final List<KeyValue> listProducts = session.selectList("QueriesProduct.getProductCaracteristic", productBarcode);
 
 		session.commit();
 		session.close();
@@ -114,9 +114,9 @@ public class Access {
 	
 	
 	public static List<ProductSalesPoint> getProductSalesPointList(final String productBarcode) throws Exception {
-		SqlSession session = DBConnectionFactory.getNewSession();
+		final SqlSession session = DBConnectionFactory.getNewSession();
 
-		List<ProductSalesPoint> listProductSalesPoint = session.selectList("QueriesProductSalesPoint.getSalesPointsAndQte",
+		final List<ProductSalesPoint> listProductSalesPoint = session.selectList("QueriesProductSalesPoint.getSalesPointsAndQte",
 				productBarcode);
 
 		session.commit();
@@ -125,15 +125,26 @@ public class Access {
 		return listProductSalesPoint;
 	}
 	
+	public static boolean updateProductSalesPoint(final ProductSalesPoint productSalesPoint) throws Exception {
+		final SqlSession session = DBConnectionFactory.getNewSession();
+		
+		int rowsUpdated = session.update("QueriesProductSalesPoint.updateProductSalesPoint", productSalesPoint);
+
+		session.commit();
+		session.close();
+
+		return rowsUpdated == 1;
+	}
+	
 	
 
 	/********************************	Queries for SalesPoints		*************************************/
 
 
 	public static SalesPoint getSalesPointById(final String salesPointId) throws Exception {
-		SqlSession session = DBConnectionFactory.getNewSession();
+		final SqlSession session = DBConnectionFactory.getNewSession();
 
-		SalesPoint salesPoint = session.selectOne("QueriesSalesPoint.getSalesPointById", salesPointId);
+		final SalesPoint salesPoint = session.selectOne("QueriesSalesPoint.getSalesPointById", salesPointId);
 
 		session.commit();
 		session.close();
@@ -144,7 +155,7 @@ public class Access {
 
 	public static void updateSalesPoint(final SalesPoint salesPoint) throws Exception {
 
-		SqlSession session = DBConnectionFactory.getNewSession();
+		final SqlSession session = DBConnectionFactory.getNewSession();
 
 		session.update("QueriesSalesPoint.updateSalesPointById", salesPoint);
 
@@ -155,10 +166,44 @@ public class Access {
 	
 	/********************************	Queries for Users	*************************************/
 	
-	public static boolean userExists(final User user) {
-		SqlSession session = DBConnectionFactory.getNewSession();
+	public static boolean adminExists(final String mailAddress, final String encryptedPassword) {
+		final SqlSession session = DBConnectionFactory.getNewSession();
 		
-		boolean exists = session.selectOne("QueriesUsers.userExists", user);
+		final Map<String,Object> parameters = new HashMap<String,Object>();
+		parameters.put("mailAddress", mailAddress);
+		parameters.put("password", encryptedPassword);
+		
+		final boolean exists = session.selectOne("QueriesUsers.adminExists", parameters);
+
+		session.commit();
+		session.close();
+
+		return exists;
+	}
+	
+	public static boolean merchantExists(final String mailAddress, final String encryptedPassword) {
+		final SqlSession session = DBConnectionFactory.getNewSession();
+		
+		final Map<String,Object> parameters = new HashMap<String,Object>();
+		parameters.put("mailAddress", mailAddress);
+		parameters.put("password", encryptedPassword);
+		
+		final boolean exists = session.selectOne("QueriesUsers.merchantExists", parameters);
+
+		session.commit();
+		session.close();
+
+		return exists;
+	}
+	
+	public static boolean userExists(final String mailAddress, final String encryptedPassword) {
+		final SqlSession session = DBConnectionFactory.getNewSession();
+		
+		final Map<String,Object> parameters = new HashMap<String,Object>();
+		parameters.put("mailAddress", mailAddress);
+		parameters.put("password", encryptedPassword);
+		
+		final boolean exists = session.selectOne("QueriesUsers.userExists", parameters);
 
 		session.commit();
 		session.close();
@@ -170,7 +215,7 @@ public class Access {
 	public static boolean addUser(final User user) {
 		if (!Access.isMailAddressAvailable(user.getMailAddress())) return false;
 		
-		SqlSession session = DBConnectionFactory.getNewSession();
+		final SqlSession session = DBConnectionFactory.getNewSession();
 		
 		int rowsInserted = session.insert("QueriesUsers.addUser", user);
 
@@ -182,7 +227,7 @@ public class Access {
 	
 	
 	public static boolean isMailAddressAvailable(final String mailAddress) {
-		SqlSession session = DBConnectionFactory.getNewSession();
+		final SqlSession session = DBConnectionFactory.getNewSession();
 		
 		boolean isMailAddressAvailable = session.selectOne("QueriesUsers.isMailAddressAvailable", mailAddress);
 
@@ -194,7 +239,7 @@ public class Access {
 	
 	
 	public static boolean deleteUser(final String mailAddress) {
-		SqlSession session = DBConnectionFactory.getNewSession();
+		final SqlSession session = DBConnectionFactory.getNewSession();
 		
 		int rowsDeleted = session.delete("QueriesUsers.deleteUser", mailAddress);
 
@@ -205,14 +250,149 @@ public class Access {
 	}
 	
 	
-	public static List<User> getAllUsers() {
-		SqlSession session = DBConnectionFactory.getNewSession();
+	public static int getUserDeviceId(final String userMailAddress) {
+		final SqlSession session = DBConnectionFactory.getNewSession();
 		
-		List<User> users = session.selectList("QueriesUsers.getAllUsers");
+		final Integer result = session.selectOne("QueriesUsers.getUserId", userMailAddress);
+
+		session.commit();
+		session.close();
+		
+		int userId = -1;
+		if (result != null) userId = result.intValue();
+
+		return userId;
+	}
+	
+	
+	public static List<User> getAllUsers() {
+		final SqlSession session = DBConnectionFactory.getNewSession();
+		
+		final List<User> users = session.selectList("QueriesUsers.getAllUsers");
 
 		session.commit();
 		session.close();
 
 		return users;
+	}
+	
+	public static boolean userDeviceExists(final Map<String,Object> parameters) {
+		final SqlSession session = DBConnectionFactory.getNewSession();
+		
+		boolean exists = session.selectOne("QueriesUsers.userDeviceExists", parameters);
+
+		session.commit();
+		session.close();
+
+		return exists;
+	}
+	
+	public static boolean addUserDevice(final String mailAddress, final String deviceId) {
+		
+		final int userId = Access.getUserDeviceId(mailAddress);
+		if (userId == -1) return false;
+		
+		final SqlSession session = DBConnectionFactory.getNewSession();
+				
+		final Map<String,Object> parameters = new HashMap<String,Object>();
+		parameters.put("userId", userId);
+		parameters.put("deviceId", deviceId);
+		
+		if (Access.userDeviceExists(parameters)) return false;
+		int rowsInserted = session.insert("QueriesUsers.addUserDevice", parameters);
+
+		session.commit();
+		session.close();
+
+		return rowsInserted == 1;
+	}
+	
+	public static boolean updateUserDeviceId(final String mailAddress, final String previousDeviceId, final String newDeviceId) {
+		
+		final int userId = Access.getUserDeviceId(mailAddress);
+		if (userId == -1) return false;
+		
+		final SqlSession session = DBConnectionFactory.getNewSession();
+				
+		final Map<String,Object> parameters = new HashMap<String,Object>();
+		parameters.put("userId", userId);
+		parameters.put("previousDeviceId", previousDeviceId);
+		parameters.put("newDeviceId", newDeviceId);
+		
+		int rowsUpdated = session.update("QueriesUsers.updateUserDeviceId", parameters);
+
+		session.commit();
+		session.close();
+
+		return rowsUpdated == 1;
+	}
+	
+	public static boolean removeUserDeviceId(final String mailAddress, final String deviceId) {
+		
+		final int userId = Access.getUserDeviceId(mailAddress);
+		if (userId == -1) return false;
+		
+		final SqlSession session = DBConnectionFactory.getNewSession();
+				
+		final Map<String,Object> parameters = new HashMap<String,Object>();
+		parameters.put("userId", userId);
+		parameters.put("deviceId", deviceId);
+		
+		int rowsDeleted = session.delete("QueriesUsers.removeUserDeviceId", parameters);
+
+		session.commit();
+		session.close();
+
+		return rowsDeleted == 1;
+	}
+	
+	public static boolean userNotificationExists(final Map<String,Object> parameters) {
+		final SqlSession session = DBConnectionFactory.getNewSession();
+		
+		boolean exists = session.selectOne("QueriesUsers.userNotificationExists", parameters);
+
+		session.commit();
+		session.close();
+
+		return exists;
+	}
+	
+	public static boolean addToNotificationsList(final String mailAddress, final String productBarcode, final String salesPointId) {
+		
+		final int userId = Access.getUserDeviceId(mailAddress);
+		if (userId == -1) return false;
+		
+		final SqlSession session = DBConnectionFactory.getNewSession();
+				
+		final Map<String,Object> parameters = new HashMap<String,Object>();
+		parameters.put("userId", userId);
+		parameters.put("productBarcode", productBarcode);
+		parameters.put("salesPointId", salesPointId);
+		
+		if (Access.userNotificationExists(parameters)) return false;
+		int rowsInserted = session.insert("QueriesUsers.addToNotificationsList", parameters);
+
+		session.commit();
+		session.close();
+
+		return rowsInserted == 1;
+	}
+	
+	public static List<String> getDevicesIdsForNotification(final String salesPointId, final String productBarcode, final int productQuantity,
+												   final double productPrice) {
+		final SqlSession session = DBConnectionFactory.getNewSession();
+		
+		final Map<String,Object> parameters = new HashMap<String,Object>();
+		parameters.put("salesPointId", salesPointId);
+		parameters.put("productBarcode", productBarcode);
+		parameters.put("productQuantity", productQuantity);
+		parameters.put("productPrice", productPrice);
+		
+		final List<String> devicesIds = session.selectList("QueriesUsers.getDevicesIdsForNotification", parameters);
+
+		session.commit();
+		session.close();
+		
+		return devicesIds;
 	}
 }

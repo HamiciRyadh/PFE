@@ -6,14 +6,12 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomSheetBehavior;
-import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
-import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -60,7 +58,7 @@ import usthb.lfbservices.com.pfe.utils.Utils;
  * and the associated handling.
  */
 
-public class PfeRx extends FragmentActivity {
+public class PfeRx {
     private static final String TAG = PfeRx.class.getName();
 
     /**
@@ -117,7 +115,7 @@ public class PfeRx extends FragmentActivity {
                             map.clear();
                             LatLngBounds.Builder builder = new LatLngBounds.Builder();
 
-                            SharedPreferences preferences = activity.getSharedPreferences(Constantes.SHARED_PREFERENCES_POSITION, MODE_PRIVATE);
+                            SharedPreferences preferences = activity.getSharedPreferences(Constantes.SHARED_PREFERENCES_POSITION, activity.MODE_PRIVATE);
                             String sUserLatitude = preferences.getString(Constantes.SHARED_PREFERENCES_POSITION_LATITUDE, null);
                             String sUserLongitude = preferences.getString(Constantes.SHARED_PREFERENCES_POSITION_LONGITUDE, null);
                             LatLng userPosition = null;
@@ -523,12 +521,14 @@ public class PfeRx extends FragmentActivity {
 
                         if (exists) {
                             SharedPreferences.Editor editor =
-                                    activity.getSharedPreferences(Constantes.SHARED_PREFERENCES_USER, MODE_PRIVATE).edit();
+                                    activity.getSharedPreferences(Constantes.SHARED_PREFERENCES_USER,  activity.MODE_PRIVATE).edit();
                             editor.putString(Constantes.SHARED_PREFERENCES_USER_EMAIL, mailAddress);
                             editor.putString(Constantes.SHARED_PREFERENCES_USER_PASSWORD, password);
                             editor.apply();
 
                             pfeAPI.setAuthorization(mailAddress, password);
+                            final String deviceId = Utils.getStoredFirebaseTokenId(activity);
+                            PfeRx.setFirebaseTokenId(deviceId);
 
                             Intent intent = new Intent(activity, MainActivity.class);
                             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -590,12 +590,14 @@ public class PfeRx extends FragmentActivity {
 
                         if (registered) {
                             SharedPreferences.Editor editor =
-                                    activity.getSharedPreferences(Constantes.SHARED_PREFERENCES_USER, MODE_PRIVATE).edit();
+                                    activity.getSharedPreferences(Constantes.SHARED_PREFERENCES_USER, activity.MODE_PRIVATE).edit();
                             editor.putString(Constantes.SHARED_PREFERENCES_USER_EMAIL, mailAddress);
                             editor.putString(Constantes.SHARED_PREFERENCES_USER_PASSWORD, password);
                             editor.apply();
 
                             pfeAPI.setAuthorization(mailAddress, password);
+                            final String deviceId = Utils.getStoredFirebaseTokenId(activity);
+                            PfeRx.setFirebaseTokenId(deviceId);
 
                             Intent intent = new Intent(activity, MainActivity.class);
                             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -626,6 +628,136 @@ public class PfeRx extends FragmentActivity {
                     public void onComplete() {
                         Log.e(TAG, "Register : onComplete");
                         progressDialog.dismiss();
+                    }
+                });
+    }
+
+
+    public static void setFirebaseTokenId(@NonNull final String deviceId) {
+        pfeAPI.setFirebaseTokenId(deviceId)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<Boolean>() {
+                    @Override
+                    public void onSubscribe(Disposable d) {
+                        Log.e(TAG, "SetFirebaseTokenId : onSubscribe");
+                    }
+
+                    @Override
+                    public void onNext(Boolean added) {
+                        Log.e(TAG, "SetFirebaseTokenId : onNext");
+
+                        if (!added) {
+                            //TODO: Think of someting
+                        }
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        Log.e(TAG, "SetFirebaseTokenId : onError " + e.toString());
+                    }
+
+                    @Override
+                    public void onComplete() {
+                        Log.e(TAG, "SetFirebaseTokenId : onComplete");
+                    }
+                });
+    }
+
+
+    public static void updateFirebaseTokenId(@NonNull final String previousDeviceId,
+                                             @NonNull final String newDeviceId) {
+        pfeAPI.updateFirebaseTokenId(previousDeviceId, newDeviceId)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<Boolean>() {
+                    @Override
+                    public void onSubscribe(Disposable d) {
+                        Log.e(TAG, "updateFirebaseTokenId : onSubscribe");
+                    }
+
+                    @Override
+                    public void onNext(Boolean updated) {
+                        Log.e(TAG, "updateFirebaseTokenId : onNext");
+
+                        if (!updated) {
+                            //TODO: Think of someting
+                        }
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        Log.e(TAG, "updateFirebaseTokenId : onError " + e.toString());
+                    }
+
+                    @Override
+                    public void onComplete() {
+                        Log.e(TAG, "updateFirebaseTokenId : onComplete");
+                    }
+                });
+    }
+
+
+    public static void removeFirebaseTokenId(@NonNull final String deviceId) {
+        pfeAPI.removeFirebaseTokenId(deviceId)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<Boolean>() {
+                    @Override
+                    public void onSubscribe(Disposable d) {
+                        Log.e(TAG, "removeFirebaseTokenId : onSubscribe");
+                    }
+
+                    @Override
+                    public void onNext(Boolean removed) {
+                        Log.e(TAG, "removeFirebaseTokenId : onNext");
+
+                        if (!removed) {
+                            //TODO: Think of someting
+                        }
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        Log.e(TAG, "removeFirebaseTokenId : onError " + e.toString());
+                    }
+
+                    @Override
+                    public void onComplete() {
+                        Log.e(TAG, "removeFirebaseTokenId : onComplete");
+                    }
+                });
+    }
+
+
+    public static void addToNotificationsList(@NonNull final String salesPointId,
+                                              @NonNull final String productBarcode) {
+        pfeAPI.addToNotificationList(salesPointId, productBarcode)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<Boolean>() {
+                    @Override
+                    public void onSubscribe(Disposable d) {
+                        Log.e(TAG, "addToNotificationsList : onSubscribe");
+                    }
+
+                    @Override
+                    public void onNext(Boolean added) {
+                        Log.e(TAG, "addToNotificationsList : onNext");
+
+                        if (!added) {
+                            //TODO: Think of someting
+                        }
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        Log.e(TAG, "addToNotificationsList : onError " + e.toString());
+                    }
+
+                    @Override
+                    public void onComplete() {
+                        Log.e(TAG, "addToNotificationsList : onComplete");
                     }
                 });
     }

@@ -28,7 +28,6 @@ import java.util.List;
 
 import usthb.lfbservices.com.pfe.R;
 import usthb.lfbservices.com.pfe.activities.LoginActivity;
-import usthb.lfbservices.com.pfe.network.PfeAPI;
 
 import static android.content.Context.MODE_PRIVATE;
 
@@ -139,6 +138,11 @@ public class Utils
         String mailAddress = preferences.getString(Constantes.SHARED_PREFERENCES_USER_EMAIL, null);
         String password = preferences.getString(Constantes.SHARED_PREFERENCES_USER_PASSWORD, null);
         return  (mailAddress != null && password != null);
+    }
+
+    public static String getStoredFirebaseTokenId(final Context context) {
+        SharedPreferences preferences =context.getSharedPreferences(Constantes.SHARED_PREFERENCES_USER, MODE_PRIVATE);
+        return preferences.getString(Constantes.SHARED_PREFERENCES_FIREBASE_TOKEN_ID, null);
     }
 
     public static void showConnectDialog(final Context context) {
