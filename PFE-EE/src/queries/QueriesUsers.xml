@@ -9,6 +9,17 @@
 	   <result property = "password" column = "user_password"/>
 	</resultMap>
 
+	
+	<select id = "adminExists" parameterType = "map" resultType="boolean">
+	   SELECT EXISTS(SELECT 1 FROM ${db.schema}."Administrator" WHERE admin_mail_address = #{mailAddress} AND 
+	   admin_password = #{password}); 
+	</select>
+	
+	<select id = "merchantExists" parameterType = "map" resultType="boolean">
+	   SELECT EXISTS(SELECT 1 FROM ${db.schema}."Merchant" WHERE merchant_mail_address = #{mailAddress} AND 
+	   merchant_password = #{password}); 
+	</select>
+	
 	<select id = "userExists" parameterType = "map" resultType="boolean">
 	   SELECT EXISTS(SELECT 1 FROM ${db.schema}."User" WHERE user_mail_address = #{mailAddress} AND 
 	   user_password = #{password}); 
@@ -16,6 +27,10 @@
 	
 	<select id = "getAllUsers" resultMap="user">
 	   SELECT * FROM ${db.schema}."User"; 
+	</select>
+	
+	<select id = "getUserId" parameterType = "String" resultType = "int">
+	   SELECT user_id FROM ${db.schema}."User" WHERE user_mail_address = #{userMailAddress}; 
 	</select>
 	
 	<select id = "isMailAddressAvailable" parameterType="string" resultType="boolean">
@@ -26,6 +41,41 @@
 		INSERT INTO ${db.schema}."User" (user_mail_address, user_password) 
 		VALUES (#{mailAddress}, #{password});
 	</insert>
+	
+	<select id = "userDeviceExists" parameterType = "map" resultType="boolean">
+	   SELECT EXISTS(SELECT 1 FROM ${db.schema}."UserDevice" WHERE user_id = #{userId} AND 
+	   user_device_id = #{deviceId}); 
+	</select>
+	
+	<insert id = "addUserDevice" parameterType="map">
+		INSERT INTO ${db.schema}."UserDevice" (user_id, user_device_id) 
+		VALUES (#{userId}, #{deviceId});
+	</insert>
+	
+	<update id = "updateUserDeviceId" parameterType="map">
+		UPDATE ${db.schema}."UserDevice" SET user_device_id = #{newDeviceId} 
+		WHERE user_id = #{userId} AND user_device_id = #{previousDeviceId};
+	</update>
+	
+	<delete id = "removeUserDeviceId" parameterType="map">
+		DELETE FROM ${db.schema}."UserDevice" WHERE user_id = #{userId} AND user_device_id = #{deviceId};
+	</delete>
+	
+	<select id = "userNotificationExists" parameterType = "map" resultType="boolean">
+	   SELECT EXISTS(SELECT 1 FROM ${db.schema}."Notifications" WHERE user_id = #{userId} AND 
+	   sales_point_id = #{salesPointId} AND product_barcode = #{productBarcode}); 
+	</select>
+	
+	<insert id = "addToNotificationsList" parameterType="map">
+		INSERT INTO ${db.schema}."Notifications" (user_id, sales_point_id, product_barcode) 
+		VALUES (#{userId}, #{salesPointId}, #{productBarcode});
+	</insert>
+	
+	<select id = "getDevicesIdsForNotification" parameterType="map" resultType="String">
+	   SELECT ud.user_device_id FROM ${db.schema}."UserDevice" ud 
+	   WHERE ud.user_id IN (SELECT n.user_id FROM ${db.schema}."Notifications" n 
+	   WHERE n.sales_point_id = #{salesPointId} AND n.product_barcode = #{productBarcode}); 
+	</select>
 	
 	<delete id = "deleteUser" parameterType = "string">
 	   DELETE from ${db.schema}."User" WHERE user_mail_address = #{mailAddress};

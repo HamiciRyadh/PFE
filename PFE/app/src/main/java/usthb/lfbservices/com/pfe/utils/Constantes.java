@@ -32,6 +32,8 @@ public class Constantes {
     public static final String SHARED_PREFERENCES_POSITION_LATITUDE = "latitude";
     public static final String SHARED_PREFERENCES_POSITION_LONGITUDE = "longitude";
 
+    public static final String SHARED_PREFERENCES_FIREBASE_TOKEN_ID = "firebaseTokenId";
+
     public static final String INTENT_SALES_POINT_ID = "salesPointID";
 
     public static final String ITINERAIRE_DRIVING = "driving";

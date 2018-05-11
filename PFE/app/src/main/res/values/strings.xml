@@ -76,6 +76,9 @@
     <string name="disconnect">Se déconnecter</string>
     <string name="connect">Se connecter</string>
 
+    <string name="default_notification_channel_id" translatable="false">fcm_default_channel</string>
+    <string name="default_notification_channel_name" translatable="true">Information</string>
+
     <string-array name="rayon_recherche">
         <item>10 km</item>
         <item>20 km</item>

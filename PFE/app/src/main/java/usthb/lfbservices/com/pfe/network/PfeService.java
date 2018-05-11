@@ -3,10 +3,12 @@ package usthb.lfbservices.com.pfe.network;
 import java.util.List;
 
 import io.reactivex.Observable;
+import retrofit2.http.DELETE;
 import retrofit2.http.Field;
 import retrofit2.http.FormUrlEncoded;
 import retrofit2.http.GET;
 import retrofit2.http.POST;
+import retrofit2.http.PUT;
 import retrofit2.http.Path;
 import retrofit2.http.Query;
 import usthb.lfbservices.com.pfe.models.Product;
@@ -48,4 +50,20 @@ public interface PfeService
     Observable<Boolean> register(@Field("mailAddress") String mailAddress,
                                 @Field("password") String password);
 
+    @PUT("User/AddDevice")
+    @FormUrlEncoded
+    Observable<Boolean> setFirebaseTokenId(@Field("deviceId") String deviceId);
+
+    @POST("User/UpdateDeviceId")
+    @FormUrlEncoded
+    Observable<Boolean> updateFirebaseTokenId(@Field("previousDeviceId") String previousDeviceId,
+                                              @Field("newDeviceId") String newDeviceId);
+
+    @DELETE("User/RemoveDeviceId")
+    Observable<Boolean> removeFirebaseTokenId(@Query("deviceId") String deviceId);
+
+    @PUT("User/AddToNotificationsList")
+    @FormUrlEncoded
+    Observable<Boolean> addToNotificationList(@Field("sales_point_id") String salesProductId,
+                                              @Field("product_barcode") String productBarcode);
 }

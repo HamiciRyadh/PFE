@@ -43,6 +43,7 @@ dependencies {
     implementation 'com.squareup.okhttp3:logging-interceptor:3.8.0'
     implementation 'com.google.firebase:firebase-core:15.0.2'
     implementation 'com.google.firebase:firebase-messaging:15.0.2'
+    implementation 'com.firebase:firebase-jobdispatcher:0.8.5'
     implementation 'com.android.support:multidex:1.0.3'
 }
 
