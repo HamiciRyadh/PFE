@@ -374,4 +374,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         return searchFragment;
     }
 
+    @Override
+    public FragmentMap getActivityFragmentMap() {
+        return fragmentMap;
+    }
+
 }

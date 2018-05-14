@@ -92,109 +92,6 @@ public class UserService {
 	
 	
 	
-	@PUT
-	@Path("/AddToNotificationsList")
-	@RolesAllowed({AuthenticationFilter.USER})
-	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
-	@Produces(MediaType.APPLICATION_JSON)
-	public boolean addToNotificationsList(
-			@HeaderParam(AuthenticationFilter.AUTHORIZATION_PROPERTY) String authorization,
-			@DefaultValue("") @FormParam("product_barcode") String productBarcode,
-			@DefaultValue("") @FormParam("sales_point_id") String salesPointId) throws Exception { 	
-		
-		if (productBarcode == null || productBarcode.trim().equals("") ||
-				salesPointId == null || salesPointId.trim().equals("")) {
-		    throw new WebApplicationException(
-		      Response.status(HttpURLConnection.HTTP_BAD_REQUEST)
-		        .entity("product_barcode and sales_point_id parameters are mandatory.")
-		        .build()
-		    );
-		}
-		
-		final String[] authentication = AuthenticationFilter.extractMailAddressPassword(authorization);
-		final String mailAddress = authentication[0];
-		
-		return Access.addToNotificationsList(mailAddress, productBarcode, salesPointId);
-	}
-	
-	
-	
-	@PUT
-	@Path("/AddDevice")
-	@RolesAllowed({AuthenticationFilter.USER})
-	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
-	@Produces(MediaType.APPLICATION_JSON)
-	public boolean addDevice(
-			@HeaderParam(AuthenticationFilter.AUTHORIZATION_PROPERTY) String authorization,
-			@DefaultValue("") @FormParam("deviceId") String deviceId) throws Exception { 	
-		
-		if (deviceId == null || deviceId.trim().equals("")) {
-		    throw new WebApplicationException(
-		      Response.status(HttpURLConnection.HTTP_BAD_REQUEST)
-		        .entity("deviceId parameter is mandatory.")
-		        .build()
-		    );
-		}
-		
-		final String[] authentication = AuthenticationFilter.extractMailAddressPassword(authorization);
-		final String mailAddress = authentication[0];
-		
-		return Access.addUserDevice(mailAddress, deviceId);
-	}
-	
-	
-	
-	@POST
-	@Path("/UpdateDeviceId")
-	@RolesAllowed({AuthenticationFilter.USER})
-	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
-	@Produces(MediaType.APPLICATION_JSON)
-	public boolean updateDeviceId(
-			@HeaderParam(AuthenticationFilter.AUTHORIZATION_PROPERTY) String authorization,
-			@DefaultValue("") @FormParam("previousDeviceId") String previousDeviceId,
-			@DefaultValue("") @FormParam("newDeviceId") String newDeviceId) throws Exception { 		
-		
-		if (previousDeviceId == null || previousDeviceId.trim().equals("") ||
-				newDeviceId == null || newDeviceId.trim().equals("")) {
-		    throw new WebApplicationException(
-		      Response.status(HttpURLConnection.HTTP_BAD_REQUEST)
-		        .entity("previousDeviceId and NewDeviceId parameters are mandatory.")
-		        .build()
-		    );
-		}
-		
-		final String[] authentication = AuthenticationFilter.extractMailAddressPassword(authorization);
-		final String mailAddress = authentication[0];
-		
-		return Access.updateUserDeviceId(mailAddress, previousDeviceId, newDeviceId);
-	}
-	
-	
-	
-	@DELETE
-	@Path("/RemoveDeviceId")
-	@RolesAllowed({AuthenticationFilter.USER})
-	@Produces(MediaType.APPLICATION_JSON)
-	public boolean removeDeviceId(
-			@HeaderParam(AuthenticationFilter.AUTHORIZATION_PROPERTY) String authorization,
-			@DefaultValue("") @FormParam("deviceId") String deviceId) throws Exception { 		
-		
-		if (deviceId == null || deviceId.trim().equals("")) {
-		    throw new WebApplicationException(
-		      Response.status(HttpURLConnection.HTTP_BAD_REQUEST)
-		        .entity("devideId parameter is mandatory.")
-		        .build()
-		    );
-		}
-		
-		final String[] authentication = AuthenticationFilter.extractMailAddressPassword(authorization);
-		final String mailAddress = authentication[0];
-		
-		return Access.removeUserDeviceId(mailAddress, deviceId);
-	}
-	
-	
-	
 	@DELETE
 	@Path("/Delete")
 	@RolesAllowed({AuthenticationFilter.ADMIN})
@@ -219,5 +116,84 @@ public class UserService {
 	@Produces(MediaType.APPLICATION_JSON)
 	public List<User> getAllUsers() throws Exception { 		
 		return Access.getAllUsers();
+	}
+	
+	
+	@Path("/Device")
+	public class DeviceService {
+		
+		@PUT
+		@Path("/Add")
+		@RolesAllowed({AuthenticationFilter.USER})
+		@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+		@Produces(MediaType.APPLICATION_JSON)
+		public boolean addDevice(
+				@HeaderParam(AuthenticationFilter.AUTHORIZATION_PROPERTY) String authorization,
+				@DefaultValue("") @FormParam("deviceId") String deviceId) throws Exception { 	
+			
+			if (deviceId == null || deviceId.trim().equals("")) {
+			    throw new WebApplicationException(
+			      Response.status(HttpURLConnection.HTTP_BAD_REQUEST)
+			        .entity("deviceId parameter is mandatory.")
+			        .build()
+			    );
+			}
+			
+			final String[] authentication = AuthenticationFilter.extractMailAddressPassword(authorization);
+			final String mailAddress = authentication[0];
+			
+			return Access.addUserDevice(mailAddress, deviceId);
+		}
+		
+		
+		
+		@POST
+		@Path("/Update")
+		@RolesAllowed({AuthenticationFilter.USER})
+		@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+		@Produces(MediaType.APPLICATION_JSON)
+		public boolean updateDeviceId(
+				@HeaderParam(AuthenticationFilter.AUTHORIZATION_PROPERTY) String authorization,
+				@DefaultValue("") @FormParam("previousDeviceId") String previousDeviceId,
+				@DefaultValue("") @FormParam("newDeviceId") String newDeviceId) throws Exception { 		
+			
+			if (previousDeviceId == null || previousDeviceId.trim().equals("") ||
+					newDeviceId == null || newDeviceId.trim().equals("")) {
+			    throw new WebApplicationException(
+			      Response.status(HttpURLConnection.HTTP_BAD_REQUEST)
+			        .entity("previousDeviceId and NewDeviceId parameters are mandatory.")
+			        .build()
+			    );
+			}
+			
+			final String[] authentication = AuthenticationFilter.extractMailAddressPassword(authorization);
+			final String mailAddress = authentication[0];
+			
+			return Access.updateUserDeviceId(mailAddress, previousDeviceId, newDeviceId);
+		}
+		
+		
+		
+		@DELETE
+		@Path("/Remove")
+		@RolesAllowed({AuthenticationFilter.USER})
+		@Produces(MediaType.APPLICATION_JSON)
+		public boolean removeDeviceId(
+				@HeaderParam(AuthenticationFilter.AUTHORIZATION_PROPERTY) String authorization,
+				@DefaultValue("") @FormParam("deviceId") String deviceId) throws Exception { 		
+			
+			if (deviceId == null || deviceId.trim().equals("")) {
+			    throw new WebApplicationException(
+			      Response.status(HttpURLConnection.HTTP_BAD_REQUEST)
+			        .entity("devideId parameter is mandatory.")
+			        .build()
+			    );
+			}
+			
+			final String[] authentication = AuthenticationFilter.extractMailAddressPassword(authorization);
+			final String mailAddress = authentication[0];
+			
+			return Access.removeUserDeviceId(mailAddress, deviceId);
+		}
 	}
 }

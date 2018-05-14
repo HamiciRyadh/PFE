@@ -1,36 +1,24 @@
 package com.lfbservices.pfe;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.util.ArrayList;
-
-import javax.ws.rs.client.ClientBuilder;
-import javax.ws.rs.client.Invocation;
-import javax.ws.rs.client.WebTarget;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-
-import org.glassfish.jersey.client.ClientConfig;
 
 
 public class Client 
 {
 	public static void main(String[] args) throws IOException, ClassNotFoundException 
 	{
-		//httpGETCollectionExample();
+		
 		/*
+		httpGETCollectionExample();
 		httpGETEntityExample();
 		httpPOSTMethodExample();
 		httpPUTMethodExample();
 		httpDELETEMethodExample();
 		*/
-		httpGETCollectionExample();
 	
 	}
 	
+	/*
 	private static void httpGETCollectionExample() 
 	{
 
@@ -46,7 +34,7 @@ public class Client
 		
 		System.out.println(response.getStatus());
 	}
-	/*
+	
 	private static void httpGETEntityExample() 
 	{
 		Client client = ClientBuilder.newClient( new ClientConfig().register( LoggingFilter.class ) );

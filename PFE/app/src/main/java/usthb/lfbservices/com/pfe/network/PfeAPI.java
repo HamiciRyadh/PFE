@@ -162,8 +162,12 @@ public class PfeAPI {
         return pfeService.removeFirebaseTokenId(deviceId);
     }
 
-    public Observable<Boolean> addToNotificationList(final String salesPointId, final String productBarcode) {
-        return pfeService.addToNotificationList(salesPointId, productBarcode);
+    public Observable<Boolean> addToNotificationsList(final String salesPointId, final String productBarcode) {
+        return pfeService.addToNotificationsList(salesPointId, productBarcode);
+    }
+
+    public Observable<Boolean> removeFromNotificationsList(final String salesPointId, final String productBarcode) {
+        return pfeService.removeFromNotificationsList(salesPointId, productBarcode);
     }
 
     public Call<GoogleDirections> getDistanceDuration(final String apiKey, final String units, final String origin,

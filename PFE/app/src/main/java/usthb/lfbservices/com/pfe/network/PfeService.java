@@ -23,13 +23,13 @@ import usthb.lfbservices.com.pfe.models.SalesPoint;
 public interface PfeService
 {
 
-    @GET("Products/Place/details/{sales_point_id}")
+    @GET("SalesPoint/Place/details/{sales_point_id}")
     Observable<SalesPoint> getPlaceDetails(@Path("sales_point_id") String salesPointId);
 
-    @GET("Products/Search")
+    @GET("Search")
     Observable<List<Product>> searchFromQuery(@Query("value") String value);
 
-    @GET("Products/Search/{product_barcode}")
+    @GET("Search/{product_barcode}")
     Observable<Result> searchFromProductBarcode(@Path("product_barcode") String productBarcode);
 
     /**
@@ -37,7 +37,7 @@ public interface PfeService
      * @param category The id of the Category
      * @return A List of Products corresponding to the specified Category
      */
-    @GET("Products/Category/{category_id}")
+    @GET("Search/Category/{category_id}")
     Observable<List<Product>> searchCategory(@Path("category_id") int category);
 
     @POST("User/Connect")
@@ -50,20 +50,25 @@ public interface PfeService
     Observable<Boolean> register(@Field("mailAddress") String mailAddress,
                                 @Field("password") String password);
 
-    @PUT("User/AddDevice")
+    @PUT("User/Device/Add")
     @FormUrlEncoded
     Observable<Boolean> setFirebaseTokenId(@Field("deviceId") String deviceId);
 
-    @POST("User/UpdateDeviceId")
+    @POST("User/Device/Update")
     @FormUrlEncoded
     Observable<Boolean> updateFirebaseTokenId(@Field("previousDeviceId") String previousDeviceId,
                                               @Field("newDeviceId") String newDeviceId);
 
-    @DELETE("User/RemoveDeviceId")
+    @DELETE("User/Device/Remove")
     Observable<Boolean> removeFirebaseTokenId(@Query("deviceId") String deviceId);
 
-    @PUT("User/AddToNotificationsList")
+    @PUT("Notification/AddToNotificationsList")
     @FormUrlEncoded
-    Observable<Boolean> addToNotificationList(@Field("sales_point_id") String salesProductId,
+    Observable<Boolean> addToNotificationsList(@Field("sales_point_id") String salesProductId,
                                               @Field("product_barcode") String productBarcode);
+
+    @DELETE("Notification/RemoveFromNotificationsList")
+    @FormUrlEncoded
+    Observable<Boolean> removeFromNotificationsList(@Field("sales_point_id") String salesProductId,
+                                                   @Field("product_barcode") String productBarcode);
 }

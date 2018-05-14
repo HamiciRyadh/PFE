@@ -7,7 +7,6 @@ import android.content.SharedPreferences;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomSheetBehavior;
 import android.support.design.widget.Snackbar;
-import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
@@ -66,7 +65,6 @@ public class PfeRx {
      */
     private static PfeAPI pfeAPI = PfeAPI.getInstance();
 
-    //TODO: Changer le productId dans la BD en code bar, normalement que des chiffres mais par mesure de précotion passer en VARCHAR?
     public static void searchFromProductId(@NonNull final Activity activity,
                                            @NonNull final String productBarcode) {
         final ProgressDialog progressDialog = new ProgressDialog(activity, R.style.AppTheme_Dark_Dialog);
@@ -105,6 +103,9 @@ public class PfeRx {
                         Singleton.getInstance().setSalesPointList(salesPoints);
                         Singleton.getInstance().setProductSalesPointList(productSalesPoints);
 
+                        final View geolocation = activity.findViewById(R.id.geolocalisation);
+                        geolocation.setVisibility(View.VISIBLE);
+
                         final SalesPointsAdapter salesPointsAdapter1 = new SalesPointsAdapter(activity, R.layout.list_item_salespoint_product, (ArrayList) salesPoints);
 
                         final ListView listSalesPoints = activity.findViewById(R.id.list_view_sales_points);
@@ -125,6 +126,13 @@ public class PfeRx {
                                     userPosition = new LatLng(Double.parseDouble(sUserLatitude), Double.parseDouble(sUserLongitude));
                                 } catch (Exception e) {
                                     Log.e(TAG, "Exception creating user position : " + e);
+                                }
+                            }
+
+                            if (activity instanceof FragmentMap.MapActions) {
+                                FragmentMap fragmentMap = ((FragmentMap.MapActions)activity).getActivityFragmentMap();
+                                if (fragmentMap != null) {
+                                    fragmentMap.resetUserMarker();
                                 }
                             }
 
@@ -732,7 +740,40 @@ public class PfeRx {
 
     public static void addToNotificationsList(@NonNull final String salesPointId,
                                               @NonNull final String productBarcode) {
-        pfeAPI.addToNotificationList(salesPointId, productBarcode)
+        pfeAPI.addToNotificationsList(salesPointId, productBarcode)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<Boolean>() {
+                    @Override
+                    public void onSubscribe(Disposable d) {
+                        Log.e(TAG, "addToNotificationsList : onSubscribe");
+                    }
+
+                    @Override
+                    public void onNext(Boolean added) {
+                        Log.e(TAG, "addToNotificationsList : onNext");
+
+                        if (!added) {
+                            //TODO: Think of someting
+                        }
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        Log.e(TAG, "addToNotificationsList : onError " + e.toString());
+                    }
+
+                    @Override
+                    public void onComplete() {
+                        Log.e(TAG, "addToNotificationsList : onComplete");
+                    }
+                });
+    }
+
+    //TODO: Use it when merging with Imene
+    public static void removeFromNotificationsList(@NonNull final String salesPointId,
+                                                   @NonNull final String productBarcode) {
+        pfeAPI.removeFromNotificationsList(salesPointId, productBarcode)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Observer<Boolean>() {

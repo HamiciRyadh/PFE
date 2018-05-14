@@ -378,6 +378,26 @@ public class Access {
 		return rowsInserted == 1;
 	}
 	
+	public static boolean removeFromNotificationsList(final String mailAddress, final String productBarcode, final String salesPointId) {
+		
+		final int userId = Access.getUserDeviceId(mailAddress);
+		if (userId == -1) return false;
+		
+		final SqlSession session = DBConnectionFactory.getNewSession();
+				
+		final Map<String,Object> parameters = new HashMap<String,Object>();
+		parameters.put("userId", userId);
+		parameters.put("productBarcode", productBarcode);
+		parameters.put("salesPointId", salesPointId);
+		
+		int rowsDeleted = session.delete("QueriesUsers.addToNotificationsList", parameters);
+
+		session.commit();
+		session.close();
+
+		return rowsDeleted == 1;
+	}
+	
 	public static List<String> getDevicesIdsForNotification(final String salesPointId, final String productBarcode, final int productQuantity,
 												   			final double productPrice) {
 		final SqlSession session = DBConnectionFactory.getNewSession();

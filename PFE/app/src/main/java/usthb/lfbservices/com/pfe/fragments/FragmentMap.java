@@ -339,10 +339,13 @@ public class FragmentMap extends Fragment  implements OnMapReadyCallback {
                     if (sUserPosition != null) userPosition = sUserPosition;
                     if (userPosition != null) {
                         if (defaultMarker != null) defaultMarker.remove();
-                                userMarker = mMap.addMarker(new MarkerOptions().
-                                position(userPosition).
-                                title(getResources().getString((Utils.isNetworkAvailable(fragmentBelongActivity) ? R.string.your_position : R.string.last_known_position))).
-                                icon(BitmapDescriptorFactory.fromResource(R.drawable.marker_blue)));
+                               if (userMarker != null) userMarker.setPosition(userPosition);
+                               else {
+                                   userMarker = mMap.addMarker(new MarkerOptions().
+                                           position(userPosition).
+                                           title(getResources().getString((Utils.isNetworkAvailable(fragmentBelongActivity) ? R.string.your_position : R.string.last_known_position))).
+                                           icon(BitmapDescriptorFactory.fromResource(R.drawable.marker_blue)));
+                               }
 
                         mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(userPosition, FragmentMap.ZOOM_LEVEL));
                     } else {
@@ -351,6 +354,7 @@ public class FragmentMap extends Fragment  implements OnMapReadyCallback {
                                 position(defaultPosition).
                                 title(getResources().getString(R.string.default_marker_title)).
                                 icon(BitmapDescriptorFactory.fromResource(R.drawable.marker_blue)));
+                        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(userPosition, FragmentMap.ZOOM_LEVEL));
                     }
                 }
             });
@@ -421,13 +425,13 @@ public class FragmentMap extends Fragment  implements OnMapReadyCallback {
                             @Override
                             public void onSuccess(Location location) {
                                 if (location != null) {
-                                    Log.e(TAG, "Updating position.");
+                                    Log.e(TAG, "AddUserMarkerPosition:Updating position.");
                                     if (currentLocation == null) currentLocation = location;
                                     if (location.getAccuracy() > currentLocation.getAccuracy()) {
-                                        Log.e(TAG, "Bad Accuracy, do nothing.");
+                                        Log.e(TAG, "AddUserMarkerPosition:Bad Accuracy, do nothing.");
                                         return;
                                     }
-                                    Log.e(TAG, "Good Accuracy.");
+                                    Log.e(TAG, "AddUserMarkerPosition: Good Accuracy.");
 
                                     currentLocation = location;
 
@@ -438,6 +442,7 @@ public class FragmentMap extends Fragment  implements OnMapReadyCallback {
                                     if (defaultMarker != null) defaultMarker.remove();
                                     if (userMarker != null) {
                                         userMarker.setPosition(userPosition);
+                                        Log.e(TAG, "AddUserMarkerPosition: set position.");
                                     }
                                     else {
                                         userMakerOptions =  new MarkerOptions().
@@ -446,6 +451,7 @@ public class FragmentMap extends Fragment  implements OnMapReadyCallback {
                                                 icon(BitmapDescriptorFactory.fromResource(R.drawable.marker_blue));
 
                                         userMarker= mMap.addMarker(userMakerOptions);
+                                        Log.e(TAG, "AddUserMarkerPosition: AddMarker.");
                                     }
                                     SharedPreferences.Editor editor =
                                             fragmentBelongActivity.getSharedPreferences(Constantes.SHARED_PREFERENCES_POSITION, MODE_PRIVATE).edit();
@@ -454,10 +460,16 @@ public class FragmentMap extends Fragment  implements OnMapReadyCallback {
                                     editor.apply();
                                     if (zoom) mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(userPosition, FragmentMap.ZOOM_LEVEL));
                                 } else {
+                                    Log.e(TAG, "AddUserMarkerPosition: Else location null.");
                                     if (userPosition != null) {
-                                        userMarker = mMap.addMarker(new MarkerOptions().position(userPosition)
-                                                .title(getResources().getString(R.string.last_known_position))
-                                                .icon(BitmapDescriptorFactory.fromResource(R.drawable.marker_blue)));
+                                        if (userMarker != null) userMarker.setPosition(userPosition);
+                                        else {
+                                            userMarker = mMap.addMarker(new MarkerOptions().position(userPosition)
+                                                    .title(getResources().getString(R.string.last_known_position))
+                                                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.marker_blue)));
+                                        }
+
+                                        if (zoom) mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(userPosition, FragmentMap.ZOOM_LEVEL));
                                     }
                                 }
                             }
@@ -465,16 +477,20 @@ public class FragmentMap extends Fragment  implements OnMapReadyCallback {
                         .addOnFailureListener(new OnFailureListener() {
                             @Override
                             public void onFailure(@NonNull Exception e) {
-                                Log.e(TAG, "Location update failure :  " + e);
+                                Log.e(TAG, "AddUserMarkerPosition: Location update failure :  " + e);
                             }
                         });
             } else {
+                Log.e(TAG, "AddUserMarkerPosition: Else gps.");
+                if (userMarker != null) userMarker.remove();
                 defaultMarker = mMap.addMarker(new MarkerOptions().position(defaultPosition)
                         .title(getResources().getString(R.string.default_marker_title))
                         .icon(BitmapDescriptorFactory.fromResource(R.drawable.marker_blue)));
                 if (zoom) mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(defaultPosition, FragmentMap.ZOOM_LEVEL));
             }
         } else {
+            Log.e(TAG, "AddUserMarkerPosition: Else authorisation.");
+            if (userMarker != null) userMarker.remove();
             defaultMarker = mMap.addMarker(new MarkerOptions().position(defaultPosition)
                     .title(getResources().getString(R.string.default_marker_title))
                     .icon(BitmapDescriptorFactory.fromResource(R.drawable.marker_blue)));
@@ -980,6 +996,13 @@ public class FragmentMap extends Fragment  implements OnMapReadyCallback {
        // getChildFragmentManager().popBackStack(Constantes.FRAGMENT_PRODUCTS, FragmentManager.POP_BACK_STACK_INCLUSIVE);
     }
 
+    public void resetUserMarker() {
+        userMarker = null;
+        defaultMarker = null;
+        currentLocation = null;
+        addUserMarkerPosition(false);
+    }
+
     public boolean hasData() {
         return (hasData || (showButton.getVisibility() == View.VISIBLE));
     }
@@ -1023,7 +1046,6 @@ public class FragmentMap extends Fragment  implements OnMapReadyCallback {
 
                         userMarker = mMap.addMarker(userMakerOptions);
                     }
-                    mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(userPosition, FragmentMap.ZOOM_LEVEL));
                 }
                 SharedPreferences.Editor editor =
                         fragmentBelongActivity.getSharedPreferences(Constantes.SHARED_PREFERENCES_POSITION,MODE_PRIVATE).edit();
@@ -1054,5 +1076,6 @@ public class FragmentMap extends Fragment  implements OnMapReadyCallback {
 
         ProductsFragment getActivityProductsFragment();
         SearchFragment getActivitySearchFragment();
+        FragmentMap getActivityFragmentMap();
     }
 }

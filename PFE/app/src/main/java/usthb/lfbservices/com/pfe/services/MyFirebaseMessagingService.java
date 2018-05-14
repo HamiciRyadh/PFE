@@ -1,4 +1,4 @@
-package usthb.lfbservices.com.pfe.models;
+package usthb.lfbservices.com.pfe.services;
 
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
