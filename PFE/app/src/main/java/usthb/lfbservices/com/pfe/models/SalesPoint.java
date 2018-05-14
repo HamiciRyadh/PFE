@@ -1,10 +1,19 @@
 package usthb.lfbservices.com.pfe.models;
 
 
+import android.arch.persistence.room.ColumnInfo;
+import android.arch.persistence.room.Entity;
+import android.arch.persistence.room.Ignore;
+import android.arch.persistence.room.PrimaryKey;
+import android.support.annotation.NonNull;
+
 import com.google.android.gms.maps.model.LatLng;
 
+@Entity(tableName = "SalesPoint")
 public class SalesPoint {
 
+	@PrimaryKey
+	@NonNull
 	private String salesPointId;
 	private double salesPointLat;
 	private double salesPointLong;
@@ -13,12 +22,15 @@ public class SalesPoint {
 	private String salesPointPhoneNumber;
 	private String salesPointWebSite;
 	private double salesPointRating;
+	@ColumnInfo(typeAffinity = ColumnInfo.BLOB)
+	private byte[] image;
+	@Ignore
 	private String salesPointPhotoReference;
 	private String salesPointWilaya;
 	
-
-	public SalesPoint(String salesPointId, double salesPointLat, double salesPointLong, String salesPointName,
-			String salesPointAddress, String salesPointWilaya){
+    @Ignore
+	public SalesPoint(@NonNull String salesPointId, double salesPointLat, double salesPointLong, String salesPointName,
+                      String salesPointAddress, String salesPointWilaya){
 		super();
 		this.salesPointId = salesPointId;
 		this.salesPointLat = salesPointLat;
@@ -29,15 +41,44 @@ public class SalesPoint {
 
 	}
 	
-	
-	public SalesPoint(String salesPointId, String salesPointPhoneNumber, String salesPointWebSite, double salesPointRating,
-					  String salesPointPhotoReference) {
+	@Ignore
+	public SalesPoint(@NonNull String salesPointId, String salesPointPhoneNumber, String salesPointWebSite, double salesPointRating,
+                      String salesPointPhotoReference) {
 		super();
 		this.salesPointId = salesPointId;
 		this.salesPointPhoneNumber = salesPointPhoneNumber;
 		this.salesPointWebSite = salesPointWebSite;
 		this.salesPointRating = salesPointRating;
 		this.salesPointPhotoReference = salesPointPhotoReference;
+	}
+
+
+
+
+    public SalesPoint(@NonNull String salesPointId, double salesPointLat, double salesPointLong, String salesPointName,
+                      String salesPointAddress, String salesPointWilaya,
+                      String salesPointPhoneNumber, String salesPointWebSite, double salesPointRating,
+                      byte[] image){
+        super();
+        this.salesPointId = salesPointId;
+        this.salesPointLat = salesPointLat;
+        this.salesPointLong = salesPointLong;
+        this.salesPointName = salesPointName;
+        this.salesPointAddress = salesPointAddress;
+        this.salesPointWilaya =salesPointWilaya;
+
+        this.salesPointPhoneNumber = salesPointPhoneNumber;
+        this.salesPointWebSite = salesPointWebSite;
+        this.salesPointRating = salesPointRating;
+        this.image = image;
+    }
+
+	public byte[] getImage() {
+		return image;
+	}
+
+	public void setImage(byte[] image) {
+		this.image = image;
 	}
 
 	public String getSalesPointPhotoReference() {
@@ -48,11 +89,12 @@ public class SalesPoint {
 		this.salesPointPhotoReference = salesPointPhotoReference;
 	}
 
+	@NonNull
 	public String getSalesPointId() {
 		return salesPointId;
 	}
 
-	public void setSalesPointId(String salesPointId) {
+	public void setSalesPointId(@NonNull String salesPointId) {
 		this.salesPointId = salesPointId;
 	}
 

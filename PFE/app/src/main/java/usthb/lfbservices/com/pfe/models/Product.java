@@ -1,23 +1,29 @@
 package usthb.lfbservices.com.pfe.models;
 
-/**
- * Created by ryadh on 05/03/18.
- */
 
+import android.arch.persistence.room.Entity;
+import android.arch.persistence.room.Ignore;
+import android.arch.persistence.room.PrimaryKey;
+import android.support.annotation.NonNull;
+
+@Entity(tableName = "Product")
 public class Product {
 
+
+    @NonNull
+    @PrimaryKey
     private String productBarcode;
     private String productName;
     private int productType;
     private String productTradeMark;
 
-
+    @Ignore
     public Product() {
-        this("","Unknown",0,"Unknown");
+        this("Unknown","Unknown",0,"Unknown");
     }
 
 
-    public Product(String productBarcode, String productName, int productType, String productTradeMark) {
+    public Product(@NonNull String productBarcode, String productName, int productType, String productTradeMark) {
         super();
         this.productBarcode = productBarcode;
         this.productName = productName;
@@ -27,6 +33,7 @@ public class Product {
 
 
 
+    @NonNull
     public String getProductBarcode() {
         return productBarcode;
     }

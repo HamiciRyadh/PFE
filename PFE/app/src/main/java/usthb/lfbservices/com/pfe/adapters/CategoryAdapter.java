@@ -33,7 +33,7 @@ public class CategoryAdapter extends ArrayAdapter<Category> {
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         View row = convertView;
-        RecordHolder holder = null;
+        RecordHolder holder;
 
         if (row == null) {
             LayoutInflater inflater = ((Activity) context).getLayoutInflater();
@@ -49,8 +49,10 @@ public class CategoryAdapter extends ArrayAdapter<Category> {
         }
 
         Category category = getItem(position);
-        holder.txtTitle.setText(category.getTitle());
-        holder.imageItem.setImageBitmap(category.getImage());
+        if (category != null) {
+            holder.txtTitle.setText(category.getCategoryName());
+            holder.imageItem.setImageBitmap(category.getImage());
+        }
 
         return row;
     }

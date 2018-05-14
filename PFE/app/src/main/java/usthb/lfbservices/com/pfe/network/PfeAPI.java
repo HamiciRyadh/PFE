@@ -23,7 +23,9 @@ import retrofit2.converter.gson.GsonConverterFactory;
 import usthb.lfbservices.com.pfe.itinerary.autocomplete.GoogleAutocompleteResponse;
 import usthb.lfbservices.com.pfe.itinerary.direction.GoogleDirections;
 import usthb.lfbservices.com.pfe.itinerary.place.GooglePlaceDetails;
+import usthb.lfbservices.com.pfe.models.KeyValue;
 import usthb.lfbservices.com.pfe.models.Product;
+import usthb.lfbservices.com.pfe.models.ProductSalesPoint;
 import usthb.lfbservices.com.pfe.models.Result;
 import usthb.lfbservices.com.pfe.models.SalesPoint;
 
@@ -183,4 +185,24 @@ public class PfeAPI {
     public Call<GooglePlaceDetails> getLatLng(final String apiKey, final String placeid) {
         return itineraireService.getLatLng(apiKey, placeid);
     }
+
+
+
+
+
+    //TODO : NEW mais à modifier ! envoyer aussi la liste des points de vente actuelle
+    public Observable<List<ProductSalesPoint>> getProductSalesPoint(final String productBarcode) {
+        return pfeService.getProductSalesPoint(productBarcode);
+    }
+
+    //TODO : NEW
+    public Observable<Product> getProductDetails(String productBarcode) {
+        return pfeService.getProductDetails(productBarcode);
+    }
+
+    //TODO : NEW
+    public Observable<List<KeyValue>>  getProductCaracteristic(String productBarcode) {
+        return pfeService.getProductCaracteristic(productBarcode);
+    }
+
 }

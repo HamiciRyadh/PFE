@@ -18,6 +18,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import com.lfbservices.pfe.dao.Access;
+import com.lfbservices.pfe.model.KeyValueID;
 import com.lfbservices.pfe.model.Product;
 import com.lfbservices.pfe.model.ProductSalesPoint;
 import com.lfbservices.pfe.model.Result;
@@ -154,6 +155,26 @@ public class SearchService {
 		return Access.getProductsByCategory(categoryId);
 	}
 		
+	
+	
+	//http://localhost:8080/PFE-EE/api/Search/TypeCaracteristic/4
+	@Path("/TypeCaracteristic/{product_barcode}")
+	@GET
+	@PermitAll
+	@Produces(MediaType.APPLICATION_JSON)
+	public List<KeyValueID> getTypeCaracteristic(
+			@DefaultValue("") @PathParam("product_barcode") String productId) throws Exception {
+		
+		if (productId.trim().equals("")) {
+		    throw new WebApplicationException(
+		      Response.status(HttpURLConnection.HTTP_BAD_REQUEST)
+		        .entity("product_barcode parameter is mandatory.")
+		        .build()
+		    );
+		}
+		
+		return Access.getProductCaracteristicID(productId);
+	}
 		
 		
 

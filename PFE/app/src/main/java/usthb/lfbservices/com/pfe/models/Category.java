@@ -1,22 +1,49 @@
 package usthb.lfbservices.com.pfe.models;
 
+import android.arch.persistence.room.Entity;
+import android.arch.persistence.room.Ignore;
+import android.arch.persistence.room.PrimaryKey;
 import android.graphics.Bitmap;
 
-/**
- * Created by root on 08/03/18.
- */
+import java.util.ArrayList;
+import java.util.List;
 
-public class Category
+@Entity(tableName = "Category")
+public  class Category
 {
-    Bitmap image;
-    String title;
-    int id;
+    @PrimaryKey
+    private int categoryId;
+    private String categoryName;
+    @Ignore
+    private Bitmap image;
 
-    public Category(Bitmap image, String title, int id) {
+    @Ignore
+    private static final List<Category> categories = new ArrayList<Category>();
+
+    public static List<Category> Data() {
+        categories.add(new Category(0,"Informatique"));
+        categories.add(new Category(1,"Téléphone"));
+        categories.add(new Category(2,"Camera"));
+        categories.add (new Category(3,"Automobile"));
+        categories.add (new Category(4,"Matériel Professionnel"));
+        categories.add(new Category(5,"Montres"));
+
+        return categories;
+    }
+
+    public Category(){}
+
+    public Category(int categoryId, String categoryName) {
+        this.categoryId = categoryId;
+        this.categoryName = categoryName;
+    }
+
+    @Ignore
+    public Category(Bitmap image, String categoryName, int categoryId) {
         super();
         this.image = image;
-        this.title = title;
-        this.id = id;
+        this.categoryName = categoryName;
+        this.categoryId = categoryId;
     }
 
     public Bitmap getImage() {
@@ -25,18 +52,21 @@ public class Category
     public void setImage(Bitmap image) {
         this.image = image;
     }
-    public String getTitle() {
-        return title;
-    }
-    public void setTitle(String title) {
-        this.title = title;
+
+    public int getCategoryId() {
+        return categoryId;
     }
 
-    public int getId() {
-        return id;
+    public void setCategoryId(int categoryId) {
+        this.categoryId = categoryId;
     }
 
-    public void setId(int id) {
-        this.id = id;
+    public String getCategoryName() {
+        return categoryName;
+    }
+
+    public void setCategoryName(String categoryName) {
+        this.categoryName = categoryName;
     }
 }
+

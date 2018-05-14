@@ -14,7 +14,6 @@ import android.support.design.widget.BottomSheetBehavior;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -46,12 +45,16 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import io.reactivex.Observable;
+import io.reactivex.Scheduler;
+import io.reactivex.schedulers.Schedulers;
 import usthb.lfbservices.com.pfe.R;
+import usthb.lfbservices.com.pfe.RoomDatabase.AppRoomDatabase;
 import usthb.lfbservices.com.pfe.adapters.SalesPointsAdapter;
-import usthb.lfbservices.com.pfe.database.DatabaseHelper;
 import usthb.lfbservices.com.pfe.models.ProductSalesPoint;
 import usthb.lfbservices.com.pfe.models.SalesPoint;
 import usthb.lfbservices.com.pfe.models.Singleton;
+import usthb.lfbservices.com.pfe.models.Wilaya;
 import usthb.lfbservices.com.pfe.network.PfeRx;
 import usthb.lfbservices.com.pfe.utils.Constantes;
 import usthb.lfbservices.com.pfe.utils.Utils;
@@ -77,7 +80,7 @@ public class FragmentMap extends Fragment  implements OnMapReadyCallback {
 
     private GoogleMap mMap;
     private SupportMapFragment mapFragment;
-    private DatabaseHelper db;
+    private AppRoomDatabase db;
     private BottomSheetBehavior sheetBehavior;
     private Button showButton;
     private ListView listViewSalesPoints;
@@ -237,19 +240,20 @@ public class FragmentMap extends Fragment  implements OnMapReadyCallback {
     }
 
     public void initVariables() {
-        db = new DatabaseHelper(fragmentBelongActivity);
+        db = AppRoomDatabase.getInstance(fragmentBelongActivity);
         searchView = rootView.findViewById(R.id.search_view);
-        Log.e(TAG, "SearchView : " + (searchView == null));
         sheetBehavior = BottomSheetBehavior.from(rootView.findViewById(R.id.layout_bottom_sheet));
         showButton = rootView.findViewById(R.id.show_list_button);
         listViewSalesPoints = rootView.findViewById(R.id.list_view_sales_points);
         userLocation = rootView.findViewById(R.id.geolocalisation);
-        Log.e(TAG, "UserLocation : " + (userLocation == null));
         btnWilaya = rootView.findViewById(R.id.btn_Wilaya);
         btnVille = rootView.findViewById(R.id.btn_Ville);
         btnSearchPerimeter = rootView.findViewById(R.id.btn_Rayon_Recherche);
-        listItemsWilaya = db.getWilayas();
-        checkedItemsWilaya = new boolean[listItemsWilaya.length];
+        ArrayList<String> wilayaNames = new ArrayList<>();
+        for (Wilaya wilaya : Wilaya.Data()) wilayaNames.add(wilaya.getWilayaName());
+        listItemsWilaya = new String[wilayaNames.size()];
+        listItemsWilaya = wilayaNames.toArray(listItemsWilaya);
+        checkedItemsWilaya = new boolean[Wilaya.Data().size()];
     }
 
     public void initSearchView() {
@@ -354,7 +358,7 @@ public class FragmentMap extends Fragment  implements OnMapReadyCallback {
                                 position(defaultPosition).
                                 title(getResources().getString(R.string.default_marker_title)).
                                 icon(BitmapDescriptorFactory.fromResource(R.drawable.marker_blue)));
-                        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(userPosition, FragmentMap.ZOOM_LEVEL));
+                        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(defaultPosition, FragmentMap.ZOOM_LEVEL));
                     }
                 }
             });
@@ -409,7 +413,7 @@ public class FragmentMap extends Fragment  implements OnMapReadyCallback {
                     .remove(productsFragment)
                     .addToBackStack(null)
                     .commit();
-            PfeRx.searchFromProductId(fragmentBelongActivity, productBarcode);
+            PfeRx.searchFromproductBarcode(fragmentBelongActivity, productBarcode);
             hideWilayaAndPerimeter();
         } else {
             Toast.makeText(fragmentBelongActivity, getResources().getString(R.string.no_internet), Toast.LENGTH_LONG).show();
@@ -585,7 +589,7 @@ public class FragmentMap extends Fragment  implements OnMapReadyCallback {
                     .snippet(salesPoint.getSalesPointAddress());
 
             for (ProductSalesPoint productSalesPoint : Singleton.getInstance().getProductSalesPointList()) {
-                if (productSalesPoint.getSalespointId().equals(salesPoint.getSalesPointId())) {
+                if (productSalesPoint.getSalesPointId().equals(salesPoint.getSalesPointId())) {
                     if (productSalesPoint.getProductQuantity() > 0) {
                         markerOptions.icon(BitmapDescriptorFactory.fromResource(R.drawable.marker_green));
                     } else {

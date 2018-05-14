@@ -2,14 +2,17 @@ package usthb.lfbservices.com.pfe.activities;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Paint;
-import android.media.Image;
 import android.net.Uri;
 import android.os.Bundle;
 
+import android.os.StrictMode;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomSheetBehavior;
 import android.support.design.widget.NavigationView;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -24,9 +27,13 @@ import android.widget.RatingBar;
 import android.widget.TextView;
 import com.squareup.picasso.Picasso;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.net.URL;
 import java.text.DecimalFormat;
 
 import usthb.lfbservices.com.pfe.R;
+import usthb.lfbservices.com.pfe.RoomDatabase.AppRoomDatabase;
 import usthb.lfbservices.com.pfe.fragments.FragmentFavorite;
 import usthb.lfbservices.com.pfe.fragments.FragmentMap;
 import usthb.lfbservices.com.pfe.fragments.FragmentNotifications;
@@ -56,6 +63,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private SearchFragment searchFragment;
     private ProductsFragment productsFragment;
     private Fragment currentFragment;
+    private AppRoomDatabase db;
 
     private Toolbar toolbar;
     private DrawerLayout drawer;
@@ -248,6 +256,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         Utils.showConnectDialog(MainActivity.this);
                     } else {
                         PfeRx.addToNotificationsList(salesPoint.getSalesPointId(), productSalesPoint.getProductBarcode());
+                        Snackbar.make(findViewById(R.id.map_views_layout),getResources().getString(R.string.notification_added), Snackbar.LENGTH_LONG)
+                                .setAction(getResources().getString(R.string.cancel), new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View view) {
+                                        PfeRx.removeFromNotificationsList(salesPoint.getSalesPointId(), productSalesPoint.getProductBarcode());
+                                    }
+                                })
+                                .setActionTextColor(getResources().getColor(R.color.colorPrimary))
+                                .show();
                     }
                 }
             });
@@ -260,7 +277,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     if (!Utils.isUserConnected(MainActivity.this)) {
                         Utils.showConnectDialog(MainActivity.this);
                     } else {
-                        //TODO: Insert code here
+                        Log.e(TAG, "Insert Data");
+                        db = AppRoomDatabase.getInstance(MainActivity.this);
+                        PfeRx.getProductDetails(MainActivity.this, productSalesPoint);
+                        Log.e(TAG, "Insert salespoint"+ salesPoint.getSalesPointName());
+                        db.salesPointDao().insertAll(salesPoint);
+                        addPhoto(salesPoint.getSalesPointPhotoReference());
                     }
                 }
             });
@@ -363,6 +385,33 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         navigationView =  findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
     }
+
+    //TODO : NEW
+    public void addPhoto( String photoReference)
+    {
+        int SDK_INT = android.os.Build.VERSION.SDK_INT;
+        if (SDK_INT > 8)
+        {
+            StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder()
+                    .permitAll().build();
+            StrictMode.setThreadPolicy(policy);
+
+            try {
+                URL url = new URL(Utils.buildGooglePictureUri(MainActivity.this, photoReference).toString());
+                Bitmap bitmap= BitmapFactory.decodeStream(url.openConnection().getInputStream());
+                ByteArrayOutputStream stream = new ByteArrayOutputStream();
+                bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
+                byte[] byteArray = stream.toByteArray();
+                bitmap.recycle();
+                db = AppRoomDatabase.getInstance(MainActivity.this);
+                db.salesPointDao().update(byteArray);
+
+            } catch(IOException e) {
+                Log.e(TAG, "image " +e );
+            }
+        }
+    }
+
 
     @Override
     public ProductsFragment getActivityProductsFragment() {

@@ -20,8 +20,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import usthb.lfbservices.com.pfe.R;
+import usthb.lfbservices.com.pfe.RoomDatabase.AppRoomDatabase;
 import usthb.lfbservices.com.pfe.adapters.ProductsAdapter;
-import usthb.lfbservices.com.pfe.database.DatabaseHelper;
 import usthb.lfbservices.com.pfe.models.Product;
 import usthb.lfbservices.com.pfe.models.Singleton;
 
@@ -41,7 +41,7 @@ public class ProductsFragment extends Fragment {
     private ProgressBar progressBar;
     private List<Product> savedListProducts = null;
     private ProductsAdapter savedProductsAdapter = null;
-    private DatabaseHelper db;
+    private AppRoomDatabase db;
 
 
     private Button btn_Marque;
@@ -128,12 +128,12 @@ public class ProductsFragment extends Fragment {
 
 
     public void initVariables() {
-        db = new DatabaseHelper(fragmentBelongActivity);
+        db = AppRoomDatabase.getInstance(fragmentBelongActivity);
         progressBar = rootView.findViewById(R.id.products_progress_bar);
         progressBar.getIndeterminateDrawable().setColorFilter(getResources().getColor(R.color.colorPrimary), android.graphics.PorterDuff.Mode.MULTIPLY);
         btn_Marque = rootView.findViewById(R.id.btn_Marque);
         btn_Type = rootView.findViewById(R.id.btn_Type);
-        types = db.getTypes();
+        types = db.typeDao().getAll();
     }
 
 

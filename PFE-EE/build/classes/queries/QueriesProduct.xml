@@ -12,10 +12,9 @@
 		<result property="productTradeMark" column="product_trade_mark" />
 	</resultMap>
 	
-	<resultMap id="KeyValue" type="com.lfbservices.pfe.model.KeyValue">
-		<result property="key" column="type_caracteristic_name" />
-		<result property="value" column="product_caracteristic_value" />
-		
+	<resultMap id="KeyValue" type="com.lfbservices.pfe.model.KeyValueID">
+		<result property="typeCaracteristicId" column="type_caracteristic_id" />
+		<result property="productCaracteristicValue" column="product_caracteristic_value" />
 	</resultMap>
 	
 
@@ -77,13 +76,9 @@
 	</delete>
 
 
-	<select id="getProductCaracteristic" parameterType="String" resultMap="KeyValue">
-		SELECT type_caracteristic_name, product_caracteristic_value 	    
-        FROM ${db.schema}."Product" p, ${db.schema}."TypeCaracteristic" tcar , ${db.schema}."ProductCaracteristic" pcar
-		  WHERE p.product_barcode = #{productBarcode} 
-		  AND tcar.type_id = p.product_type
-		  AND pcar.type_caracteristic_id = tcar.type_caracteristic_id
-		  AND pcar.product_barcode = p.product_barcode;
+	<select id="getProductCaracteristicID" parameterType="String" resultMap="KeyValue">
+		 SELECT type_caracteristic_id, product_caracteristic_value 
+         FROM  ${db.schema}."ProductCaracteristic" WHERE product_barcode = #{value} ;
 	</select>
 
 </mapper>

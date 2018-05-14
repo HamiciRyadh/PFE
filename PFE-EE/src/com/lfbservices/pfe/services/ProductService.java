@@ -22,7 +22,6 @@ import javax.ws.rs.core.Response;
 
 import com.lfbservices.pfe.AuthenticationFilter;
 import com.lfbservices.pfe.dao.Access;
-import com.lfbservices.pfe.model.KeyValue;
 import com.lfbservices.pfe.model.Product;
 
 @Path("/Products")
@@ -47,33 +46,12 @@ public class ProductService {
 		if (productBarcode .trim().equals("")) {
 		    throw new WebApplicationException(
 		      Response.status(HttpURLConnection.HTTP_BAD_REQUEST)
-		        .entity("productBarcode parameter is mandatory.")
+		        .entity("product_barcode parameter is mandatory.")
 		        .build()
 		    );
 		}
 		
 		return Access.getProductById(productBarcode);
-	}
-	
-	
-	
-	// http://localhost:8080/PFE-EE/api/Products/ProductCaracteristic/4
-	@Path("/ProductCaracteristic/{product_barcode}")
-	@GET
-	@PermitAll
-	@Produces(MediaType.APPLICATION_JSON)
-	public List<KeyValue>  getProductCaracteristic(
-			@DefaultValue("") @PathParam("product_barcode") String productBarcode) throws Exception {
-		
-		if (productBarcode.trim().equals("")) {
-		    throw new WebApplicationException(
-		  		Response.status(HttpURLConnection.HTTP_BAD_REQUEST)
-			        .entity("productBarcode parameter is mandatory.")
-			        .build()
-		    );
-		}
-						
-		return Access.getProductCaracteristic(productBarcode);
 	}
 	
 	

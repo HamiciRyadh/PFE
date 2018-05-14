@@ -37,6 +37,8 @@ import static android.content.Context.MODE_PRIVATE;
 
 public class Utils
 {
+
+    private static final String TAG = "Utils";
     /**
      * Checks whether the network is available or not
      * @param context The current context of the application, which is neccessary to display
@@ -85,10 +87,12 @@ public class Utils
     }
 
     public static int getDeviceWidthInPixel(final Context context) {
+        Log.e(TAG, "" + context.getResources().getDisplayMetrics().widthPixels);
         return context.getResources().getDisplayMetrics().widthPixels;
     }
 
     public static int getDeviceHeightInPixel(final Context context) {
+        Log.e(TAG, "" + context.getResources().getDisplayMetrics().heightPixels);
         return context.getResources().getDisplayMetrics().heightPixels;
     }
 

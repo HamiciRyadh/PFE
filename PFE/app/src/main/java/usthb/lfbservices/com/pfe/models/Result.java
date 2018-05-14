@@ -6,8 +6,8 @@ import java.util.List;
 public class Result {
 	
 	
-	List<SalesPoint> salesPoints;
-	List<ProductSalesPoint> productSalesPoints ;
+	private List<SalesPoint> salesPoints;
+	private List<ProductSalesPoint> productSalesPoints ;
 	
 	
     public Result() {
@@ -21,10 +21,10 @@ public class Result {
 	}
 	
 	
-	public  List<SalesPoint> getSalesPoints() {
+	public List<SalesPoint> getSalesPoints() {
 		return salesPoints;
 	}
-	public  List<ProductSalesPoint> getProductSalesPoints() {
+	public List<ProductSalesPoint> getProductSalesPoints() {
 		return productSalesPoints;
 	}
 	public void setSalesPoints( List<SalesPoint> salesPoints) {

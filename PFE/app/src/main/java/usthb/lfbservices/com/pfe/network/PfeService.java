@@ -11,7 +11,9 @@ import retrofit2.http.POST;
 import retrofit2.http.PUT;
 import retrofit2.http.Path;
 import retrofit2.http.Query;
+import usthb.lfbservices.com.pfe.models.KeyValue;
 import usthb.lfbservices.com.pfe.models.Product;
+import usthb.lfbservices.com.pfe.models.ProductSalesPoint;
 import usthb.lfbservices.com.pfe.models.Result;
 import usthb.lfbservices.com.pfe.models.SalesPoint;
 
@@ -50,25 +52,43 @@ public interface PfeService
     Observable<Boolean> register(@Field("mailAddress") String mailAddress,
                                 @Field("password") String password);
 
-    @PUT("User/Device/Add")
+    @PUT("Device/Add")
     @FormUrlEncoded
     Observable<Boolean> setFirebaseTokenId(@Field("deviceId") String deviceId);
 
-    @POST("User/Device/Update")
+    @POST("Device/Update")
     @FormUrlEncoded
     Observable<Boolean> updateFirebaseTokenId(@Field("previousDeviceId") String previousDeviceId,
                                               @Field("newDeviceId") String newDeviceId);
 
-    @DELETE("User/Device/Remove")
+    @DELETE("Device/Remove")
     Observable<Boolean> removeFirebaseTokenId(@Query("deviceId") String deviceId);
 
     @PUT("Notification/AddToNotificationsList")
     @FormUrlEncoded
-    Observable<Boolean> addToNotificationsList(@Field("sales_point_id") String salesProductId,
+    Observable<Boolean> addToNotificationsList(@Field("sales_point_id") String salesproductBarcode,
                                               @Field("product_barcode") String productBarcode);
 
     @DELETE("Notification/RemoveFromNotificationsList")
     @FormUrlEncoded
-    Observable<Boolean> removeFromNotificationsList(@Field("sales_point_id") String salesProductId,
+    Observable<Boolean> removeFromNotificationsList(@Field("sales_point_id") String salesproductBarcode,
                                                    @Field("product_barcode") String productBarcode);
+
+
+
+
+
+
+    //TODO: NEW
+    @GET("Search/ProductSalesPoint/{product_barcode}")
+    Observable<List<ProductSalesPoint>> getProductSalesPoint(@Path("product_barcode") String productId);
+
+    //TODO : NEW
+    @GET("Products/{product_barcode}")
+    Observable<Product> getProductDetails(@Path("product_barcode") String productId);
+
+    //TODO : NEW
+    @GET("Search/TypeCaracteristic/{product_barcode}")
+    Observable<List<KeyValue>> getProductCaracteristic(@Path("product_barcode") String productId);
+
 }

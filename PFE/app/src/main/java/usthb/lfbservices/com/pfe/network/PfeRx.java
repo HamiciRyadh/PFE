@@ -2,11 +2,16 @@ package usthb.lfbservices.com.pfe.network;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomSheetBehavior;
 import android.support.design.widget.Snackbar;
+import android.support.v7.widget.DividerItemDecoration;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.helper.ItemTouchHelper;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
@@ -38,16 +43,22 @@ import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 
 import usthb.lfbservices.com.pfe.R;
+import usthb.lfbservices.com.pfe.RoomDatabase.AppRoomDatabase;
 import usthb.lfbservices.com.pfe.activities.MainActivity;
+import usthb.lfbservices.com.pfe.adapters.ProductSalesPointListAdapter;
 import usthb.lfbservices.com.pfe.adapters.ProductsAdapter;
 import usthb.lfbservices.com.pfe.adapters.SalesPointsAdapter;
+import usthb.lfbservices.com.pfe.adapters.TouchSalespointAdapter;
 import usthb.lfbservices.com.pfe.fragments.FragmentMap;
 import usthb.lfbservices.com.pfe.models.BottomSheetDataSetter;
+import usthb.lfbservices.com.pfe.models.KeyValue;
 import usthb.lfbservices.com.pfe.models.Product;
+import usthb.lfbservices.com.pfe.models.ProductCaracteristic;
 import usthb.lfbservices.com.pfe.models.ProductSalesPoint;
 import usthb.lfbservices.com.pfe.models.Result;
 import usthb.lfbservices.com.pfe.models.SalesPoint;
 import usthb.lfbservices.com.pfe.models.Singleton;
+import usthb.lfbservices.com.pfe.models.TypeCaracteristic;
 import usthb.lfbservices.com.pfe.utils.Constantes;
 import usthb.lfbservices.com.pfe.utils.DisposableManager;
 import usthb.lfbservices.com.pfe.utils.Utils;
@@ -65,7 +76,7 @@ public class PfeRx {
      */
     private static PfeAPI pfeAPI = PfeAPI.getInstance();
 
-    public static void searchFromProductId(@NonNull final Activity activity,
+    public static void searchFromproductBarcode(@NonNull final Activity activity,
                                            @NonNull final String productBarcode) {
         final ProgressDialog progressDialog = new ProgressDialog(activity, R.style.AppTheme_Dark_Dialog);
         progressDialog.setIndeterminate(true);
@@ -78,14 +89,14 @@ public class PfeRx {
                 .subscribe(new Observer<Result>() {
                     @Override
                     public void onSubscribe(Disposable d) {
-                        Log.e(TAG, "SearchFromProductId : onSubscribe");
+                        Log.e(TAG, "SearchFromproductBarcode : onSubscribe");
                         DisposableManager.add(d);
                         progressDialog.setMessage(activity.getResources().getString(R.string.retrieving_data));
                     }
 
                     @Override
                     public void onNext(Result result) {
-                        Log.e(TAG, "SearchFromProductId : onNext");
+                        Log.e(TAG, "SearchFromproductBarcode : onNext");
                         Log.e(TAG, "ProductSalesPoints : " + result.getProductSalesPoints());
                         Log.e(TAG, "SalesPoints : " + result.getSalesPoints());
 
@@ -146,7 +157,7 @@ public class PfeRx {
                                         .snippet(salesPoint.getSalesPointAddress());
 
                                 for (ProductSalesPoint productSalesPoint : productSalesPoints) {
-                                    if (productSalesPoint.getSalespointId().equals(salesPoint.getSalesPointId())) {
+                                    if (productSalesPoint.getSalesPointId().equals(salesPoint.getSalesPointId())) {
                                         productSalesPointTemps = productSalesPoint;
                                         if (productSalesPoint.getProductQuantity() > 0) {
                                             markerOptions.icon(BitmapDescriptorFactory.fromResource(R.drawable.marker_green));
@@ -185,12 +196,13 @@ public class PfeRx {
                             map.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
                                 @Override
                                 public boolean onMarkerClick(Marker marker) {
+                                    map.animateCamera(CameraUpdateFactory.newLatLng(marker.getPosition()));
                                     marker.showInfoWindow();
                                     if (activity instanceof BottomSheetDataSetter) {
                                         for (SalesPoint salesPoint : salesPoints) {
                                             if (salesPoint.getSalesPointLatLng().equals(marker.getPosition())) {
                                                 for (ProductSalesPoint productSalesPoint : productSalesPoints) {
-                                                    if (productSalesPoint.getSalespointId().equals(salesPoint.getSalesPointId())) {
+                                                    if (productSalesPoint.getSalesPointId().equals(salesPoint.getSalesPointId())) {
                                                         BottomSheetDataSetter bottomSheetDataSetter = (BottomSheetDataSetter)activity;
                                                         bottomSheetDataSetter.setBottomSheetData(salesPoint, productSalesPoint);
                                                         bottomSheetDataSetter.setBottomSheetState(BottomSheetBehavior.STATE_COLLAPSED);
@@ -229,7 +241,7 @@ public class PfeRx {
                                                     if (activity instanceof BottomSheetDataSetter) {
                                                         SalesPoint salesPoint = ((SalesPoint)(adapterView.getItemAtPosition(position)));
                                                         for (ProductSalesPoint productSalesPoint : productSalesPoints) {
-                                                            if (productSalesPoint.getSalespointId().equals(salesPoint.getSalesPointId())) {
+                                                            if (productSalesPoint.getSalesPointId().equals(salesPoint.getSalesPointId())) {
                                                                 BottomSheetDataSetter bottomSheetDataSetter = (BottomSheetDataSetter)activity;
                                                                 bottomSheetDataSetter.setBottomSheetData(salesPoint, productSalesPoint);
                                                                 bottomSheetDataSetter.setBottomSheetState(BottomSheetBehavior.STATE_COLLAPSED);
@@ -253,14 +265,14 @@ public class PfeRx {
 
                     @Override
                     public void onError(Throwable e) {
-                        Log.e(TAG, "SearchFromProductId : onError " + e.toString());
+                        Log.e(TAG, "SearchFromproductBarcode : onError " + e.toString());
                         Toast.makeText(activity, activity.getResources().getString(R.string.an_error_occured), Toast.LENGTH_LONG).show();
                         progressDialog.dismiss();
                     }
 
                     @Override
                     public void onComplete() {
-                        Log.e(TAG, "SearchFromProductId : onComplete");
+                        Log.e(TAG, "SearchFromproductBarcode : onComplete");
                         progressDialog.dismiss();
                     }
                 });
@@ -770,7 +782,6 @@ public class PfeRx {
                 });
     }
 
-    //TODO: Use it when merging with Imene
     public static void removeFromNotificationsList(@NonNull final String salesPointId,
                                                    @NonNull final String productBarcode) {
         pfeAPI.removeFromNotificationsList(salesPointId, productBarcode)
@@ -802,4 +813,154 @@ public class PfeRx {
                     }
                 });
     }
+
+
+
+
+
+
+
+
+
+
+
+    public static void getProductDetails(@NonNull final Activity activity,
+                                         @NonNull final ProductSalesPoint productSalesPoint) {
+
+        pfeAPI.getProductDetails(productSalesPoint.getProductBarcode())
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<Product>() {
+                    @Override
+                    public void onSubscribe(Disposable d) {
+                        Log.e(TAG, "GetProductDetails : onSubscribe");
+                        DisposableManager.add(d);
+                    }
+
+                    @Override
+                    public void onNext(Product product) {
+                        Log.e(TAG, "GetProductDetails : onNext : " + product);
+
+                        AppRoomDatabase db = AppRoomDatabase.getInstance(activity);
+                        db.productDao().insertAll(product);
+                        db.productSalesPointDao().insertAll(productSalesPoint);
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        Log.e(TAG, "GetProductDetails : onError " + e.toString());
+                    }
+
+                    @Override
+                    public void onComplete() {
+                        Log.e(TAG, "GetProductDetails : onComplete");
+                        PfeRx.getProductCaracteristic(activity, productSalesPoint.getProductBarcode());
+                    }
+                });
+    }
+
+
+    //TODO : NEW
+    public static void getProductCaracteristic(@NonNull final Activity activity, @NonNull final String productBarcode) {
+
+        pfeAPI.getProductCaracteristic(productBarcode)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<List<KeyValue>>() {
+                    @Override
+                    public void onSubscribe(Disposable d) {
+                        Log.e(TAG, "saveProductCaracteristic : onSubscribe");
+                        DisposableManager.add(d);
+                    }
+
+                    @Override
+                    public void onNext(List<KeyValue> listProductsCaracteristic) {
+                        Log.e(TAG, "saveProductCaracteristic : onNext");
+
+                        final AppRoomDatabase db = AppRoomDatabase.getInstance(activity);
+                        final List<ProductCaracteristic> listProductCaracteristic = new ArrayList<>();
+                        String productCaracteristicValue;
+                        int typeCaracteristicId;
+                        List<TypeCaracteristic> typeCaracteristiclist = db.typeCaracteristicDao().getAll();
+
+                        for (KeyValue keyValue : listProductsCaracteristic) {
+                            productCaracteristicValue = keyValue.getProductCaracteristicValue();
+                            typeCaracteristicId = keyValue.getTypeCaracteristicId();
+
+                            listProductCaracteristic.add(new ProductCaracteristic(typeCaracteristicId, productBarcode, productCaracteristicValue));
+                        }
+                        db.productCaracteristicDao().insertAll(listProductCaracteristic);
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        Log.e(TAG, "saveProductCaracteristic : onError " + e.toString());
+                    }
+
+                    @Override
+                    public void onComplete() {
+                        Log.e(TAG, "saveProductCaracteristic : onComplete");
+                    }
+                });
+    }
+
+    /*
+
+    //TODO : NEW a modifier envoyer en parametre la liste des points de vente actuelle
+    public static void getProductSalesPoints(@NonNull final Activity activity,
+                                             @NonNull final String productId) {
+
+        pfeAPI.getProductSalesPoint(productId)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<List<ProductSalesPoint>>() {
+                    @Override
+                    public void onSubscribe(Disposable d) {
+                        Log.e(TAG, "GetProductSalesPoints : onSubscribe");
+                        DisposableManager.add(d);
+                    }
+
+                    @Override
+                    public void onNext(List<ProductSalesPoint> productSalesPoints) {
+                        Log.e(TAG, "GetProductSalesPoints : onNext");
+                        RecyclerView recyclerView = activity.findViewById(R.id.recyclerview_Salespoint);
+                        TextView emptyView = activity.findViewById(R.id.empty_list_productSalespoint);
+
+                        if (productSalesPoints != null) {
+                            AppRoomDatabase db = AppRoomDatabase.getInstance(activity);
+
+                            for (ProductSalesPoint productSalesPoint : productSalesPoints) {
+                                db.productSalesPointDao().insertAll(productSalesPoint);
+                            }
+
+                            ProductSalesPointListAdapter adapter = new ProductSalesPointListAdapter(productSalesPoints);
+                            recyclerView.setLayoutManager(new LinearLayoutManager(activity));
+                            recyclerView.setAdapter(adapter);
+                            recyclerView.addItemDecoration(new DividerItemDecoration(activity, DividerItemDecoration.VERTICAL));
+                            ItemTouchHelper.Callback callback = new TouchSalespointAdapter(adapter);
+                            ItemTouchHelper touchHelper = new ItemTouchHelper(callback);
+                            touchHelper.attachToRecyclerView(recyclerView);
+                            recyclerView.setVisibility(View.VISIBLE);
+                            emptyView.setVisibility(View.GONE);
+                        } else {
+                            recyclerView.setVisibility(View.GONE);
+                            emptyView.setVisibility(View.VISIBLE);
+                            emptyView.setText(R.string.no_salespoint);
+                        }
+
+
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        Log.e(TAG, "GetProductSalesPoints: onError " + e.toString());
+                    }
+
+                    @Override
+                    public void onComplete() {
+                        Log.e(TAG, "GetProductSalesPoints : onComplete");
+                    }
+                });
+    }
+    */
 }

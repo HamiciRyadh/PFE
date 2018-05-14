@@ -1,7 +1,6 @@
 package usthb.lfbservices.com.pfe.fragments;
 
 import android.content.Context;
-import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
@@ -28,9 +27,9 @@ import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 
 import usthb.lfbservices.com.pfe.R;
+import usthb.lfbservices.com.pfe.RoomDatabase.AppRoomDatabase;
 import usthb.lfbservices.com.pfe.adapters.CategoryAdapter;
 import usthb.lfbservices.com.pfe.adapters.HistoryAdapter;
-import usthb.lfbservices.com.pfe.database.DatabaseHelper;
 import usthb.lfbservices.com.pfe.models.Category;
 import usthb.lfbservices.com.pfe.utils.Constantes;
 import usthb.lfbservices.com.pfe.utils.Utils;
@@ -46,7 +45,7 @@ public class SearchFragment extends Fragment {
 
     private View rootView;
     private FragmentActivity fragmentBelongActivity;
-    private DatabaseHelper db;
+    private AppRoomDatabase db;
 
     private ListView listView;
     private ArrayList<Category> listCategories;
@@ -91,11 +90,11 @@ public class SearchFragment extends Fragment {
     }
 
     public void initVariables() {
-        db = new DatabaseHelper(fragmentBelongActivity);
+        db = AppRoomDatabase.getInstance(fragmentBelongActivity);
         emptyTextViewHistory = rootView.findViewById(R.id.empty_history);
         listView = rootView.findViewById(R.id.list_view_history);
-        categories = db.getCategories();
-        icon = new ArrayList<Bitmap>();
+        categories = db.categorytDao().getAll();
+        icon = new ArrayList<>();
         icon.add(BitmapFactory.decodeResource(getResources(), R.drawable.computer));
         icon.add(BitmapFactory.decodeResource(getResources(), R.drawable.telephone));
         icon.add(BitmapFactory.decodeResource(getResources(), R.drawable.camera));
@@ -206,7 +205,7 @@ public class SearchFragment extends Fragment {
     }
 
     public ArrayList<Category> getMinimumCategoriesToDisplay() {
-        ArrayList<Category> list = new ArrayList<Category>();
+        ArrayList<Category> list = new ArrayList<>();
 
         for (int i = 1; i < numberOfCategoriesToDisplay && i <= categories.length; i++) {
             list.add(new Category(icon.get(i-1), categories[i-1], i));
@@ -240,14 +239,11 @@ public class SearchFragment extends Fragment {
 
     public int calculateNumberOfCategoriesToDisplay() {
         int pxWidth;
-        if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
-            pxWidth = Utils.getDeviceWidthInPixel(fragmentBelongActivity);
-        } else {
-            pxWidth = Utils.getDeviceHeightInPixel(fragmentBelongActivity);
-        }
+        pxWidth = Utils.getDeviceWidthInPixel(fragmentBelongActivity);
         int result = (int)((pxWidth + 2*getResources().getDimension(R.dimen.categories_grid_layout_margin))
                 /getResources().getDimension(R.dimen.categories_grid_column_width));
 
+        Log.e(TAG, "" + result);
         return result;
     }
 

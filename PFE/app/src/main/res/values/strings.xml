@@ -26,6 +26,8 @@
     <string name="chose_start_point">Choisir un point de départ</string>
     <string name="chose_destination_point">Choisir une destination</string>
     <string name="nothing_match_filters">Aucun élément ne correspond aux filtres définis.</string>
+    <string name="cancel">Annuler</string>
+    <string name="notification_added">Notification ajoutée</string>
 
     <!-- Hints -->
     <string name="hint_mail_address">Adresse email</string>
@@ -60,6 +62,9 @@
     <string name="empty_history">Aucun élément.</string>
     <string name="no_gps_use_last_position">GPS Désactivé, utilisation de la dernière position connue.</string>
     <string name="no_gps_default_position">GPS Désactivé, utilisation de la position par défaut.</string>
+    <string name="no_product_saved">Aucun produit sauvegardé.</string>
+    <string name="no_salespoint">Ce produit n\'est plus commercialisé par les points de vente sauvegardé.</string>
+    <string name="no_salespoint_saved">Aucun point de vente sauvegardé pour ce produit.</string>
 
     <!-- Progress Dialog -->
     <string name="registering_informations">Enregistrement des informations ...</string>
