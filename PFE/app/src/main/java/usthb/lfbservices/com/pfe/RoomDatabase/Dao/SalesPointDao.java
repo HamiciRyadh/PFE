@@ -6,6 +6,8 @@ import android.arch.persistence.room.Insert;
 import android.arch.persistence.room.OnConflictStrategy;
 import android.arch.persistence.room.Query;
 
+import java.util.List;
+
 import usthb.lfbservices.com.pfe.models.SalesPoint;
 
 @Dao
@@ -21,5 +23,8 @@ public interface SalesPointDao {
     void update(byte[] image);
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    void insertAll(SalesPoint... SalesPoints);
+    void insert(SalesPoint... SalesPoints);
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    void insertAll(List<SalesPoint> SalesPoints);
 }

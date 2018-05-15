@@ -782,6 +782,7 @@ public class PfeRx {
                 });
     }
 
+
     public static void removeFromNotificationsList(@NonNull final String salesPointId,
                                                    @NonNull final String productBarcode) {
         pfeAPI.removeFromNotificationsList(salesPointId, productBarcode)
@@ -790,12 +791,12 @@ public class PfeRx {
                 .subscribe(new Observer<Boolean>() {
                     @Override
                     public void onSubscribe(Disposable d) {
-                        Log.e(TAG, "addToNotificationsList : onSubscribe");
+                        Log.e(TAG, "removeFromNotificationsList : onSubscribe");
                     }
 
                     @Override
                     public void onNext(Boolean added) {
-                        Log.e(TAG, "addToNotificationsList : onNext");
+                        Log.e(TAG, "removeFromNotificationsList : onNext");
 
                         if (!added) {
                             //TODO: Think of someting
@@ -804,24 +805,15 @@ public class PfeRx {
 
                     @Override
                     public void onError(Throwable e) {
-                        Log.e(TAG, "addToNotificationsList : onError " + e.toString());
+                        Log.e(TAG, "removeFromNotificationsList : onError " + e.toString());
                     }
 
                     @Override
                     public void onComplete() {
-                        Log.e(TAG, "addToNotificationsList : onComplete");
+                        Log.e(TAG, "removeFromNotificationsList : onComplete");
                     }
                 });
     }
-
-
-
-
-
-
-
-
-
 
 
     public static void getProductDetails(@NonNull final Activity activity,
@@ -842,7 +834,7 @@ public class PfeRx {
                         Log.e(TAG, "GetProductDetails : onNext : " + product);
 
                         AppRoomDatabase db = AppRoomDatabase.getInstance(activity);
-                        db.productDao().insertAll(product);
+                        db.productDao().insert(product);
                         db.productSalesPointDao().insertAll(productSalesPoint);
                     }
 
@@ -860,7 +852,6 @@ public class PfeRx {
     }
 
 
-    //TODO : NEW
     public static void getProductCaracteristic(@NonNull final Activity activity, @NonNull final String productBarcode) {
 
         pfeAPI.getProductCaracteristic(productBarcode)
@@ -869,19 +860,18 @@ public class PfeRx {
                 .subscribe(new Observer<List<KeyValue>>() {
                     @Override
                     public void onSubscribe(Disposable d) {
-                        Log.e(TAG, "saveProductCaracteristic : onSubscribe");
+                        Log.e(TAG, "getProductCaracteristic : onSubscribe");
                         DisposableManager.add(d);
                     }
 
                     @Override
                     public void onNext(List<KeyValue> listProductsCaracteristic) {
-                        Log.e(TAG, "saveProductCaracteristic : onNext");
+                        Log.e(TAG, "getProductCaracteristic : onNext");
 
                         final AppRoomDatabase db = AppRoomDatabase.getInstance(activity);
                         final List<ProductCaracteristic> listProductCaracteristic = new ArrayList<>();
                         String productCaracteristicValue;
                         int typeCaracteristicId;
-                        List<TypeCaracteristic> typeCaracteristiclist = db.typeCaracteristicDao().getAll();
 
                         for (KeyValue keyValue : listProductsCaracteristic) {
                             productCaracteristicValue = keyValue.getProductCaracteristicValue();
@@ -894,15 +884,25 @@ public class PfeRx {
 
                     @Override
                     public void onError(Throwable e) {
-                        Log.e(TAG, "saveProductCaracteristic : onError " + e.toString());
+                        Log.e(TAG, "getProductCaracteristic : onError " + e.toString());
                     }
 
                     @Override
                     public void onComplete() {
-                        Log.e(TAG, "saveProductCaracteristic : onComplete");
+                        Log.e(TAG, "getProductCaracteristic : onComplete");
                     }
                 });
     }
+
+
+
+
+
+
+
+
+
+
 
     /*
 

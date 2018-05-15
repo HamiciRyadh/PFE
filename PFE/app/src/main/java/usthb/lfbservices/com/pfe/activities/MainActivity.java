@@ -277,12 +277,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     if (!Utils.isUserConnected(MainActivity.this)) {
                         Utils.showConnectDialog(MainActivity.this);
                     } else {
-                        Log.e(TAG, "Insert Data");
                         db = AppRoomDatabase.getInstance(MainActivity.this);
                         PfeRx.getProductDetails(MainActivity.this, productSalesPoint);
-                        Log.e(TAG, "Insert salespoint"+ salesPoint.getSalesPointName());
-                        db.salesPointDao().insertAll(salesPoint);
+                        db.salesPointDao().insert(salesPoint);
                         addPhoto(salesPoint.getSalesPointPhotoReference());
+                        Snackbar.make(findViewById(R.id.map_views_layout), getResources().getString(R.string.saving_informations),Snackbar.LENGTH_LONG).show();
                     }
                 }
             });

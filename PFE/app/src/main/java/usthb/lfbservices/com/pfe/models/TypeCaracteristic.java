@@ -10,9 +10,12 @@ import android.support.annotation.NonNull;
 import java.util.ArrayList;
 import java.util.List;
 
+import static android.arch.persistence.room.ForeignKey.CASCADE;
+
 @Entity(foreignKeys = @ForeignKey(entity = Type.class,
                         parentColumns = "typeId",
-                        childColumns = "typeId"))
+                        childColumns = "typeId",
+                        onDelete = CASCADE))
 
 public class TypeCaracteristic {
 

@@ -67,28 +67,24 @@ public interface PfeService
     @PUT("Notification/AddToNotificationsList")
     @FormUrlEncoded
     Observable<Boolean> addToNotificationsList(@Field("sales_point_id") String salesproductBarcode,
-                                              @Field("product_barcode") String productBarcode);
+                                               @Field("product_barcode") String productBarcode);
 
     @DELETE("Notification/RemoveFromNotificationsList")
-    @FormUrlEncoded
-    Observable<Boolean> removeFromNotificationsList(@Field("sales_point_id") String salesproductBarcode,
-                                                   @Field("product_barcode") String productBarcode);
+    Observable<Boolean> removeFromNotificationsList(@Query("sales_point_id") String salesproductBarcode,
+                                                    @Query("product_barcode") String productBarcode);
 
-
-
-
-
-
-    //TODO: NEW
-    @GET("Search/ProductSalesPoint/{product_barcode}")
-    Observable<List<ProductSalesPoint>> getProductSalesPoint(@Path("product_barcode") String productId);
-
-    //TODO : NEW
     @GET("Products/{product_barcode}")
     Observable<Product> getProductDetails(@Path("product_barcode") String productId);
 
-    //TODO : NEW
     @GET("Search/TypeCaracteristic/{product_barcode}")
     Observable<List<KeyValue>> getProductCaracteristic(@Path("product_barcode") String productId);
+
+
+
+
+    @GET("Search/ProductSalesPoint/{product_barcode}")
+    Observable<List<ProductSalesPoint>> getProductSalesPoint(@Path("product_barcode") String productId);
+
+
 
 }

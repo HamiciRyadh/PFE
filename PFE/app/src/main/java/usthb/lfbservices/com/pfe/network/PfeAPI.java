@@ -186,7 +186,13 @@ public class PfeAPI {
         return itineraireService.getLatLng(apiKey, placeid);
     }
 
+    public Observable<Product> getProductDetails(String productBarcode) {
+        return pfeService.getProductDetails(productBarcode);
+    }
 
+    public Observable<List<KeyValue>>  getProductCaracteristic(String productBarcode) {
+        return pfeService.getProductCaracteristic(productBarcode);
+    }
 
 
 
@@ -194,15 +200,4 @@ public class PfeAPI {
     public Observable<List<ProductSalesPoint>> getProductSalesPoint(final String productBarcode) {
         return pfeService.getProductSalesPoint(productBarcode);
     }
-
-    //TODO : NEW
-    public Observable<Product> getProductDetails(String productBarcode) {
-        return pfeService.getProductDetails(productBarcode);
-    }
-
-    //TODO : NEW
-    public Observable<List<KeyValue>>  getProductCaracteristic(String productBarcode) {
-        return pfeService.getProductCaracteristic(productBarcode);
-    }
-
 }

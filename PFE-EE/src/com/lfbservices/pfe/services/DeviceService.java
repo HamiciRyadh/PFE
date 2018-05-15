@@ -12,6 +12,7 @@ import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -80,7 +81,7 @@ public class DeviceService {
 	@Produces(MediaType.APPLICATION_JSON)
 	public boolean removeDeviceId(
 			@HeaderParam(AuthenticationFilter.AUTHORIZATION_PROPERTY) String authorization,
-			@DefaultValue("") @FormParam("deviceId") String deviceId) throws Exception { 		
+			@DefaultValue("") @QueryParam("deviceId") String deviceId) throws Exception { 		
 		
 		if (deviceId == null || deviceId.trim().equals("")) {
 		    throw new WebApplicationException(

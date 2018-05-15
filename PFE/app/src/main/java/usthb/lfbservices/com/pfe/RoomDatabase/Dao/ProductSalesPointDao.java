@@ -16,12 +16,11 @@ public interface ProductSalesPointDao {
     @Query("SELECT * FROM ProductSalesPoint WHERE productBarcode = :productBarcode")
     List<ProductSalesPoint> getAll(String productBarcode);
 
-
     @Query("DELETE FROM ProductSalesPoint WHERE productBarcode = :productBarcode AND salesPointId = :salespointId")
     void deleteById(String productBarcode, String salespointId);
 
     @Query("DELETE FROM ProductSalesPoint WHERE productBarcode = :productBarcode ")
-    void deleteByproductBarcode(String productBarcode);
+    void deleteByProductBarcode(String productBarcode);
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insertAll(ProductSalesPoint... productSalesPoints);

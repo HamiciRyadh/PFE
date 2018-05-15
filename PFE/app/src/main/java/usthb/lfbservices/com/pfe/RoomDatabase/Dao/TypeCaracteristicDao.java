@@ -16,6 +16,9 @@ public interface TypeCaracteristicDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insertAll(List<TypeCaracteristic> typeCaracteristics);
 
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    void insert(TypeCaracteristic... typeCaracteristics);
+
     @Query("SELECT typeCaracteristicName FROM TypeCaracteristic WHERE  typeCaracteristicId = :typeCaracteristicId ")
     String getTypeCaracteristicName(int typeCaracteristicId);
 

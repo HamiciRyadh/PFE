@@ -54,7 +54,6 @@ public class ProductListAdapter extends RecyclerView.Adapter< ProductListAdapter
         db = AppRoomDatabase.getInstance(ProductListAdapter.this.context);
         productBarcode = products.get(position).getProductBarcode();
         products.remove(position);
-        db.productSalesPointDao().deleteByproductBarcode(productBarcode);
         db.productDao().deleteById(productBarcode);
         notifyItemRemoved(position);
     }

@@ -390,7 +390,7 @@ public class Access {
 		parameters.put("productBarcode", productBarcode);
 		parameters.put("salesPointId", salesPointId);
 		
-		int rowsDeleted = session.delete("QueriesUsers.addToNotificationsList", parameters);
+		int rowsDeleted = session.delete("QueriesUsers.removeFromNotificationsList", parameters);
 
 		session.commit();
 		session.close();

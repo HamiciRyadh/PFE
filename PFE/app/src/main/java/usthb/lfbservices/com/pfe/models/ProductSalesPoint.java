@@ -6,16 +6,20 @@ import android.arch.persistence.room.ForeignKey;
 import android.arch.persistence.room.Ignore;
 import android.support.annotation.NonNull;
 
+import static android.arch.persistence.room.ForeignKey.CASCADE;
+
 @Entity(tableName = "ProductSalesPoint",
 		primaryKeys = { "salesPointId", "productBarcode"},
 		foreignKeys = {
 				@ForeignKey(entity = Product.class,
 						parentColumns = "productBarcode",
-						childColumns = "productBarcode"),
+						childColumns = "productBarcode",
+						onDelete = CASCADE),
 				@ForeignKey
 				(entity = SalesPoint.class,
 						parentColumns = "salesPointId",
-						childColumns = "salesPointId")
+						childColumns = "salesPointId",
+						onDelete = CASCADE)
 				})
 
 

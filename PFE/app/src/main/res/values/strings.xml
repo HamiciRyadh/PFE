@@ -27,7 +27,8 @@
     <string name="chose_destination_point">Choisir une destination</string>
     <string name="nothing_match_filters">Aucun élément ne correspond aux filtres définis.</string>
     <string name="cancel">Annuler</string>
-    <string name="notification_added">Notification ajoutée</string>
+    <string name="notification_added">Notification ajoutée.</string>
+    <string name="saving_informations">Sauvegarde des informations.</string>
 
     <!-- Hints -->
     <string name="hint_mail_address">Adresse email</string>

@@ -4,6 +4,7 @@ import android.arch.persistence.room.Dao;
 import android.arch.persistence.room.Insert;
 import android.arch.persistence.room.OnConflictStrategy;
 import android.arch.persistence.room.Query;
+import android.arch.persistence.room.Transaction;
 
 import java.util.List;
 
@@ -22,5 +23,8 @@ public interface ProductDao {
    void deleteById(String productBarcode);
 
    @Insert(onConflict = OnConflictStrategy.REPLACE)
-   void insertAll(Product... products);
+   void insertAll(List<Product> products);
+
+   @Insert(onConflict = OnConflictStrategy.REPLACE)
+   void insert(Product... products);
 }
