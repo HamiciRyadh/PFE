@@ -8,6 +8,8 @@ import java.net.URL;
 
 import org.json.JSONObject;
 
+import com.lfbservices.pfe.dao.Access;
+
 public class FcmNotifications {
 
 
@@ -17,6 +19,8 @@ public class FcmNotifications {
 	
 	public static String pushFCMNotification(final String userDeviceId, final String salesPointId, final String productBarcode,
 											 final int productQuantity, final double productPrice) throws Exception {
+		
+		String productName = Access.getProductById(productBarcode).getProductName();
 		//TODO: Put the provided data in the notification message data
 		URL url = new URL(API_URL_FCM);
 		HttpURLConnection conn = (HttpURLConnection) url.openConnection();
@@ -30,11 +34,24 @@ public class FcmNotifications {
 	    
 	    JSONObject json = new JSONObject();
 	    json.put("to", userDeviceId);
+	    
+	    
 	    JSONObject info = new JSONObject();
-	    info.put("title", "PFE Notification"); 
-	    info.put("body", "This is a notification");  
-			                                                             
+	    info.put("title","Du nouveau ! "+ productName ); 
+	    info.put("body", "Disponibilité : " + productQuantity + "    -     "+ "Prix :" +productPrice );                  
 	    json.put("notification", info);
+	    
+	    
+	    JSONObject data = new JSONObject();
+	    data.put("salesPointName", Access.getSalesPointById(salesPointId).getSalesPointName());
+	    data.put("productName", Access.getProductById(productBarcode).getProductName());
+	    data.put("productQuantity", productQuantity);
+	    data.put("productPrice", productPrice);		
+
+	    json.put("data", data);
+	    
+	    
+	    
 	    try {
 	        OutputStreamWriter wr = new OutputStreamWriter(conn.getOutputStream());
 	        wr.write(json.toString());

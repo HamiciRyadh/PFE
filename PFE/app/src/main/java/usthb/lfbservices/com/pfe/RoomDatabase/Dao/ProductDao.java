@@ -17,7 +17,7 @@ public interface ProductDao {
    List<Product> getAll();
 
    @Query("SELECT * FROM Product WHERE productBarcode = :productBarcode")
-   Product getById(String productBarcode);
+   Product getByBarcode(String productBarcode);
 
    @Query("DELETE FROM Product WHERE productBarcode = :productBarcode")
    void deleteById(String productBarcode);
@@ -27,4 +27,10 @@ public interface ProductDao {
 
    @Insert(onConflict = OnConflictStrategy.REPLACE)
    void insert(Product... products);
+
+   @Query("SELECT EXISTS (SELECT 1 FROM Product WHERE productBarcode = :productBarcode)")
+   boolean productExists(String productBarcode);
+
+   @Query("SELECT productName FROM Product WHERE productBarcode = :productBarcode")
+   String getProductNameById(String productBarcode);
 }

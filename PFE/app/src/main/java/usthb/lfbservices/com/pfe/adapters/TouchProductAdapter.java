@@ -7,7 +7,7 @@ public class TouchProductAdapter extends ItemTouchHelper.Callback {
 
     private final ITouchHelperAdapter mAdapter;
 
-    public TouchProductAdapter(ProductListAdapter adapter) {
+    public TouchProductAdapter(ProductFavoriteAdapter adapter) {
         mAdapter = adapter;
     }
 

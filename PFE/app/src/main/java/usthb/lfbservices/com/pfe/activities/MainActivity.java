@@ -279,7 +279,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     } else {
                         db = AppRoomDatabase.getInstance(MainActivity.this);
                         PfeRx.getProductDetails(MainActivity.this, productSalesPoint);
-                        db.salesPointDao().insert(salesPoint);
+                        if (!db.salesPointDao().salesPointExists(salesPoint.getSalesPointId())) db.salesPointDao().insert(salesPoint);
                         addPhoto(salesPoint.getSalesPointPhotoReference());
                         Snackbar.make(findViewById(R.id.map_views_layout), getResources().getString(R.string.saving_informations),Snackbar.LENGTH_LONG).show();
                     }

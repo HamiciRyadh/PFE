@@ -6,12 +6,12 @@ import android.arch.persistence.room.Room;
 import android.arch.persistence.room.RoomDatabase;
 import android.content.Context;
 import android.support.annotation.NonNull;
-import android.util.Log;
 
 import java.util.concurrent.Executors;
 
 import usthb.lfbservices.com.pfe.RoomDatabase.Dao.CategoryDao;
 import usthb.lfbservices.com.pfe.RoomDatabase.Dao.CityDao;
+import usthb.lfbservices.com.pfe.RoomDatabase.Dao.NotificationDao;
 import usthb.lfbservices.com.pfe.RoomDatabase.Dao.ProductCaracteristicDao;
 import usthb.lfbservices.com.pfe.RoomDatabase.Dao.ProductDao;
 import usthb.lfbservices.com.pfe.RoomDatabase.Dao.ProductSalesPointDao;
@@ -21,6 +21,7 @@ import usthb.lfbservices.com.pfe.RoomDatabase.Dao.TypeDao;
 import usthb.lfbservices.com.pfe.RoomDatabase.Dao.WilayaDao;
 import usthb.lfbservices.com.pfe.models.Category;
 import usthb.lfbservices.com.pfe.models.City;
+import usthb.lfbservices.com.pfe.models.Notification;
 import usthb.lfbservices.com.pfe.models.Product;
 import usthb.lfbservices.com.pfe.models.ProductCaracteristic;
 import usthb.lfbservices.com.pfe.models.ProductSalesPoint;
@@ -30,14 +31,11 @@ import usthb.lfbservices.com.pfe.models.TypeCaracteristic;
 import usthb.lfbservices.com.pfe.models.Wilaya;
 
 
-//import usthb.lfbservices.com.pfe.models.Notification;
-
-
 @Database(entities = {ProductSalesPoint.class, Product.class, SalesPoint.class,
                         Category.class,Type.class, Wilaya.class, City.class,
-                        TypeCaracteristic.class, ProductCaracteristic.class
-                //Notification.class
-                        }, version = 17)
+                        TypeCaracteristic.class, ProductCaracteristic.class,
+                         Notification.class
+                        }, version = 18)
 
     public abstract class AppRoomDatabase extends RoomDatabase {
 
@@ -50,7 +48,7 @@ import usthb.lfbservices.com.pfe.models.Wilaya;
        public abstract CityDao cityDao();
        public abstract TypeCaracteristicDao typeCaracteristicDao();
        public abstract ProductCaracteristicDao productCaracteristicDao();
-      // public abstract Notification notificationDao();
+       public abstract NotificationDao notificationDao();
 
 
        private static AppRoomDatabase INSTANCE;

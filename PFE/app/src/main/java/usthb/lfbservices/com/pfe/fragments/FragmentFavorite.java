@@ -17,9 +17,8 @@ import android.widget.TextView;
 
 import usthb.lfbservices.com.pfe.R;
 import usthb.lfbservices.com.pfe.RoomDatabase.AppRoomDatabase;
-import usthb.lfbservices.com.pfe.adapters.ProductListAdapter;
+import usthb.lfbservices.com.pfe.adapters.ProductFavoriteAdapter;
 import usthb.lfbservices.com.pfe.adapters.TouchProductAdapter;
-import usthb.lfbservices.com.pfe.models.Singleton;
 
 /**
  * Created by ryadh on 06/05/18.
@@ -38,7 +37,7 @@ public class FragmentFavorite extends Fragment {
     private RecyclerView recyclerView;
     private TextView emptyView;
 
-    private ProductListAdapter adapter;
+    private ProductFavoriteAdapter adapter;
 
     public FragmentFavorite() {
     }
@@ -78,7 +77,7 @@ public class FragmentFavorite extends Fragment {
         emptyView = rootView.findViewById(R.id.empty_products_list);
 
         db = AppRoomDatabase.getInstance(fragmentBelongActivity);
-        adapter = new ProductListAdapter(db.productDao().getAll());
+        adapter = new ProductFavoriteAdapter(db.productDao().getAll());
         recyclerView.setLayoutManager(new LinearLayoutManager(fragmentBelongActivity));
         recyclerView.setAdapter(adapter);
 

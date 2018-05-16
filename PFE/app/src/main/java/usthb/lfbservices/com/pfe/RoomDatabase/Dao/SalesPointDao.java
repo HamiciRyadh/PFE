@@ -27,4 +27,7 @@ public interface SalesPointDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insertAll(List<SalesPoint> SalesPoints);
+
+    @Query("SELECT EXISTS (SELECT 1 FROM SalesPoint WHERE salesPointId = :salesPointId)")
+    boolean salesPointExists(String salesPointId);
 }

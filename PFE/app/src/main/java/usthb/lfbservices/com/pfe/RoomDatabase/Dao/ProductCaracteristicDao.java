@@ -17,7 +17,7 @@ public interface ProductCaracteristicDao {
     @Query("SELECT * FROM ProductCaracteristic")
     List<ProductCaracteristic> getAll();
 
-    @Query("SELECT typeCaracteristicId,productCaracteristicValue " +
+    @Query("SELECT typeCaracteristicId, productCaracteristicValue " +
             "FROM ProductCaracteristic "+
             " WHERE productBarcode = :productBarcode")
     List<KeyValue> getCaracteristics(String productBarcode);

@@ -55,6 +55,14 @@
             android:name=".activities.ItineraireActivity"
             android:theme="@style/AppTheme.Dark"
             />
+        <activity
+            android:name=".activities.DescriptiveActivity"
+            android:theme="@style/AppTheme.Dark"
+            />
+        <activity
+            android:name=".activities.DescSalesPointActivity"
+            android:theme="@style/AppTheme.Dark"
+            />
 
         <service
             android:name=".services.MyFirebaseMessagingService">

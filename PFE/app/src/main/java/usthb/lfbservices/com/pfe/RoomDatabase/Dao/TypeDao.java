@@ -16,6 +16,12 @@ public interface TypeDao {
     @Query("SELECT typeName FROM Type ORDER BY typeId ASC")
     String[] getAll();
 
+    @Query("SELECT typeName FROM Type WHERE typeId = :typeId")
+    String getName(int typeId);
+
+    @Query("SELECT categoryName FROM Category WHERE categoryId = :categoryId")
+    String getCategoryName(int categoryId);
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insertAll(List<Type> types);
 }

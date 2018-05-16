@@ -29,6 +29,10 @@
     <string name="cancel">Annuler</string>
     <string name="notification_added">Notification ajoutée.</string>
     <string name="saving_informations">Sauvegarde des informations.</string>
+    <string name="product">Produit</string>
+    <string name="sales_point">Point de vente</string>
+    <string name="category">Catégorie</string>
+    <string name="caracteristics">Caractéristiques</string>
 
     <!-- Hints -->
     <string name="hint_mail_address">Adresse email</string>
@@ -66,6 +70,7 @@
     <string name="no_product_saved">Aucun produit sauvegardé.</string>
     <string name="no_salespoint">Ce produit n\'est plus commercialisé par les points de vente sauvegardé.</string>
     <string name="no_salespoint_saved">Aucun point de vente sauvegardé pour ce produit.</string>
+    <string name="no_notification_saved"> Aucune notification sauvegardée</string>
 
     <!-- Progress Dialog -->
     <string name="registering_informations">Enregistrement des informations ...</string>

@@ -1,6 +1,8 @@
 package usthb.lfbservices.com.pfe.adapters;
 
 import android.content.Context;
+import android.content.Intent;
+import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -13,40 +15,39 @@ import java.util.List;
 
 import usthb.lfbservices.com.pfe.R;
 import usthb.lfbservices.com.pfe.RoomDatabase.AppRoomDatabase;
+import usthb.lfbservices.com.pfe.activities.DescSalesPointActivity;
 import usthb.lfbservices.com.pfe.models.ProductSalesPoint;
 
 
-public class ProductSalesPointListAdapter extends RecyclerView.Adapter< ProductSalesPointListAdapter.ViewHolder> implements ITouchHelperAdapter {
+public class ProductSalesPointListAdapter extends RecyclerView.Adapter<ProductSalesPointListAdapter.ViewHolder> implements ITouchHelperAdapter {
 
-    private static final String TAG = ProductSalesPointListAdapter.class.getName();
+    private static final String TAG = "PSPListAdapter";
     private Context context;
     private AppRoomDatabase db;
-
+    private View rootView;
 
     private List<ProductSalesPoint> productSalesPoints;
 
     public ProductSalesPointListAdapter (List<ProductSalesPoint> productSalesPoints) {
         this.productSalesPoints = productSalesPoints;
+        Log.e(TAG, "SIZE : " + productSalesPoints.size());
     }
 
     @Override
     public  ProductSalesPointListAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item_salespoint_product, parent, false);
-        return new ViewHolder(view);
+        rootView = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item_sales_point_product, parent, false);
+        return new ViewHolder(rootView);
     }
 
 
-
     @Override
-    public void onBindViewHolder(ProductSalesPointListAdapter.ViewHolder holder, int position) {
-        db= AppRoomDatabase.getInstance(ProductSalesPointListAdapter.this.context);
-        String salespointId =productSalesPoints.get(position).getSalesPointId();
+    public void onBindViewHolder(@NonNull ProductSalesPointListAdapter.ViewHolder holder, int position) {
+        db = AppRoomDatabase.getInstance(ProductSalesPointListAdapter.this.context);
+        String salespointId = productSalesPoints.get(position).getSalesPointId();
         String salespointName = db.salesPointDao().getSalesPointNameById(salespointId);
-        holder.salespointid.setText(salespointName);
+        holder.salesPointid.setText(salespointName);
         holder.price.setText(String.valueOf(productSalesPoints.get(position).getProductPrice()));
         holder.quantity.setText(String.valueOf(productSalesPoints.get(position).getProductQuantity()));
-
-
     }
 
     @Override
@@ -81,35 +82,29 @@ public class ProductSalesPointListAdapter extends RecyclerView.Adapter< ProductS
 
     public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
-        public TextView salespointid;
+        public TextView salesPointid;
         public TextView quantity;
         public TextView price;
 
-        private String salesPointId;
+        private String sSalesPointId;
 
 
         public ViewHolder(View itemView) {
             super(itemView);
             context = itemView.getContext();
-            itemView.setOnClickListener(this);
-            salespointid = itemView.findViewById(R.id.sales_point_name_details);
+            salesPointid = itemView.findViewById(R.id.sales_point_name_details);
             price = itemView.findViewById(R.id.product_price_marker);
-            quantity =itemView.findViewById(R.id.product_qte_marker);
+            quantity = itemView.findViewById(R.id.product_qte_marker);
+            itemView.setOnClickListener(this);
         }
 
         @Override
         public void onClick(View view) {
-            /*
-            salesPointId =  productSalesPoints.get(getLayoutPosition()).getSalesPointId();
-            Intent intent = new Intent(context,DescSalesPointActivity.class);
+            sSalesPointId =  productSalesPoints.get(getLayoutPosition()).getSalesPointId();
+            Intent intent = new Intent(context, DescSalesPointActivity.class);
+            intent.putExtra("usthb.lfbservices.com.pfe.adapters.productBarcode", sSalesPointId);
             context.startActivity(intent);
-            Singleton.getInstance().setSalesPoint(salesPointId);
-            */
-            Log.d(TAG, "onClick SalesPoint " + salesPointId.toString());
         }
-
-
-
     }
 }
 

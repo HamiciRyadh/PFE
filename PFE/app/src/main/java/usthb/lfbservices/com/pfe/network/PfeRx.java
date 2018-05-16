@@ -834,7 +834,7 @@ public class PfeRx {
                         Log.e(TAG, "GetProductDetails : onNext : " + product);
 
                         AppRoomDatabase db = AppRoomDatabase.getInstance(activity);
-                        db.productDao().insert(product);
+                        if (!db.productDao().productExists(product.getProductBarcode())) db.productDao().insert(product);
                         db.productSalesPointDao().insertAll(productSalesPoint);
                     }
 
