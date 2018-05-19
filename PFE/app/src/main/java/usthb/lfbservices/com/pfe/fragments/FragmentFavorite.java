@@ -23,7 +23,7 @@ import usthb.lfbservices.com.pfe.adapters.TouchProductAdapter;
 /**
  * Created by ryadh on 06/05/18.
  */
-//TODO: Remove comments
+
 public class FragmentFavorite extends Fragment {
 
     private static final String TAG = "FragmentFavorite";

@@ -103,7 +103,7 @@ public class PfeRx {
                         final List<SalesPoint> salesPoints = result.getSalesPoints();
                         final List<ProductSalesPoint> productSalesPoints = result.getProductSalesPoints();
                         final Button showList = activity.findViewById(R.id.show_list_button);
-                        final Map<LatLng, ProductSalesPoint> hashMap = new HashMap<LatLng, ProductSalesPoint>();
+                        final Map<LatLng, ProductSalesPoint> hashMap = new HashMap<>();
 
                         Collections.sort(salesPoints, new Comparator<SalesPoint>() {
                             public int compare(SalesPoint one, SalesPoint other) {
@@ -127,7 +127,7 @@ public class PfeRx {
                             map.clear();
                             LatLngBounds.Builder builder = new LatLngBounds.Builder();
 
-                            SharedPreferences preferences = activity.getSharedPreferences(Constantes.SHARED_PREFERENCES_POSITION, activity.MODE_PRIVATE);
+                            SharedPreferences preferences = activity.getSharedPreferences(Constantes.SHARED_PREFERENCES_POSITION, Context.MODE_PRIVATE);
                             String sUserLatitude = preferences.getString(Constantes.SHARED_PREFERENCES_POSITION_LATITUDE, null);
                             String sUserLongitude = preferences.getString(Constantes.SHARED_PREFERENCES_POSITION_LONGITUDE, null);
                             LatLng userPosition = null;
@@ -226,14 +226,14 @@ public class PfeRx {
                                 @Override
                                 public void onClick(View view) {
                                     final ListView listView = activity.findViewById(R.id.list_view_sales_points);
-                                    if (listView.getVisibility() == View.VISIBLE) {
-                                        showList.setText(activity.getString(R.string.sales_points_show_list));
-                                        listView.setVisibility(View.GONE);
-                                    }
-                                    else {
-                                        showList.setText(activity.getString(R.string.reduce));
-                                        final SalesPointsAdapter salesPointsAdapter = new SalesPointsAdapter(activity, R.layout.sales_point_list, (ArrayList) salesPoints);
-                                        if (listView != null) {
+                                    if (listView != null) {
+                                        if (listView.getVisibility() == View.VISIBLE) {
+                                            showList.setText(activity.getString(R.string.sales_points_show_list));
+                                            listView.setVisibility(View.GONE);
+                                        }
+                                        else {
+                                            showList.setText(activity.getString(R.string.reduce));
+                                            final SalesPointsAdapter salesPointsAdapter = new SalesPointsAdapter(activity, R.layout.sales_point_list, (ArrayList)salesPoints);
                                             listView.setAdapter(salesPointsAdapter);
                                             listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                                                 @Override
@@ -251,7 +251,7 @@ public class PfeRx {
                                                         PfeRx.getPlaceDetails(activity, salesPoint.getSalesPointId());
 
                                                         CameraUpdate cu = CameraUpdateFactory.newLatLngZoom(salesPoint.getSalesPointLatLng(), FragmentMap.ZOOM_LEVEL);
-                                                        map.animateCamera(cu);
+                                                        if (map != null) map.animateCamera(cu);
                                                     }
                                                 }
                                             });
@@ -285,7 +285,7 @@ public class PfeRx {
     public static void searchFromQuery(@NonNull final Activity activity,
                                       @NonNull final String searchString) {
 
-        final ArrayList<Product> products = new ArrayList<Product>();
+        final ArrayList<Product> products = new ArrayList<>();
         final ProductsAdapter productsAdapter = new ProductsAdapter(activity, R.layout.list_item_products, products);
 
         pfeAPI.searchFromQuery(searchString)
@@ -418,10 +418,9 @@ public class PfeRx {
      * @param category The Category id used for the network call to filter the Products.
      */
 
-    public static void searchCategory(@NonNull final Activity activity,
-                                      @NonNull final int category) {
+    public static void searchCategory(@NonNull final Activity activity, final int category) {
 
-        final ArrayList<Product> products = new ArrayList<Product>();
+        final ArrayList<Product> products = new ArrayList<>();
         final ProductsAdapter productsAdapter = new ProductsAdapter(activity, R.layout.list_item_products, products);
 
         pfeAPI.searchCategory(category)
@@ -541,7 +540,7 @@ public class PfeRx {
 
                         if (exists) {
                             SharedPreferences.Editor editor =
-                                    activity.getSharedPreferences(Constantes.SHARED_PREFERENCES_USER,  activity.MODE_PRIVATE).edit();
+                                    activity.getSharedPreferences(Constantes.SHARED_PREFERENCES_USER,  Context.MODE_PRIVATE).edit();
                             editor.putString(Constantes.SHARED_PREFERENCES_USER_EMAIL, mailAddress);
                             editor.putString(Constantes.SHARED_PREFERENCES_USER_PASSWORD, password);
                             editor.apply();
@@ -610,7 +609,7 @@ public class PfeRx {
 
                         if (registered) {
                             SharedPreferences.Editor editor =
-                                    activity.getSharedPreferences(Constantes.SHARED_PREFERENCES_USER, activity.MODE_PRIVATE).edit();
+                                    activity.getSharedPreferences(Constantes.SHARED_PREFERENCES_USER, Context.MODE_PRIVATE).edit();
                             editor.putString(Constantes.SHARED_PREFERENCES_USER_EMAIL, mailAddress);
                             editor.putString(Constantes.SHARED_PREFERENCES_USER_PASSWORD, password);
                             editor.apply();

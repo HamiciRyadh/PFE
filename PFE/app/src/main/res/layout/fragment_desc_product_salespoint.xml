@@ -1,21 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white"
     xmlns:tools="http://schemas.android.com/tools"
-    android:orientation="vertical"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent">
-
-
+    >
 
     <android.support.v7.widget.RecyclerView
-        android:id="@+id/recyclerview_Notification"
+        android:id="@+id/recyclerview_Salespoint"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@android:color/white"
-        tools:listitem="@layout/list_item_notification" />
+        tools:listitem="@layout/list_item_salespoint_product"
+        />
 
     <TextView
-        android:id="@+id/empty_list_notification"
+        android:id="@+id/empty_list_productSalespoint"
         android:layout_gravity="center"
         android:textColor="@color/colorPrimary"
         android:textSize="25sp"
@@ -25,6 +26,5 @@
         android:layout_centerInParent="true"
         android:gravity="center"
         android:textAppearance="?android:textAppearanceMedium"/>
-
 
 </RelativeLayout>
