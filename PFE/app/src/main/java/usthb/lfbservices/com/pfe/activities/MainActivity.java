@@ -18,8 +18,10 @@ import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
@@ -64,6 +66,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private ProductsFragment productsFragment;
     private Fragment currentFragment;
     private AppRoomDatabase db;
+    private SearchView searchView;
 
     private Toolbar toolbar;
     private DrawerLayout drawer;
@@ -128,6 +131,66 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 super.onBackPressed();
             }
         }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_bar, menu);
+
+        final MenuItem myActionMenuItem = menu.findItem(R.id.action_search);
+        final MenuItem barcodeScanner = menu.findItem(R.id.action_barcode);
+        barcodeScanner.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                Log.e(TAG, "Redirecting to barcode scanner");
+                return false;
+            }
+        });
+        searchView = (SearchView) myActionMenuItem.getActionView();
+        searchView.setOnSuggestionListener(new SearchView.OnSuggestionListener() {
+            @Override
+            public boolean onSuggestionSelect(int position) {
+                Log.e(TAG, "OnSuggestionSelect");
+                return false;
+            }
+
+            @Override
+            public boolean onSuggestionClick(int position) {
+                Log.e(TAG, "OnSuggestionClick");
+                return false;
+            }
+        });
+        searchView.setOnCloseListener(new SearchView.OnCloseListener() {
+            @Override
+            public boolean onClose() {
+                Log.e(TAG, "OnClose");
+                return false;
+            }
+        });
+        searchView.setOnQueryTextFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                Log.e(TAG, "Focus : " + hasFocus);
+            }
+        });
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                Log.e(TAG, "QueryTextSubmit");
+                if(!searchView.isIconified()) {
+                    Log.e(TAG, "Iconified");
+                    searchView.setIconified(true);
+                }
+                myActionMenuItem.collapseActionView();
+                return false;
+            }
+            @Override
+            public boolean onQueryTextChange(String s) {
+                Log.e(TAG, "QueryTextChange");
+                return false;
+            }
+        });
+        return true;
     }
 
     @SuppressWarnings("StatementWithEmptyBody")

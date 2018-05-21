@@ -33,6 +33,7 @@
     <string name="sales_point">Point de vente</string>
     <string name="category">Catégorie</string>
     <string name="caracteristics">Caractéristiques</string>
+    <string name="scan_barcode">Scanner le code barre</string>
 
     <!-- Hints -->
     <string name="hint_mail_address">Adresse email</string>
