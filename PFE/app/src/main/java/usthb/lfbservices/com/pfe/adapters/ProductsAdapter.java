@@ -13,8 +13,8 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 
-import usthb.lfbservices.com.pfe.models.Product;
 import usthb.lfbservices.com.pfe.R;
+import usthb.lfbservices.com.pfe.models.Product;
 
 /**
  * Created by ryadh on 05/03/18.

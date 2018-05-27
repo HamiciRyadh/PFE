@@ -14,7 +14,6 @@ import android.support.design.widget.BottomSheetBehavior;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -37,6 +36,7 @@ import com.google.android.gms.maps.model.Circle;
 import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
+import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -47,11 +47,12 @@ import java.util.Arrays;
 import java.util.List;
 
 import usthb.lfbservices.com.pfe.R;
+import usthb.lfbservices.com.pfe.RoomDatabase.AppRoomDatabase;
 import usthb.lfbservices.com.pfe.adapters.SalesPointsAdapter;
-import usthb.lfbservices.com.pfe.database.DatabaseHelper;
 import usthb.lfbservices.com.pfe.models.ProductSalesPoint;
 import usthb.lfbservices.com.pfe.models.SalesPoint;
 import usthb.lfbservices.com.pfe.models.Singleton;
+import usthb.lfbservices.com.pfe.models.Wilaya;
 import usthb.lfbservices.com.pfe.network.PfeRx;
 import usthb.lfbservices.com.pfe.utils.Constantes;
 import usthb.lfbservices.com.pfe.utils.Utils;
@@ -73,11 +74,9 @@ public class FragmentMap extends Fragment  implements OnMapReadyCallback {
 
     public static final float ZOOM_LEVEL = 16.77f;
 
-    private SearchView searchView;
-
     private GoogleMap mMap;
     private SupportMapFragment mapFragment;
-    private DatabaseHelper db;
+    private AppRoomDatabase db;
     private BottomSheetBehavior sheetBehavior;
     private Button showButton;
     private ListView listViewSalesPoints;
@@ -95,7 +94,6 @@ public class FragmentMap extends Fragment  implements OnMapReadyCallback {
     private ArrayList<Integer> mUserItemsVille = new ArrayList<>();
     private int mUserItemRayon = -1;
     private String[] listVille = null;
-
 
     private double latitudeSearchPosition;
     private double longitudeSearchPosition;
@@ -117,6 +115,7 @@ public class FragmentMap extends Fragment  implements OnMapReadyCallback {
     private GPSLocationListener gpsLocationListener = new GPSLocationListener();
 
     public FragmentMap() {
+
     }
 
 
@@ -131,22 +130,25 @@ public class FragmentMap extends Fragment  implements OnMapReadyCallback {
             mapFragment = SupportMapFragment.newInstance();
             mapFragment.getMapAsync(this);
             getChildFragmentManager().beginTransaction().replace(R.id.map, mapFragment).commit();
-        }
 
-        locationManager = (LocationManager) fragmentBelongActivity.getSystemService(LOCATION_SERVICE);
-        if (Build.VERSION.SDK_INT >= 23) {
-            if (!Utils.checkPermission(fragmentBelongActivity)) {
-                Utils.requestGPSPermissions(fragmentBelongActivity);
+            locationManager = (LocationManager) fragmentBelongActivity.getSystemService(LOCATION_SERVICE);
+            if (Build.VERSION.SDK_INT >= 23) {
+                if (!Utils.checkGPSPermission(fragmentBelongActivity)) {
+                    Utils.requestGPSPermission(fragmentBelongActivity);
+                }
             }
+
+            initVariables();
+            initBottomSheet();
+            initWilayaButton();
+            initVillesButton();
+            initSearchPerimeterButton();
+            initUserLocation();
         }
 
-        initVariables();
-        initBottomSheet();
-        initWilayaButton();
-        initVillesButton();
-        initSearchPerimeterButton();
-        initSearchView();
-        initUserLocation();
+        implementation.checkGoToSearchFragment();
+        implementation.checkSearchProductBarcode();
+        implementation.setToolbarTitleForFragmentMap();
 
         return rootView;
     }
@@ -159,6 +161,7 @@ public class FragmentMap extends Fragment  implements OnMapReadyCallback {
         SharedPreferences sharedPreferences = fragmentBelongActivity.getSharedPreferences(Constantes.SHARED_PREFERENCES_POSITION, fragmentBelongActivity.MODE_PRIVATE);
         String sLat = sharedPreferences.getString(Constantes.SHARED_PREFERENCES_POSITION_LATITUDE,null);
         String sLong = sharedPreferences.getString(Constantes.SHARED_PREFERENCES_POSITION_LONGITUDE,null);
+        String sMapStyle = sharedPreferences.getString(Constantes.SHARED_PREFERENCES_USER_MAP_STYLE, null);
 
         if (sLat != null && sLong != null) {
             double lat = Double.parseDouble(sLat);
@@ -166,7 +169,7 @@ public class FragmentMap extends Fragment  implements OnMapReadyCallback {
             userPosition = new LatLng(lat, lon);
         }
 
-        if (Utils.checkPermission(fragmentBelongActivity)) {
+        if (Utils.checkGPSPermission(fragmentBelongActivity)) {
             if (addMarker && userPosition != null) {
                 userMakerOptions = new MarkerOptions().
                         position(userPosition).
@@ -190,6 +193,15 @@ public class FragmentMap extends Fragment  implements OnMapReadyCallback {
                 onMapSelected();
             }
         });
+        Log.e(TAG, "Style " + (sMapStyle == null));
+        if (sMapStyle != null) {
+            if (sMapStyle.equalsIgnoreCase(Constantes.SATELLITE)) {
+                mMap.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
+            } else if (sMapStyle.equalsIgnoreCase(Constantes.STANDARD)) {
+                mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+                //mMap.setMapStyle(MapStyleOptions.loadRawResourceStyle(fragmentBelongActivity, R.raw.map_style));
+            }
+        }
     }
 
     @Override
@@ -209,7 +221,7 @@ public class FragmentMap extends Fragment  implements OnMapReadyCallback {
     public void onResume() {
         super.onResume();
         Log.e(TAG, "OnResume");
-        if (Utils.checkPermission(fragmentBelongActivity)) {
+        if (Utils.checkGPSPermission(fragmentBelongActivity)) {
             if (addMarker && userPosition != null) {
                 if (userMarker != null) userMarker.setPosition(userPosition);
                 else {
@@ -236,83 +248,36 @@ public class FragmentMap extends Fragment  implements OnMapReadyCallback {
         }
     }
 
+    @Override
+    public void onPause() {
+        super.onPause();
+        Log.e(TAG, "OnPause");
+        locationManager.removeUpdates(gpsLocationListener);
+    }
+
+    @Override
+    public void onDetach() {
+        Log.e(TAG, "OnDetach");
+        super.onDetach();
+        implementation = null;
+    }
+
     public void initVariables() {
-        db = new DatabaseHelper(fragmentBelongActivity);
-        searchView = rootView.findViewById(R.id.search_view);
-        Log.e(TAG, "SearchView : " + (searchView == null));
+        db = AppRoomDatabase.getInstance(fragmentBelongActivity);
         sheetBehavior = BottomSheetBehavior.from(rootView.findViewById(R.id.layout_bottom_sheet));
         showButton = rootView.findViewById(R.id.show_list_button);
         listViewSalesPoints = rootView.findViewById(R.id.list_view_sales_points);
         userLocation = rootView.findViewById(R.id.geolocalisation);
-        Log.e(TAG, "UserLocation : " + (userLocation == null));
         btnWilaya = rootView.findViewById(R.id.btn_Wilaya);
         btnVille = rootView.findViewById(R.id.btn_Ville);
-        btnSearchPerimeter = rootView.findViewById(R.id.btn_Rayon_Recherche);
-        listItemsWilaya = db.getWilayas();
-        checkedItemsWilaya = new boolean[listItemsWilaya.length];
-    }
-
-    public void initSearchView() {
         btnWilaya.setVisibility(View.GONE);
+        btnSearchPerimeter = rootView.findViewById(R.id.btn_Rayon_Recherche);
         btnSearchPerimeter.setVisibility(View.GONE);
-
-        final ProductsFragment productsFragment = implementation.getActivityProductsFragment();
-        final SearchFragment searchFragment = implementation.getActivitySearchFragment();
-
-        searchView.setOnQueryTextFocusChangeListener(new View.OnFocusChangeListener() {
-            @Override
-            public void onFocusChange(View v, boolean hasFocus) {
-                Log.e(TAG, "SearchView : OnQueryTextFocusChange");
-                //DisposableManager.dispose();
-                if (hasFocus) {
-
-                    if (showButton.getVisibility() != View.GONE)
-                        showButton.setVisibility(View.GONE);
-                    if (btnWilaya != null) btnWilaya.setVisibility(View.GONE);
-                    if (btnVille != null) btnVille.setVisibility(View.GONE);
-                    if (btnSearchPerimeter != null) btnSearchPerimeter.setVisibility(View.GONE);
-                    if (sheetBehavior != null) sheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
-                    if (listViewSalesPoints != null) listViewSalesPoints.setVisibility(View.GONE);
-                    if (userLocation != null) userLocation.setVisibility(View.GONE);
-                    if (productsFragment.isAdded()) {
-                        getChildFragmentManager()
-                                .beginTransaction()
-                                .remove(productsFragment)
-                                .commit();
-                    }
-                    if (!searchFragment.isVisible()) {
-                        Log.e(TAG, "Setting SearchFragment");
-                        getChildFragmentManager()
-                                .beginTransaction()
-                                .add(R.id.map_frame_layout, searchFragment, Constantes.FRAGMENT_SEARCH)
-                                .addToBackStack(null)
-                                .commit();
-                        if (getChildFragmentManager().findFragmentByTag(Constantes.FRAGMENT_SEARCH) != null)
-                            searchFragment.refreshHistory();
-                    }
-                }
-            }
-        });
-
-
-        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-            @Override
-            public boolean onQueryTextSubmit(String query) {
-                Log.e(TAG, "SearchView : OnQueryTextSubmit");
-                if (getChildFragmentManager().findFragmentByTag(Constantes.FRAGMENT_SEARCH) != null) {
-                    searchFragment.addToHistorySearches(query);
-                    searchFragment.refreshHistory();
-                    searchQuery(query);
-                }
-                return false;
-            }
-
-            @Override
-            public boolean onQueryTextChange(String newText) {
-                Log.e(TAG, "SearchView : OnQueryTextChange");
-                return false;
-            }
-        });
+        ArrayList<String> wilayaNames = new ArrayList<>();
+        for (Wilaya wilaya : Wilaya.Data()) wilayaNames.add(wilaya.getWilayaName());
+        listItemsWilaya = new String[wilayaNames.size()];
+        listItemsWilaya = wilayaNames.toArray(listItemsWilaya);
+        checkedItemsWilaya = new boolean[Wilaya.Data().size()];
     }
 
     public void initUserLocation() {
@@ -322,7 +287,6 @@ public class FragmentMap extends Fragment  implements OnMapReadyCallback {
 
                 @Override
                 public void onClick(View view) {
-
                     SharedPreferences preferences = fragmentBelongActivity.getSharedPreferences(Constantes.SHARED_PREFERENCES_POSITION, MODE_PRIVATE);
                     String sUserLatitude = preferences.getString(Constantes.SHARED_PREFERENCES_POSITION_LATITUDE, null);
                     String sUserLongitude = preferences.getString(Constantes.SHARED_PREFERENCES_POSITION_LONGITUDE, null);
@@ -339,10 +303,13 @@ public class FragmentMap extends Fragment  implements OnMapReadyCallback {
                     if (sUserPosition != null) userPosition = sUserPosition;
                     if (userPosition != null) {
                         if (defaultMarker != null) defaultMarker.remove();
-                                userMarker = mMap.addMarker(new MarkerOptions().
-                                position(userPosition).
-                                title(getResources().getString((Utils.isNetworkAvailable(fragmentBelongActivity) ? R.string.your_position : R.string.last_known_position))).
-                                icon(BitmapDescriptorFactory.fromResource(R.drawable.marker_blue)));
+                               if (userMarker != null) userMarker.setPosition(userPosition);
+                               else {
+                                   userMarker = mMap.addMarker(new MarkerOptions().
+                                           position(userPosition).
+                                           title(getResources().getString((Utils.isNetworkAvailable(fragmentBelongActivity) ? R.string.your_position : R.string.last_known_position))).
+                                           icon(BitmapDescriptorFactory.fromResource(R.drawable.marker_blue)));
+                               }
 
                         mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(userPosition, FragmentMap.ZOOM_LEVEL));
                     } else {
@@ -351,6 +318,7 @@ public class FragmentMap extends Fragment  implements OnMapReadyCallback {
                                 position(defaultPosition).
                                 title(getResources().getString(R.string.default_marker_title)).
                                 icon(BitmapDescriptorFactory.fromResource(R.drawable.marker_blue)));
+                        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(defaultPosition, FragmentMap.ZOOM_LEVEL));
                     }
                 }
             });
@@ -358,11 +326,11 @@ public class FragmentMap extends Fragment  implements OnMapReadyCallback {
     }
 
     public void searchQuery(@NonNull String query) {
-        if (Utils.isNetworkAvailable(fragmentBelongActivity)) {
+            implementation.iconifySearchView();
             ProductsFragment productsFragment = implementation.getActivityProductsFragment();
             SearchFragment searchFragment = implementation.getActivitySearchFragment();
-            searchView.clearFocus();
-             getChildFragmentManager()
+            productsFragment.clearProductsFragment();
+            getChildFragmentManager()
                     .beginTransaction()
                     .add(R.id.map_frame_layout, productsFragment, Constantes.FRAGMENT_PRODUCTS)
                     .addToBackStack(null)
@@ -370,16 +338,14 @@ public class FragmentMap extends Fragment  implements OnMapReadyCallback {
                     .addToBackStack(null)
                     .commit();
             PfeRx.searchFromQuery(fragmentBelongActivity, query);
-        } else {
-            Toast.makeText(fragmentBelongActivity, getString(R.string.no_internet), Toast.LENGTH_LONG).show();
-        }
     }
 
     public void onCategorySelected(int category) {
         if (Utils.isNetworkAvailable(fragmentBelongActivity)) {
+            implementation.iconifySearchView();
             SearchFragment searchFragment = implementation.getActivitySearchFragment();
             ProductsFragment productsFragment = implementation.getActivityProductsFragment();
-            clearSearchViewFocus();
+            productsFragment.clearProductsFragment();
             getChildFragmentManager()
                     .beginTransaction()
                     .add(R.id.map_frame_layout, productsFragment, Constantes.FRAGMENT_PRODUCTS)
@@ -405,7 +371,7 @@ public class FragmentMap extends Fragment  implements OnMapReadyCallback {
                     .remove(productsFragment)
                     .addToBackStack(null)
                     .commit();
-            PfeRx.searchFromProductId(fragmentBelongActivity, productBarcode);
+            PfeRx.searchFromProductBarcode(fragmentBelongActivity, productBarcode);
             hideWilayaAndPerimeter();
         } else {
             Toast.makeText(fragmentBelongActivity, getResources().getString(R.string.no_internet), Toast.LENGTH_LONG).show();
@@ -413,7 +379,7 @@ public class FragmentMap extends Fragment  implements OnMapReadyCallback {
     }
 
     public void addUserMarkerPosition(final boolean zoom) {
-        if (Utils.checkPermission(fragmentBelongActivity)) {
+        if (Utils.checkGPSPermission(fragmentBelongActivity)) {
             if (Utils.isGPSActivated(fragmentBelongActivity)) {
                 mFusedLocationClient = LocationServices.getFusedLocationProviderClient(fragmentBelongActivity);
                 mFusedLocationClient.getLastLocation()
@@ -421,13 +387,13 @@ public class FragmentMap extends Fragment  implements OnMapReadyCallback {
                             @Override
                             public void onSuccess(Location location) {
                                 if (location != null) {
-                                    Log.e(TAG, "Updating position.");
+                                    Log.e(TAG, "AddUserMarkerPosition:Updating position.");
                                     if (currentLocation == null) currentLocation = location;
                                     if (location.getAccuracy() > currentLocation.getAccuracy()) {
-                                        Log.e(TAG, "Bad Accuracy, do nothing.");
+                                        Log.e(TAG, "AddUserMarkerPosition:Bad Accuracy, do nothing.");
                                         return;
                                     }
-                                    Log.e(TAG, "Good Accuracy.");
+                                    Log.e(TAG, "AddUserMarkerPosition: Good Accuracy.");
 
                                     currentLocation = location;
 
@@ -438,6 +404,7 @@ public class FragmentMap extends Fragment  implements OnMapReadyCallback {
                                     if (defaultMarker != null) defaultMarker.remove();
                                     if (userMarker != null) {
                                         userMarker.setPosition(userPosition);
+                                        Log.e(TAG, "AddUserMarkerPosition: set position.");
                                     }
                                     else {
                                         userMakerOptions =  new MarkerOptions().
@@ -446,6 +413,7 @@ public class FragmentMap extends Fragment  implements OnMapReadyCallback {
                                                 icon(BitmapDescriptorFactory.fromResource(R.drawable.marker_blue));
 
                                         userMarker= mMap.addMarker(userMakerOptions);
+                                        Log.e(TAG, "AddUserMarkerPosition: AddMarker.");
                                     }
                                     SharedPreferences.Editor editor =
                                             fragmentBelongActivity.getSharedPreferences(Constantes.SHARED_PREFERENCES_POSITION, MODE_PRIVATE).edit();
@@ -454,10 +422,16 @@ public class FragmentMap extends Fragment  implements OnMapReadyCallback {
                                     editor.apply();
                                     if (zoom) mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(userPosition, FragmentMap.ZOOM_LEVEL));
                                 } else {
+                                    Log.e(TAG, "AddUserMarkerPosition: Else location null.");
                                     if (userPosition != null) {
-                                        userMarker = mMap.addMarker(new MarkerOptions().position(userPosition)
-                                                .title(getResources().getString(R.string.last_known_position))
-                                                .icon(BitmapDescriptorFactory.fromResource(R.drawable.marker_blue)));
+                                        if (userMarker != null) userMarker.setPosition(userPosition);
+                                        else {
+                                            userMarker = mMap.addMarker(new MarkerOptions().position(userPosition)
+                                                    .title(getResources().getString(R.string.last_known_position))
+                                                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.marker_blue)));
+                                        }
+
+                                        if (zoom) mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(userPosition, FragmentMap.ZOOM_LEVEL));
                                     }
                                 }
                             }
@@ -465,16 +439,20 @@ public class FragmentMap extends Fragment  implements OnMapReadyCallback {
                         .addOnFailureListener(new OnFailureListener() {
                             @Override
                             public void onFailure(@NonNull Exception e) {
-                                Log.e(TAG, "Location update failure :  " + e);
+                                Log.e(TAG, "AddUserMarkerPosition: Location update failure :  " + e);
                             }
                         });
             } else {
+                Log.e(TAG, "AddUserMarkerPosition: Else gps.");
+                if (userMarker != null) userMarker.remove();
                 defaultMarker = mMap.addMarker(new MarkerOptions().position(defaultPosition)
                         .title(getResources().getString(R.string.default_marker_title))
                         .icon(BitmapDescriptorFactory.fromResource(R.drawable.marker_blue)));
                 if (zoom) mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(defaultPosition, FragmentMap.ZOOM_LEVEL));
             }
         } else {
+            Log.e(TAG, "AddUserMarkerPosition: Else authorisation.");
+            if (userMarker != null) userMarker.remove();
             defaultMarker = mMap.addMarker(new MarkerOptions().position(defaultPosition)
                     .title(getResources().getString(R.string.default_marker_title))
                     .icon(BitmapDescriptorFactory.fromResource(R.drawable.marker_blue)));
@@ -487,13 +465,8 @@ public class FragmentMap extends Fragment  implements OnMapReadyCallback {
         if (showButton.getVisibility() == View.VISIBLE) this.hasData = true;
         SearchFragment searchFragment = implementation.getActivitySearchFragment();
         if (searchFragment.isVisible()) return;
-        if (searchView.getVisibility() == View.VISIBLE) {
+        if (userLocation.getVisibility() == View.VISIBLE) {
             Log.e(TAG, "enter1");
-            searchView.animate()
-                    .translationY(searchView.getHeight())
-                    .alpha(0.0f)
-                    .setDuration(300);
-            searchView.setVisibility(View.GONE);
             if (sheetBehavior != null) sheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
             if (showButton != null) showButton.setVisibility(View.GONE);
             if (btnWilaya != null) btnWilaya.setVisibility(View.GONE);
@@ -504,11 +477,6 @@ public class FragmentMap extends Fragment  implements OnMapReadyCallback {
             if (userLocation != null) userLocation.setVisibility(View.GONE);
         } else {
             Log.e(TAG, "enter2");
-            searchView.animate()
-                    .translationY(0)
-                    .alpha(1.0f)
-                    .setDuration(300);
-            searchView.setVisibility(View.VISIBLE);
             Log.e(TAG, "UserLocation 2: " + (userLocation == null));
             if(userLocation != null) userLocation.setVisibility(View.VISIBLE);
             if (this.hasData) {
@@ -532,11 +500,9 @@ public class FragmentMap extends Fragment  implements OnMapReadyCallback {
                     case BottomSheetBehavior.STATE_HIDDEN:
                         break;
                     case BottomSheetBehavior.STATE_EXPANDED: {
-                        //btnBottomSheet.setText("Close Sheet");
                     }
                     break;
                     case BottomSheetBehavior.STATE_COLLAPSED: {
-                        //btnBottomSheet.setText("Expand Sheet");
                     }
                     break;
                     case BottomSheetBehavior.STATE_DRAGGING:
@@ -569,7 +535,7 @@ public class FragmentMap extends Fragment  implements OnMapReadyCallback {
                     .snippet(salesPoint.getSalesPointAddress());
 
             for (ProductSalesPoint productSalesPoint : Singleton.getInstance().getProductSalesPointList()) {
-                if (productSalesPoint.getSalespointId().equals(salesPoint.getSalesPointId())) {
+                if (productSalesPoint.getSalesPointId().equals(salesPoint.getSalesPointId())) {
                     if (productSalesPoint.getProductQuantity() > 0) {
                         markerOptions.icon(BitmapDescriptorFactory.fromResource(R.drawable.marker_green));
                     } else {
@@ -685,8 +651,8 @@ public class FragmentMap extends Fragment  implements OnMapReadyCallback {
             @Override
             public void onClick(View view) {
                 if (!Utils.isGPSActivated(fragmentBelongActivity)) {
-                    if (!Utils.checkPermission(fragmentBelongActivity)) {
-                        Utils.requestGPSPermissions(fragmentBelongActivity);
+                    if (!Utils.checkGPSPermission(fragmentBelongActivity)) {
+                        Utils.requestGPSPermission(fragmentBelongActivity);
                     } else {
                         Utils.activateGPS(fragmentBelongActivity);
                     }
@@ -892,10 +858,6 @@ public class FragmentMap extends Fragment  implements OnMapReadyCallback {
         });
     }
 
-    public void clearSearchViewFocus() {
-        searchView.clearFocus();
-    }
-
     public void hideWilayaAndPerimeter() {
         btnWilaya.setVisibility(View.VISIBLE);
         btnSearchPerimeter.setVisibility(View.VISIBLE);
@@ -980,10 +942,55 @@ public class FragmentMap extends Fragment  implements OnMapReadyCallback {
        // getChildFragmentManager().popBackStack(Constantes.FRAGMENT_PRODUCTS, FragmentManager.POP_BACK_STACK_INCLUSIVE);
     }
 
+    public void resetUserMarker() {
+        userMarker = null;
+        defaultMarker = null;
+        currentLocation = null;
+        addUserMarkerPosition(false);
+    }
+
     public boolean hasData() {
         return (hasData || (showButton.getVisibility() == View.VISIBLE));
     }
 
+    public void onSearchViewFocus() {
+        final ProductsFragment productsFragment = implementation.getActivityProductsFragment();
+        final SearchFragment searchFragment = implementation.getActivitySearchFragment();
+
+        if (showButton.getVisibility() != View.GONE)
+            showButton.setVisibility(View.GONE);
+        if (btnWilaya != null) btnWilaya.setVisibility(View.GONE);
+        if (btnVille != null) btnVille.setVisibility(View.GONE);
+        if (btnSearchPerimeter != null) btnSearchPerimeter.setVisibility(View.GONE);
+        if (sheetBehavior != null) sheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
+        if (listViewSalesPoints != null) listViewSalesPoints.setVisibility(View.GONE);
+        if (userLocation != null) userLocation.setVisibility(View.GONE);
+        if (productsFragment.isAdded()) {
+            getChildFragmentManager()
+                    .beginTransaction()
+                    .remove(productsFragment)
+                    .commit();
+        }
+        if (!searchFragment.isVisible()) {
+            Log.e(TAG, "Setting SearchFragment");
+            getChildFragmentManager()
+                    .beginTransaction()
+                    .add(R.id.map_frame_layout, searchFragment, Constantes.FRAGMENT_SEARCH)
+                    .addToBackStack(null)
+                    .commit();
+            if (getChildFragmentManager().findFragmentByTag(Constantes.FRAGMENT_SEARCH) != null)
+                searchFragment.refreshHistory();
+        }
+    }
+
+    public void submitSearchQuery(final String searchQuery) {
+        final SearchFragment searchFragment = implementation.getActivitySearchFragment();
+        if (getChildFragmentManager().findFragmentByTag(Constantes.FRAGMENT_SEARCH) != null) {
+            searchFragment.addToHistorySearches(searchQuery);
+            searchFragment.refreshHistory();
+            searchQuery(searchQuery);
+        }
+    }
     private class GPSLocationListener implements android.location.LocationListener {
         @Override
         public void onLocationChanged(Location location) {
@@ -1023,7 +1030,6 @@ public class FragmentMap extends Fragment  implements OnMapReadyCallback {
 
                         userMarker = mMap.addMarker(userMakerOptions);
                     }
-                    mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(userPosition, FragmentMap.ZOOM_LEVEL));
                 }
                 SharedPreferences.Editor editor =
                         fragmentBelongActivity.getSharedPreferences(Constantes.SHARED_PREFERENCES_POSITION,MODE_PRIVATE).edit();
@@ -1054,5 +1060,12 @@ public class FragmentMap extends Fragment  implements OnMapReadyCallback {
 
         ProductsFragment getActivityProductsFragment();
         SearchFragment getActivitySearchFragment();
+        FragmentMap getActivityFragmentMap();
+
+        void iconifySearchView();
+        void openSearchView();
+        void checkGoToSearchFragment();
+        void checkSearchProductBarcode();
+        void setToolbarTitleForFragmentMap();
     }
 }

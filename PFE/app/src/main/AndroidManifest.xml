@@ -6,7 +6,9 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.CAMERA" />
 
+    <uses-feature android:name="android.hardware.camera.autofocus" />
     <uses-feature android:name="android.hardware.location.gps" />
 
     <application
@@ -55,15 +57,23 @@
             android:name=".activities.ItineraireActivity"
             android:theme="@style/AppTheme.Dark"
             />
+        <activity
+            android:name=".activities.DescriptiveActivity"
+            android:theme="@style/AppTheme.Dark"
+            />
+        <activity
+            android:name=".activities.DescSalesPointActivity"
+            android:theme="@style/AppTheme.Dark"
+            />
 
         <service
-            android:name=".models.MyFirebaseMessagingService">
+            android:name=".services.MyFirebaseMessagingService">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT"/>
             </intent-filter>
         </service>
         <service
-            android:name=".models.MyFirebaseInstanceIdService">
+            android:name=".services.MyFirebaseInstanceIdService">
             <intent-filter>
                 <action android:name="com.google.firebase.INSTANCE_ID_EVENT"/>
             </intent-filter>

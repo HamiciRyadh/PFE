@@ -99,13 +99,14 @@ public class AuthenticationFilter implements javax.ws.rs.container.ContainerRequ
         //Access the database and do this part yourself
         //String userRole = userMgr.getUserRole(mailAddress);
                  
-        String encryptedPassword = "";
+        String encryptedPassword = null;
         try {
 			encryptedPassword = Encryption.sha1(password);
 		} catch (NoSuchAlgorithmException e) {
 			e.printStackTrace();
 			return false;
 		}
+        if (encryptedPassword == null) return false;
         String userRole = null;
         try {
         	if (Access.adminExists(mailAddress, encryptedPassword)) {

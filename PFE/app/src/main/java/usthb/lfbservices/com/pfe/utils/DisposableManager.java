@@ -34,9 +34,7 @@ public class DisposableManager {
      * This methods disposes of all the Disposables objects
      */
     public static void dispose() {
-        Log.e(TAG, "Before Dispose");
         getCompositeDisposable().dispose();
-        Log.e(TAG,"After Dispose");
     }
 
     /**

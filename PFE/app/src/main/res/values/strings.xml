@@ -26,6 +26,14 @@
     <string name="chose_start_point">Choisir un point de départ</string>
     <string name="chose_destination_point">Choisir une destination</string>
     <string name="nothing_match_filters">Aucun élément ne correspond aux filtres définis.</string>
+    <string name="cancel">Annuler</string>
+    <string name="notification_added">Notification ajoutée.</string>
+    <string name="saving_informations">Sauvegarde des informations.</string>
+    <string name="product">Produit</string>
+    <string name="sales_point">Point de vente</string>
+    <string name="category">Catégorie</string>
+    <string name="caracteristics">Caractéristiques</string>
+    <string name="scan_barcode">Scanner le code barre</string>
 
     <!-- Hints -->
     <string name="hint_mail_address">Adresse email</string>
@@ -60,6 +68,10 @@
     <string name="empty_history">Aucun élément.</string>
     <string name="no_gps_use_last_position">GPS Désactivé, utilisation de la dernière position connue.</string>
     <string name="no_gps_default_position">GPS Désactivé, utilisation de la position par défaut.</string>
+    <string name="no_product_saved">Aucun produit sauvegardé.</string>
+    <string name="no_salespoint">Ce produit n\'est plus commercialisé par les points de vente sauvegardé.</string>
+    <string name="no_salespoint_saved">Aucun point de vente sauvegardé pour ce produit.</string>
+    <string name="no_notification_saved"> Aucune notification sauvegardée</string>
 
     <!-- Progress Dialog -->
     <string name="registering_informations">Enregistrement des informations ...</string>
@@ -75,6 +87,24 @@
     <string name="about_us">A propos de nous</string>
     <string name="disconnect">Se déconnecter</string>
     <string name="connect">Se connecter</string>
+
+    <!-- Tiles -->
+    <string name="title_fragment_map">Carte</string>
+    <string name="title_fragment_favorites">Favoris</string>
+    <string name="title_fragment_notifications">Notifications</string>
+    <string name="title_fragment_parameters">Parametres</string>
+    <string name="title_fragment_search">Rechercher</string>
+    <string name="title_fragment_products">Produits</string>
+    <string name="title_fragment_barcode_scanner">Scanner</string>
+
+    <string name="clear_history"> Supprimer l\'Historique </string>
+    <string name="satellite"> Satellite </string>
+    <string name="standard"> Standard </string>
+    <string name="map_style"> Style de la carte </string>
+    <string name="turn_on_notifications"> Activer les notifications </string>
+    <string name="turn_off_notifications"> Désactiver les notifications </string>
+    <string name="dialog_history">Être vous sûr de vouloir supprimer l\'historique de recherche ?</string>
+
 
     <string name="default_notification_channel_id" translatable="false">fcm_default_channel</string>
     <string name="default_notification_channel_name" translatable="true">Information</string>
@@ -145,5 +175,8 @@
     <string name="navigation_drawer_close">Close navigation drawer</string>
 
     <string name="action_settings">Settings</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 
 </resources>

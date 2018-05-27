@@ -7,6 +7,7 @@ public class Encryption {
 	
 	
 	public static String sha1(String input) throws NoSuchAlgorithmException {
+		if (input == null) return null;
 		input.concat("r?!*$*/|`*/@|h");
         MessageDigest mDigest = MessageDigest.getInstance("SHA1");
         byte[] result = mDigest.digest(input.getBytes());

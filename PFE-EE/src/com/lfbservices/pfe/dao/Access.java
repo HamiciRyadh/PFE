@@ -8,7 +8,7 @@ import java.util.Map;
 
 import org.apache.ibatis.session.SqlSession;
 
-import com.lfbservices.pfe.model.KeyValue;
+import com.lfbservices.pfe.model.KeyValueID;
 import com.lfbservices.pfe.model.Product;
 import com.lfbservices.pfe.model.ProductSalesPoint;
 import com.lfbservices.pfe.model.SalesPoint;
@@ -96,11 +96,11 @@ public class Access {
 	}
 	
 	
-	public static List<KeyValue> getProductCaracteristic(final String productBarcode) throws SQLException, IOException {
+	public static List<KeyValueID> getProductCaracteristicID(String value) throws SQLException, IOException {
 
-		final SqlSession session = DBConnectionFactory.getNewSession();
+		SqlSession session = DBConnectionFactory.getNewSession();
 
-		final List<KeyValue> listProducts = session.selectList("QueriesProduct.getProductCaracteristic", productBarcode);
+		List<KeyValueID> listProducts = session.selectList("QueriesProduct.getProductCaracteristicID",value);
 
 		session.commit();
 		session.close();
@@ -376,6 +376,26 @@ public class Access {
 		session.close();
 
 		return rowsInserted == 1;
+	}
+	
+	public static boolean removeFromNotificationsList(final String mailAddress, final String productBarcode, final String salesPointId) {
+		
+		final int userId = Access.getUserDeviceId(mailAddress);
+		if (userId == -1) return false;
+		
+		final SqlSession session = DBConnectionFactory.getNewSession();
+				
+		final Map<String,Object> parameters = new HashMap<String,Object>();
+		parameters.put("userId", userId);
+		parameters.put("productBarcode", productBarcode);
+		parameters.put("salesPointId", salesPointId);
+		
+		int rowsDeleted = session.delete("QueriesUsers.removeFromNotificationsList", parameters);
+
+		session.commit();
+		session.close();
+
+		return rowsDeleted == 1;
 	}
 	
 	public static List<String> getDevicesIdsForNotification(final String salesPointId, final String productBarcode, final int productQuantity,

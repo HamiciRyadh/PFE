@@ -48,7 +48,7 @@ ALTER TABLE public."TypeCaracteristic"
 CREATE TABLE public."ProductCaracteristic"
 (
   type_caracteristic_id integer NOT NULL,
-  product_barcode character varying(50) NOT NULL,
+  product_barcode character varying(100) NOT NULL,
   product_caracteristic_value character varying(100) NOT NULL,
   CONSTRAINT "ProductCaracteristic_pkey" PRIMARY KEY (type_caracteristic_id, product_barcode),
   CONSTRAINT fk_type_caracteristic_id FOREIGN KEY (type_caracteristic_id)
@@ -67,7 +67,7 @@ ALTER TABLE public."ProductCaracteristic"
 
 CREATE TABLE public."Product"
 (
-  product_barcode character varying(50) NOT NULL,
+  product_barcode character varying(100) NOT NULL,
   product_name character varying(100) NOT NULL,
   product_type integer NOT NULL, 
   product_trade_mark character varying(100) NOT NULL,
@@ -141,7 +141,7 @@ ALTER TABLE public."SalesPoint"
 CREATE TABLE public."ProductSalesPoint"
 (
   sales_point_id character varying(250) NOT NULL,
-  product_barcode character varying(50) NOT NULL,
+  product_barcode character varying(100) NOT NULL,
   product_quantity integer NOT NULL,
   product_price real NOT NULL,
   CONSTRAINT pk_product_sales_point_id PRIMARY KEY (sales_point_id, product_barcode),
@@ -164,7 +164,7 @@ ALTER TABLE public."ProductSalesPoint"
 CREATE TABLE public."Notifications"
 (
   sales_point_id character varying(250) NOT NULL,
-  product_barcode character varying(50) NOT NULL,
+  product_barcode character varying(100) NOT NULL,
   notification_date_time timestamp NOT NULL,
   notification_new_quantity integer NOT NULL,
   notification_new_price real NOT NULL,
@@ -177,17 +177,4 @@ WITH (
   OIDS=FALSE
 );
 ALTER TABLE public."Notifications"
-  OWNER TO postgres;
-
-
-CREATE TABLE public."History"
-(
-  history_id SERIAL,
-  history_query character varying(100) NOT NULL,
-  CONSTRAINT "History_pkey" PRIMARY KEY (history_id)
-)
-WITH (
-  OIDS=FALSE
-);
-ALTER TABLE public."History"
   OWNER TO postgres;

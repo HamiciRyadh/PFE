@@ -1,6 +1,6 @@
 CREATE TABLE public."Product"
 (
-  product_barcode character varying(50) NOT NULL,
+  product_barcode character varying(100) NOT NULL,
   product_name character varying(100) NOT NULL,
   product_trade_mark character varying(100) NOT NULL,
   product_quantity integer NOT NULL,
@@ -12,3 +12,29 @@ WITH (
 );
 ALTER TABLE public."Product"
   OWNER TO postgres;
+
+CREATE OR REPLACE FUNCTION updateProductSalesPoint() RETURNS TRIGGER AS $updatepsp$
+    BEGIN
+  RAISE NOTICE 'BEGINNING';
+        IF (TG_OP = 'UPDATE') THEN
+            PERFORM * FROM http((
+            'POST',
+            'http://192.168.1.6:8080/PFE-EE/api/ProductSalesPoint/UpdateProductSalesPoint' ||
+            '?sales_point_id=' || 'ChIJgbWj2jyxjxIRTEiyXgwGVqA' ||
+            '&product_barcode=' || NEW.product_barcode ||
+            '&product_quantity=' || NEW.product_quantity ||
+            '&product_price=' || NEW.product_price,
+             ARRAY[http_header('Authorization','Basic bWVyY2hhbnRAbGZic2VydmljZXMuY29tOmFkbWlu')],
+             '',
+             'application/x-form-urlencoded'
+          )::http_request);
+            RAISE NOTICE 'GOOD END';
+            RETURN NEW;
+        END IF;
+        RAISE NOTICE 'BAD END';
+        RETURN NULL;
+    END;
+$updatepsp$ LANGUAGE plpgsql;
+
+CREATE TRIGGER updateProductSalesPoint
+AFTER UPDATE ON public."Product" FOR EACH ROW EXECUTE PROCEDURE updateProductSalesPoint();

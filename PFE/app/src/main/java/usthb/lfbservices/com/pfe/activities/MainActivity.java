@@ -2,31 +2,51 @@ package usthb.lfbservices.com.pfe.activities;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.MatrixCursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Paint;
-import android.media.Image;
 import android.net.Uri;
 import android.os.Bundle;
 
+import android.os.StrictMode;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomSheetBehavior;
 import android.support.design.widget.NavigationView;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.util.SparseArray;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.RatingBar;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import com.google.android.gms.vision.barcode.Barcode;
 import com.squareup.picasso.Picasso;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.net.URL;
 import java.text.DecimalFormat;
 
 import usthb.lfbservices.com.pfe.R;
+import usthb.lfbservices.com.pfe.RoomDatabase.AppRoomDatabase;
+import usthb.lfbservices.com.pfe.adapters.SuggestinAdapter;
+import usthb.lfbservices.com.pfe.fragments.FragmentBarcodeScanner;
 import usthb.lfbservices.com.pfe.fragments.FragmentFavorite;
 import usthb.lfbservices.com.pfe.fragments.FragmentMap;
 import usthb.lfbservices.com.pfe.fragments.FragmentNotifications;
@@ -45,7 +65,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         FragmentMap.MapActions, FragmentFavorite.FavoriteActions,
         FragmentNotifications.NotificationsActions, FragmentParameters.ParametersActions,
         SearchFragment.SearchFragmentActions, ProductsFragment.ProductsFragmentActions,
-        BottomSheetDataSetter {
+        FragmentBarcodeScanner.BarcodeScannerActions, BottomSheetDataSetter {
 
     private static final String TAG = MainActivity.class.getName();
 
@@ -55,13 +75,18 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private FragmentParameters fragmentParameters;
     private SearchFragment searchFragment;
     private ProductsFragment productsFragment;
+    private FragmentBarcodeScanner fragmentBarcodeScanner;
     private Fragment currentFragment;
+    private AppRoomDatabase db;
+    private SearchView searchView;
+    private MenuItem myActionMenuItem;
 
     private Toolbar toolbar;
-    private DrawerLayout drawer;
     private NavigationView navigationView;
 
-    private int lastCheckedMenuItem;
+    private boolean goToSearchFragment = false;
+    private boolean searchProductBarcode = false;
+    private String productBarcodeTemps;
 
 
     @Override
@@ -75,13 +100,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 .add(R.id.frame_layout, fragmentMap, Constantes.FRAGMENT_MAP)
                 .commit();
         currentFragment = fragmentMap;
-        lastCheckedMenuItem = 0;
         initVariables();
+        navigationView.setItemIconTintList(null);
 
-        SharedPreferences preferences = getSharedPreferences(Constantes.SHARED_PREFERENCES_USER,MODE_PRIVATE);
-        String mailAddress = preferences.getString(Constantes.SHARED_PREFERENCES_USER_EMAIL, null);
-        String password = preferences.getString(Constantes.SHARED_PREFERENCES_USER_PASSWORD, null);
-        if (mailAddress != null && password != null) {
+        if (Utils.isUserConnected(MainActivity.this)) {
             navigationView.getMenu().getItem(4).setTitle(R.string.disconnect);
         }
     }
@@ -99,38 +121,145 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         DrawerLayout drawer =  findViewById(R.id.draweer_layout);
         if (drawer != null && drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
-        } else {
-            if (getSupportFragmentManager().findFragmentByTag(Constantes.FRAGMENT_MAP) != null) {
-                Log.e(TAG, "MapFragment");
-                if (searchFragment.isVisible()) {
-                    Log.e(TAG, "SearchFragment");
-                    fragmentMap.hideSearchFragment();
-                } else if (productsFragment.isVisible()) {
-                    Log.e(TAG, "ProductFragment");
-                    fragmentMap.popSearchFragment();
-                } else if (fragmentMap.hasData()) {
-                    Log.e(TAG, "HasData");
-                    fragmentMap.popProductsFragment();
-                } else {
-                    Log.e(TAG, "No SearchFragment, backpressed");
-                    fragmentMap.onBackPressed();
-                    super.onBackPressed();
-                }
+        } else if ((getSupportFragmentManager().findFragmentByTag(Constantes.FRAGMENT_BARCODE_SCANNER) != null) ||
+                (getSupportFragmentManager().findFragmentByTag(Constantes.FRAGMENT_FAVORITE) != null) ||
+                (getSupportFragmentManager().findFragmentByTag(Constantes.FRAGMENT_NOTIFICATIONS) != null) ||
+                (getSupportFragmentManager().findFragmentByTag(Constantes.FRAGMENT_PARAMETERS) != null)) {
+            getSupportFragmentManager()
+                    .beginTransaction()
+                    .remove(currentFragment)
+                    .add(R.id.frame_layout, fragmentMap, Constantes.FRAGMENT_MAP)
+                    .commit();
+            currentFragment = fragmentMap;
+            ActionBar supportActionBar = getSupportActionBar();
+            if (supportActionBar != null) supportActionBar.show();
+        } else if (getSupportFragmentManager().findFragmentByTag(Constantes.FRAGMENT_MAP) != null) {
+            Log.e(TAG, "MapFragment");
+            if (searchFragment.isVisible()) {
+                Log.e(TAG, "SearchFragment");
+                fragmentMap.hideSearchFragment();
+            } else if (productsFragment.isVisible()) {
+                Log.e(TAG, "ProductFragment");
+                fragmentMap.popSearchFragment();
+            } else if (fragmentMap.hasData()) {
+                Log.e(TAG, "HasData");
+                fragmentMap.popProductsFragment();
             } else {
+                Log.e(TAG, "No SearchFragment, backpressed");
+                fragmentMap.onBackPressed();
                 super.onBackPressed();
             }
+        } else {
+            super.onBackPressed();
         }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_bar, menu);
+
+        myActionMenuItem = menu.findItem(R.id.action_search);
+        final MenuItem barcodeScanner = menu.findItem(R.id.action_barcode);
+        barcodeScanner.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                Log.e(TAG, "Redirecting to barcode scanner");
+                if (getSupportFragmentManager().findFragmentByTag(Constantes.FRAGMENT_BARCODE_SCANNER) == null) {
+                    DisposableManager.dispose();
+                    getSupportFragmentManager()
+                            .beginTransaction()
+                            .remove(currentFragment)
+                            .add(R.id.frame_layout, fragmentBarcodeScanner, Constantes.FRAGMENT_BARCODE_SCANNER)
+                            .commit();
+                    currentFragment = fragmentBarcodeScanner;
+                    ActionBar supportActionBar = getSupportActionBar();
+                    if (supportActionBar != null) supportActionBar.hide();
+                }
+                return false;
+            }
+        });
+
+        searchView = (SearchView) myActionMenuItem.getActionView();
+        String[] columns = new String[] {"_id", "prop"};
+
+        MatrixCursor matrixCursor= new MatrixCursor(columns);
+        startManagingCursor(matrixCursor);
+
+        matrixCursor.addRow(new Object[] {1, "probook 450"});
+
+        SuggestinAdapter suggestinAdapter = new SuggestinAdapter(this, matrixCursor, searchView);
+        searchView.setSuggestionsAdapter(suggestinAdapter);
+        searchView.setOnSuggestionListener(new SearchView.OnSuggestionListener() {
+            @Override
+            public boolean onSuggestionSelect(int position) {
+                Log.e(TAG, "OnSuggestionSelect");
+                return false;
+            }
+
+            @Override
+            public boolean onSuggestionClick(int position) {
+                Log.e(TAG, "OnSuggestionClick");
+                return false;
+            }
+        });
+
+        searchView.setOnCloseListener(new SearchView.OnCloseListener() {
+            @Override
+            public boolean onClose() {
+                Log.e(TAG, "OnClose");
+                return false;
+            }
+        });
+        searchView.setOnQueryTextFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                Log.e(TAG, "Focus : " + hasFocus);
+                if (hasFocus) {
+                    if (getSupportFragmentManager().findFragmentByTag(Constantes.FRAGMENT_MAP) == null) {
+                        DisposableManager.dispose();
+                        getSupportFragmentManager()
+                                .beginTransaction()
+                                .remove(currentFragment)
+                                .add(R.id.frame_layout, fragmentMap, Constantes.FRAGMENT_MAP)
+                                .commit();
+                        currentFragment = fragmentMap;
+                        goToSearchFragment = true;
+                    } else {
+                        fragmentMap.onSearchViewFocus();
+                    }
+                }
+            }
+        });
+
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                Log.e(TAG, "QueryTextSubmit");
+                if(!searchView.isIconified()) {
+                    searchView.setIconified(true);
+                }
+                myActionMenuItem.collapseActionView();
+                if (fragmentMap != null) fragmentMap.submitSearchQuery(query);
+                return false;
+            }
+            @Override
+            public boolean onQueryTextChange(String s) {
+                Log.e(TAG, "QueryTextChange");
+                return false;
+            }
+        });
+        return true;
     }
 
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
-    public boolean onNavigationItemSelected(MenuItem item) {
+    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         int id = item.getItemId();
+        item.setChecked(false);
 
         switch (id) {
             case R.id.nav_home : {
                 if (getSupportFragmentManager().findFragmentByTag(Constantes.FRAGMENT_MAP) == null) {
-                    lastCheckedMenuItem = 0;
                     DisposableManager.dispose();
                     getSupportFragmentManager()
                             .beginTransaction()
@@ -144,11 +273,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             case R.id.nav_favorite : {
                 if (getSupportFragmentManager().findFragmentByTag(Constantes.FRAGMENT_FAVORITE) == null) {
                     if (!Utils.isUserConnected(MainActivity.this)) {
-                        navigationView.getMenu().getItem(lastCheckedMenuItem).setChecked(true);
                         Utils.showConnectDialog(MainActivity.this);
                     } else {
                         if (currentFragment == fragmentMap) fragmentMap.removeFragments();
-                        lastCheckedMenuItem = 1;
                         DisposableManager.dispose();
                         getSupportFragmentManager()
                                 .beginTransaction()
@@ -163,11 +290,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             case R.id.nav_notifications : {
                 if (getSupportFragmentManager().findFragmentByTag(Constantes.FRAGMENT_NOTIFICATIONS) == null) {
                     if (!Utils.isUserConnected(MainActivity.this)) {
-                        navigationView.getMenu().getItem(lastCheckedMenuItem).setChecked(true);
                         Utils.showConnectDialog(MainActivity.this);
                     } else {
                         if (currentFragment == fragmentMap) fragmentMap.removeFragments();
-                        lastCheckedMenuItem = 2;
                         DisposableManager.dispose();
                         getSupportFragmentManager()
                                 .beginTransaction()
@@ -182,7 +307,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             case R.id.nav_parameters : {
                 if (getSupportFragmentManager().findFragmentByTag(Constantes.FRAGMENT_PARAMETERS) == null) {
                     if (currentFragment == fragmentMap) fragmentMap.removeFragments();
-                    lastCheckedMenuItem = 3;
                     DisposableManager.dispose();
                     getSupportFragmentManager()
                             .beginTransaction()
@@ -201,7 +325,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                             .remove(Constantes.SHARED_PREFERENCES_USER_PASSWORD)
                             .apply();
                     navigationView.getMenu().getItem(4).setTitle(R.string.connect);
-                    navigationView.getMenu().getItem(0).setChecked(true);
                     final String deviceId = Utils.getStoredFirebaseTokenId(MainActivity.this);
                     PfeRx.removeFirebaseTokenId(deviceId);
                 } else {
@@ -220,12 +343,21 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     @Override
     public void onCategorySelected(int category) {
-        fragmentMap.onCategorySelected(category);
+        if (Utils.isNetworkAvailable(MainActivity.this)) {
+            fragmentMap.onCategorySelected(category);
+        } else {
+            Toast.makeText(MainActivity.this, getString(R.string.no_internet), Toast.LENGTH_LONG).show();
+        }
     }
 
     @Override
     public void onProductSelected(final String productBarcode) {
-        fragmentMap.onProductSelected(productBarcode);
+        if (Utils.isNetworkAvailable(MainActivity.this)) {
+            setToolbarTitleForFragmentMap();
+            fragmentMap.onProductSelected(productBarcode);
+        } else {
+            Toast.makeText(MainActivity.this, getString(R.string.no_internet), Toast.LENGTH_LONG).show();
+        }
     }
 
     @Override
@@ -233,12 +365,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         final TextView nameTextView = findViewById(R.id.sales_point_name_details);
         final TextView quantityTextView = findViewById(R.id.product_qte_marker);
         final TextView priceTextView = findViewById(R.id.product_price_marker);
-        final ImageView notifyMe = findViewById(R.id.notify_me);
-        final ImageView addToFavorite = findViewById(R.id.add_to_favorite);
+        final ImageButton notifyMe = findViewById(R.id.notify_me);
+        final ImageButton addToFavorite = findViewById(R.id.add_to_favorite);
 
         if (nameTextView != null) nameTextView.setText(salesPoint.getSalesPointName());
-        if (quantityTextView != null) quantityTextView.setText(""+productSalesPoint.getProductQuantity());
-        if (priceTextView != null) priceTextView.setText(""+productSalesPoint.getProductPrice());
+        if (quantityTextView != null) quantityTextView.setText(String.valueOf(productSalesPoint.getProductQuantity()));
+        if (priceTextView != null) priceTextView.setText(String.format("%.2f DA",productSalesPoint.getProductPrice()));
 
         if (notifyMe != null) {
             notifyMe.setOnClickListener(new View.OnClickListener() {
@@ -248,6 +380,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         Utils.showConnectDialog(MainActivity.this);
                     } else {
                         PfeRx.addToNotificationsList(salesPoint.getSalesPointId(), productSalesPoint.getProductBarcode());
+                        Snackbar.make(findViewById(R.id.map_views_layout),getResources().getString(R.string.notification_added), Snackbar.LENGTH_LONG)
+                                .setAction(getResources().getString(R.string.cancel), new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View view) {
+                                        PfeRx.removeFromNotificationsList(salesPoint.getSalesPointId(), productSalesPoint.getProductBarcode());
+                                    }
+                                })
+                                .setActionTextColor(getResources().getColor(R.color.colorPrimary))
+                                .show();
                     }
                 }
             });
@@ -260,7 +401,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     if (!Utils.isUserConnected(MainActivity.this)) {
                         Utils.showConnectDialog(MainActivity.this);
                     } else {
-                        //TODO: Insert code here
+                        db = AppRoomDatabase.getInstance(MainActivity.this);
+                        PfeRx.getProductDetails(MainActivity.this, productSalesPoint);
+                        if (!db.salesPointDao().salesPointExists(salesPoint.getSalesPointId())) db.salesPointDao().insert(salesPoint);
+                        addPhoto(salesPoint.getSalesPointPhotoReference());
+                        Snackbar.make(findViewById(R.id.map_views_layout), getResources().getString(R.string.saving_informations),Snackbar.LENGTH_LONG).show();
                     }
                 }
             });
@@ -338,7 +483,69 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     @Override
     public void searchQuery(@NonNull String query) {
-        fragmentMap.searchQuery(query);
+        if (Utils.isNetworkAvailable(MainActivity.this)) {
+            fragmentMap.searchQuery(query);
+        } else {
+            Toast.makeText(MainActivity.this, getString(R.string.no_internet), Toast.LENGTH_LONG).show();
+        }
+    }
+
+    public void setSearchViewQuery(final String query) {
+        if (searchView != null) {
+            if(searchView.isIconified()) {
+                searchView.setIconified(false);
+            }
+            myActionMenuItem.expandActionView();
+            searchView.setQuery(query, false);
+        }
+    }
+
+    @Override
+    public void iconifySearchView() {
+        if(!searchView.isIconified()) {
+            searchView.setIconified(true);
+        }
+        myActionMenuItem.collapseActionView();
+    }
+
+    @Override
+    public void openSearchView() {
+        if(searchView.isIconified()) {
+            searchView.setIconified(false);
+        }
+    }
+
+    @Override
+    public void onBarcodeScanFinished(final SparseArray<Barcode> barcodes) {
+        Log.e(TAG, "BarcodeScanFinished");
+        //TODO: Add rx call here
+        productBarcodeTemps = barcodes.valueAt(0).rawValue;
+        Log.e(TAG, "Value " + productBarcodeTemps);
+        MainActivity.this.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if (getSupportFragmentManager().findFragmentByTag(Constantes.FRAGMENT_MAP) == null) {
+                    DisposableManager.dispose();
+                    getSupportFragmentManager()
+                            .beginTransaction()
+                            .remove(currentFragment)
+                            .add(R.id.frame_layout, fragmentMap, Constantes.FRAGMENT_MAP)
+                            .commit();
+                    currentFragment = fragmentMap;
+                    searchProductBarcode = true;
+                } else {
+                    fragmentMap.onProductSelected(productBarcodeTemps);
+                }
+            }
+        });
+    }
+
+    @Override
+    public void checkSearchProductBarcode() {
+        if (searchProductBarcode) {
+            searchProductBarcode = false;
+            fragmentMap.onProductSelected(productBarcodeTemps);
+        }
     }
 
     public void initFragments() {
@@ -348,13 +555,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         fragmentParameters = new FragmentParameters();
         searchFragment = new SearchFragment();
         productsFragment = new ProductsFragment();
+        fragmentBarcodeScanner = FragmentBarcodeScanner.newInstance();
     }
 
     public void initVariables() {
         toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        drawer =  findViewById(R.id.draweer_layout);
+        DrawerLayout drawer =  findViewById(R.id.draweer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.addDrawerListener(toggle);
@@ -363,6 +571,44 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         navigationView =  findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
     }
+
+    @Override
+    public void checkGoToSearchFragment() {
+        if (goToSearchFragment) {
+            goToSearchFragment = false;
+            fragmentMap.onSearchViewFocus();
+        }
+    }
+
+    public void setToolbarTitle(final String title) {
+        if (toolbar != null) toolbar.setTitle(title);
+    }
+
+    public void addPhoto( String photoReference)
+    {
+        int SDK_INT = android.os.Build.VERSION.SDK_INT;
+        if (SDK_INT > 8)
+        {
+            StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder()
+                    .permitAll().build();
+            StrictMode.setThreadPolicy(policy);
+
+            try {
+                URL url = new URL(Utils.buildGooglePictureUri(MainActivity.this, photoReference).toString());
+                Bitmap bitmap= BitmapFactory.decodeStream(url.openConnection().getInputStream());
+                ByteArrayOutputStream stream = new ByteArrayOutputStream();
+                bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
+                byte[] byteArray = stream.toByteArray();
+                bitmap.recycle();
+                db = AppRoomDatabase.getInstance(MainActivity.this);
+                db.salesPointDao().update(byteArray);
+
+            } catch(IOException e) {
+                Log.e(TAG, "image " +e );
+            }
+        }
+    }
+
 
     @Override
     public ProductsFragment getActivityProductsFragment() {
@@ -374,4 +620,43 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         return searchFragment;
     }
 
+    @Override
+    public FragmentMap getActivityFragmentMap() {
+        return fragmentMap;
+    }
+
+    @Override
+    public void setToolbarTitleForFragmentFavorite() {
+        setToolbarTitle(getResources().getString(R.string.title_fragment_favorites));
+    }
+
+    @Override
+    public void setToolbarTitleForFragmentNotifications() {
+        setToolbarTitle(getResources().getString(R.string.title_fragment_notifications));
+    }
+
+    @Override
+    public void setToolbarTitleForFragmentBarcodeScanner() {
+        setToolbarTitle(getResources().getString(R.string.title_fragment_barcode_scanner));
+    }
+
+    @Override
+    public void setToolbarTitleForSearchFragment() {
+        setToolbarTitle(getResources().getString(R.string.title_fragment_search));
+    }
+
+    @Override
+    public void setToolbarTitleForProductFragment() {
+        setToolbarTitle(getResources().getString(R.string.title_fragment_products));
+    }
+
+    @Override
+    public void setToolbarTitleForFragmentParameters() {
+        setToolbarTitle(getResources().getString(R.string.title_fragment_parameters));
+    }
+
+    @Override
+    public void setToolbarTitleForFragmentMap() {
+        setToolbarTitle(getResources().getString(R.string.title_fragment_map));
+    }
 }

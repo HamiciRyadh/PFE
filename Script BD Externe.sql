@@ -14,7 +14,7 @@ ALTER TABLE public."Category"
 CREATE TABLE public."Type"
 (
   type_id SERIAL,
-  type_name character varying(100) NOT NULL,
+  type_name character varying(100) NOT NULL, #UNIQUE
   category_id integer NOT NULL,
   CONSTRAINT "Type_pkey" PRIMARY KEY (type_id),
   CONSTRAINT fk_category FOREIGN KEY (category_id)
@@ -64,7 +64,7 @@ ALTER TABLE public."TypeCaracteristic"
 
 CREATE TABLE public."Product"
 (
-  product_barcode character varying(50) NOT NULL,
+  product_barcode character varying(100) NOT NULL,
   product_name character varying(100) NOT NULL,
   product_type integer NOT NULL, 
   product_trade_mark character varying(100) NOT NULL,
@@ -83,7 +83,7 @@ ALTER TABLE public."Product"
 CREATE TABLE public."ProductCaracteristic"
 (
   type_caracteristic_id integer NOT NULL,
-  product_barcode character varying(50) NOT NULL,
+  product_barcode character varying(100) NOT NULL,
   product_caracteristic_value character varying(100) NOT NULL,
   CONSTRAINT "ProductCaracteristic_pkey" PRIMARY KEY (type_caracteristic_id, product_barcode),
   CONSTRAINT fk_type_caracteristic_id FOREIGN KEY (type_caracteristic_id)
@@ -105,7 +105,7 @@ CREATE TABLE public."Administrator"
 (
   admin_id SERIAL,
   admin_mail_address character varying(100) UNIQUE NOT NULL,
-  admin_password character varying(100) NOT NULL,
+  admin_password character varying(250) NOT NULL,
   CONSTRAINT "pk_admin" PRIMARY KEY (admin_id)
 )
 WITH (
@@ -119,7 +119,7 @@ CREATE TABLE public."Merchant"
 (
   merchant_id SERIAL,
   merchant_mail_address character varying(100) UNIQUE NOT NULL,
-  merchant_password character varying(100) NOT NULL,
+  merchant_password character varying(250) NOT NULL,
   admin_id integer NOT NULL,
   CONSTRAINT "pk_merchant" PRIMARY KEY (merchant_id),
   CONSTRAINT fk_admin_id FOREIGN KEY (admin_id)
@@ -155,7 +155,7 @@ ALTER TABLE public."SalesPoint"
 CREATE TABLE public."ProductSalesPoint"
 (
   sales_point_id character varying(250) NOT NULL,
-  product_barcode character varying(50) NOT NULL,
+  product_barcode character varying(100) NOT NULL,#product_sales_point
   product_quantity integer NOT NULL,
   product_price real NOT NULL,
   CONSTRAINT pk_product_sales_point_id PRIMARY KEY (sales_point_id, product_barcode),
@@ -179,7 +179,7 @@ CREATE TABLE public."User"
 (
   user_id SERIAL,
   user_mail_address character varying(100) UNIQUE NOT NULL,
-  user_password character varying(100) NOT NULL,
+  user_password character varying(250) NOT NULL,
   CONSTRAINT "pk_user" PRIMARY KEY (user_id)
 )
 WITH (
@@ -189,10 +189,10 @@ ALTER TABLE public."User"
   OWNER TO postgres;
 
 
-CREATE TABLE public."Notifications"
+CREATE TABLE public."Notifications" #Notification
 (
   sales_point_id character varying(250) NOT NULL,
-  product_barcode character varying(50) NOT NULL,
+  product_barcode character varying(100) NOT NULL,
   user_id integer NOT NULL,
   CONSTRAINT "Notifications_pkey" PRIMARY KEY (sales_point_id, product_barcode, user_id),
   CONSTRAINT fk_sales_point_id_product_barcode FOREIGN KEY (sales_point_id, product_barcode)
@@ -262,13 +262,17 @@ INSERT INTO public."Product"(product_barcode, product_name, product_type, produc
 
 
 #Password is admin for every user
+#Basic aGFtaWNpcnlhZGhAZ21haWwuY29tOmFkbWlu  ==> ryadh
+#Basic YnJhZGFpLmltZW5lQG91dGxvb2suZnI6YWRtaW4= ==> imene
 INSERT INTO public."User"(user_mail_address, user_password) VALUES 
   ('hamiciryadh@gmail.com', 'd033e22ae348aeb5660fc2140aec35850c4da997'),
   ('bradai.imene@outlook.fr', 'd033e22ae348aeb5660fc2140aec35850c4da997');
 
+#Basic YWRtaW5AcGZlLmNvbTphZG1pbg==
 INSERT INTO public."Administrator"(admin_id, admin_mail_address, admin_password) VALUES 
   (0, 'admin@pfe.com', 'd033e22ae348aeb5660fc2140aec35850c4da997');
 
+#Basic bWVyY2hhbnRAbGZic2VydmljZXMuY29tOmFkbWlu
 INSERT INTO public."Merchant"(merchant_id, merchant_mail_address, merchant_password, admin_id) VALUES 
   (0, 'merchant@lfbservices.com', 'd033e22ae348aeb5660fc2140aec35850c4da997', 0);
 

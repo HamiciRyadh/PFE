@@ -16,6 +16,7 @@ import android.widget.TextView;
 import java.util.ArrayList;
 
 import usthb.lfbservices.com.pfe.R;
+import usthb.lfbservices.com.pfe.activities.MainActivity;
 
 /**
  * Created by ryadh on 09/03/18.
@@ -23,7 +24,7 @@ import usthb.lfbservices.com.pfe.R;
 
 public class HistoryAdapter extends ArrayAdapter<String> {
 
-    private static String TAG = HistoryAdapter.class.getName();
+    private static String TAG = "HistoryAdapter";
 
     private Context context;
     private int layoutResourceId;
@@ -37,7 +38,7 @@ public class HistoryAdapter extends ArrayAdapter<String> {
 
     @NonNull
     @Override
-    public View getView(final int position, @Nullable View convertView, @NonNull ViewGroup parent) {
+    public View getView(final int position, @Nullable final View convertView, @NonNull ViewGroup parent) {
         View listItemView = convertView;
         if(listItemView == null) {
             listItemView = LayoutInflater.from(getContext()).inflate(
@@ -49,15 +50,15 @@ public class HistoryAdapter extends ArrayAdapter<String> {
         final TextView historyElement = listItemView.findViewById(R.id.history_element);
         historyElement.setText(history);
 
-
-        final SearchView searchView = ((Activity)context).findViewById(R.id.search_view);
-
         final ImageView imageView = listItemView.findViewById(R.id.history_to_search_view);
+
         imageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Log.e(TAG, "ImageView OnClickListener");
-                searchView.setQuery(getItem(position), false);
+                if (context instanceof MainActivity) {
+                    ((MainActivity)context).setSearchViewQuery(getItem(position));
+                }
             }
         });
 

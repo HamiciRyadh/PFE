@@ -71,6 +71,11 @@
 		VALUES (#{userId}, #{salesPointId}, #{productBarcode});
 	</insert>
 	
+	<delete id = "removeFromNotificationsList" parameterType="map">
+		DELETE FROM ${db.schema}."Notifications" WHERE user_id = #{userId} AND sales_point_id = #{salesPointId} 
+		AND product_barcode = #{productBarcode};
+	</delete>
+	
 	<select id = "getDevicesIdsForNotification" parameterType="map" resultType="String">
 	   SELECT ud.user_device_id FROM ${db.schema}."UserDevice" ud 
 	   WHERE ud.user_id IN (SELECT n.user_id FROM ${db.schema}."Notifications" n 

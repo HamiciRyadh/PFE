@@ -26,6 +26,7 @@ public class SalesPointsAdapter extends ArrayAdapter<SalesPoint> {
             this.layoutResourceId = layoutResourceId;
             this.context = context;
         }
+
         @NonNull
         @Override
         public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
@@ -43,7 +44,6 @@ public class SalesPointsAdapter extends ArrayAdapter<SalesPoint> {
 
                 TextView salesPointAddressTextView = listItemView.findViewById(R.id.sales_point_address_list);
                 if (salesPointAddressTextView != null) salesPointAddressTextView.setText(salesPoint.getSalesPointAddress());
-
             }
 
             return listItemView;

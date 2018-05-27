@@ -23,7 +23,9 @@ import retrofit2.converter.gson.GsonConverterFactory;
 import usthb.lfbservices.com.pfe.itinerary.autocomplete.GoogleAutocompleteResponse;
 import usthb.lfbservices.com.pfe.itinerary.direction.GoogleDirections;
 import usthb.lfbservices.com.pfe.itinerary.place.GooglePlaceDetails;
+import usthb.lfbservices.com.pfe.models.KeyValue;
 import usthb.lfbservices.com.pfe.models.Product;
+import usthb.lfbservices.com.pfe.models.ProductSalesPoint;
 import usthb.lfbservices.com.pfe.models.Result;
 import usthb.lfbservices.com.pfe.models.SalesPoint;
 
@@ -162,8 +164,12 @@ public class PfeAPI {
         return pfeService.removeFirebaseTokenId(deviceId);
     }
 
-    public Observable<Boolean> addToNotificationList(final String salesPointId, final String productBarcode) {
-        return pfeService.addToNotificationList(salesPointId, productBarcode);
+    public Observable<Boolean> addToNotificationsList(final String salesPointId, final String productBarcode) {
+        return pfeService.addToNotificationsList(salesPointId, productBarcode);
+    }
+
+    public Observable<Boolean> removeFromNotificationsList(final String salesPointId, final String productBarcode) {
+        return pfeService.removeFromNotificationsList(salesPointId, productBarcode);
     }
 
     public Call<GoogleDirections> getDistanceDuration(final String apiKey, final String units, final String origin,
@@ -178,5 +184,20 @@ public class PfeAPI {
 
     public Call<GooglePlaceDetails> getLatLng(final String apiKey, final String placeid) {
         return itineraireService.getLatLng(apiKey, placeid);
+    }
+
+    public Observable<Product> getProductDetails(String productBarcode) {
+        return pfeService.getProductDetails(productBarcode);
+    }
+
+    public Observable<List<KeyValue>>  getProductCaracteristic(String productBarcode) {
+        return pfeService.getProductCaracteristic(productBarcode);
+    }
+
+
+
+    //TODO : NEW mais à modifier ! envoyer aussi la liste des points de vente actuelle
+    public Observable<List<ProductSalesPoint>> getProductSalesPoint(final String productBarcode) {
+        return pfeService.getProductSalesPoint(productBarcode);
     }
 }
