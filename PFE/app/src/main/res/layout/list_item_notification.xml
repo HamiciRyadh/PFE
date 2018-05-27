@@ -6,26 +6,42 @@
     android:background="@color/white"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:padding="20dp">
+    android:paddingLeft="15dp"
+    android:paddingRight="15dp"
+    android:paddingBottom="10dp">
 
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="end"
+        android:layout_marginTop="8dp">
+
+        <TextView
+            android:id="@+id/notification_date"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/aluminum"
+            android:textSize="17sp"
+            tools:text="il ya 3 mins" />
+    </LinearLayout>
 
     <TextView
         android:id="@+id/notification_product"
-        android:layout_width="287dp"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="center"
+        android:gravity="center_horizontal"
         android:textColor="#581845"
-        android:textSize="24sp"
+        android:textSize="21sp"
         android:textStyle="bold"
         tools:text="PROBOOK 450" />
 
     <TextView
         android:id="@+id/notification_salespoint"
-        android:layout_width="287dp"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="center"
+        android:gravity="center_horizontal"
         android:textColor="#581845"
-        android:textSize="24sp"
+        android:textSize="21sp"
         android:textStyle="bold"
         tools:text="SARL LFB Services" />
 
@@ -54,16 +70,17 @@
                     android:layout_marginLeft="20dp"
                     android:text="@string/quantity"
                     android:textColor="@color/colorPrimary"
-                    android:textSize="15sp" />
+                    android:textSize="18sp" />
 
                 <TextView
                     android:id="@+id/notification_qte"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-
+                    android:layout_marginLeft="15dp"
+                    android:layout_marginStart="15dp"
+                    android:textColor="@android:color/black"
                     android:ellipsize="end"
-                    android:textColor="#581845"
-                    android:textSize="25sp"
+                    android:textSize="18sp"
                     tools:text="50" />
             </LinearLayout>
 
@@ -86,23 +103,11 @@
                     android:id="@+id/notification_price"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:paddingLeft="10dp"
                     android:textColor="@android:color/black"
                     android:textSize="18sp"
-                    tools:text="19585 DA" />
+                    tools:text="19585.20 DA" />
             </LinearLayout>
-
-
         </LinearLayout>
     </LinearLayout>
-
-
-    <TextView
-        android:id="@+id/notification_date"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="0dp"
-        android:gravity="right"
-        android:textColor="@android:color/black"
-        android:textSize="18sp"
-        tools:text="il ya 3 mins" />
 </LinearLayout>

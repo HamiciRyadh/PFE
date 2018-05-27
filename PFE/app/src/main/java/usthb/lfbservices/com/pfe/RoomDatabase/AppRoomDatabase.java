@@ -35,7 +35,7 @@ import usthb.lfbservices.com.pfe.models.Wilaya;
                         Category.class,Type.class, Wilaya.class, City.class,
                         TypeCaracteristic.class, ProductCaracteristic.class,
                          Notification.class
-                        }, version = 18)
+                        }, version = 20)
 
     public abstract class AppRoomDatabase extends RoomDatabase {
 

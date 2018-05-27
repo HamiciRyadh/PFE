@@ -76,8 +76,8 @@ public class PfeRx {
      */
     private static PfeAPI pfeAPI = PfeAPI.getInstance();
 
-    public static void searchFromproductBarcode(@NonNull final Activity activity,
-                                           @NonNull final String productBarcode) {
+    public static void searchFromProductBarcode(@NonNull final Activity activity,
+                                                @NonNull final String productBarcode) {
         final ProgressDialog progressDialog = new ProgressDialog(activity, R.style.AppTheme_Dark_Dialog);
         progressDialog.setIndeterminate(true);
         progressDialog.setMessage(activity.getResources().getString(R.string.server_connexion));
@@ -89,7 +89,7 @@ public class PfeRx {
                 .subscribe(new Observer<Result>() {
                     @Override
                     public void onSubscribe(Disposable d) {
-                        Log.e(TAG, "SearchFromproductBarcode : onSubscribe");
+                        Log.e(TAG, "SearchFromProductBarcode : onSubscribe");
                         DisposableManager.add(d);
                         progressDialog.setMessage(activity.getResources().getString(R.string.retrieving_data));
                     }
@@ -115,7 +115,7 @@ public class PfeRx {
                         Singleton.getInstance().setProductSalesPointList(productSalesPoints);
 
                         final View geolocation = activity.findViewById(R.id.geolocalisation);
-                        geolocation.setVisibility(View.VISIBLE);
+                        if (geolocation != null) geolocation.setVisibility(View.VISIBLE);
 
                         final SalesPointsAdapter salesPointsAdapter1 = new SalesPointsAdapter(activity, R.layout.list_item_salespoint_product, (ArrayList) salesPoints);
 
@@ -265,14 +265,14 @@ public class PfeRx {
 
                     @Override
                     public void onError(Throwable e) {
-                        Log.e(TAG, "SearchFromproductBarcode : onError " + e.toString());
+                        Log.e(TAG, "SearchFromProductBarcode : onError " + e.toString());
                         Toast.makeText(activity, activity.getResources().getString(R.string.an_error_occured), Toast.LENGTH_LONG).show();
                         progressDialog.dismiss();
                     }
 
                     @Override
                     public void onComplete() {
-                        Log.e(TAG, "SearchFromproductBarcode : onComplete");
+                        Log.e(TAG, "SearchFromProductBarcode : onComplete");
                         progressDialog.dismiss();
                     }
                 });

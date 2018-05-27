@@ -96,16 +96,24 @@ public class Utils
         return context.getResources().getDisplayMetrics().heightPixels;
     }
 
-    public static void requestGPSPermissions(final Activity activity) {
+    public static void requestGPSPermission(final Activity activity) {
         ActivityCompat.requestPermissions(activity,
                 new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION},
-                123);
+                Constantes.REQUEST_GPS_PERMISSION);
     }
 
-    public static boolean checkPermission(final Activity activity) {
+    public static boolean checkGPSPermission(final Activity activity) {
         return (ContextCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED ||
                 ContextCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
         );
+    }
+
+    public static void requestCameraPermission(final Activity activity) {
+        ActivityCompat.requestPermissions(activity, new String[]{Manifest.permission.CAMERA}, Constantes.REQUEST_CAMERA_PERMISSION);
+    }
+
+    public static boolean checkCameraPermission(final Activity activity) {
+        return (ActivityCompat.checkSelfPermission(activity, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED);
     }
 
     public static boolean isGPSActivated(final Context context) {

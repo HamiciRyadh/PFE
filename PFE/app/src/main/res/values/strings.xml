@@ -88,6 +88,24 @@
     <string name="disconnect">Se déconnecter</string>
     <string name="connect">Se connecter</string>
 
+    <!-- Tiles -->
+    <string name="title_fragment_map">Carte</string>
+    <string name="title_fragment_favorites">Favoris</string>
+    <string name="title_fragment_notifications">Notifications</string>
+    <string name="title_fragment_parameters">Parametres</string>
+    <string name="title_fragment_search">Rechercher</string>
+    <string name="title_fragment_products">Produits</string>
+    <string name="title_fragment_barcode_scanner">Scanner</string>
+
+    <string name="clear_history"> Supprimer l\'Historique </string>
+    <string name="satellite"> Satellite </string>
+    <string name="standard"> Standard </string>
+    <string name="map_style"> Style de la carte </string>
+    <string name="turn_on_notifications"> Activer les notifications </string>
+    <string name="turn_off_notifications"> Désactiver les notifications </string>
+    <string name="dialog_history">Être vous sûr de vouloir supprimer l\'historique de recherche ?</string>
+
+
     <string name="default_notification_channel_id" translatable="false">fcm_default_channel</string>
     <string name="default_notification_channel_name" translatable="true">Information</string>
 
@@ -157,5 +175,8 @@
     <string name="navigation_drawer_close">Close navigation drawer</string>
 
     <string name="action_settings">Settings</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 
 </resources>

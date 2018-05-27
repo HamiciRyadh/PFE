@@ -37,8 +37,10 @@ public class FcmNotifications {
 	    
 	    
 	    JSONObject info = new JSONObject();
-	    info.put("title","Du nouveau ! "+ productName ); 
-	    info.put("body", "Disponibilité : " + productQuantity + "    -     "+ "Prix :" +productPrice );                  
+	    info.put("title","Du nouveau pour "+ productName);
+	    //info.put("body","Il n'est plus disponible chez AlgerPc.");           
+	    //info.put("body","Il est de nouveau disponible chez AlgerPc.");                  
+	    info.put("body", "Quantité : " + productQuantity + "   -   "+ "Prix : " + String.format("%.2f DA", productPrice));                  
 	    json.put("notification", info);
 	    
 	    

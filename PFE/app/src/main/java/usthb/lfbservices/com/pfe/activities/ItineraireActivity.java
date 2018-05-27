@@ -122,6 +122,7 @@ public class ItineraireActivity extends FragmentActivity implements OnMapReadyCa
         SharedPreferences preferences = getSharedPreferences(Constantes.SHARED_PREFERENCES_POSITION, MODE_PRIVATE);
         String sUserLatitude = preferences.getString(Constantes.SHARED_PREFERENCES_POSITION_LATITUDE, null);
         String sUserLongitude = preferences.getString(Constantes.SHARED_PREFERENCES_POSITION_LONGITUDE, null);
+        String sMapStyle = preferences.getString(Constantes.SHARED_PREFERENCES_USER_MAP_STYLE, null);
         LatLng userPosition = null;
 
         if (sUserLatitude != null && sUserLongitude != null) {
@@ -213,6 +214,14 @@ public class ItineraireActivity extends FragmentActivity implements OnMapReadyCa
                 return true;
             }
         });
+
+        if (sMapStyle != null) {
+            if (sMapStyle.equalsIgnoreCase(Constantes.SATELLITE)) {
+                mMap.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
+            } else if (sMapStyle.equalsIgnoreCase(Constantes.STANDARD)) {
+                mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+            }
+        }
     }
 
 
@@ -362,11 +371,11 @@ public class ItineraireActivity extends FragmentActivity implements OnMapReadyCa
             public void onClick(View v) {
                 Log.e(TAG, "UserLocationClick");
                 Log.e(TAG, "onClick : UserLocation");
-                if (!Utils.checkPermission(ItineraireActivity.this)) {
+                if (!Utils.checkGPSPermission(ItineraireActivity.this)) {
                     Log.e(TAG, "onMapReady : No GPS Permissions.");
-                    Utils.requestGPSPermissions(ItineraireActivity.this);
+                    Utils.requestGPSPermission(ItineraireActivity.this);
                 }
-                if (Utils.checkPermission(ItineraireActivity.this)) {
+                if (Utils.checkGPSPermission(ItineraireActivity.this)) {
                     Log.e(TAG, "onMapReady : GPS Permissions Ok.");
                     if (Utils.isGPSActivated(ItineraireActivity.this)) {
                         Log.e(TAG, "onMapReady : GPS Activated.");

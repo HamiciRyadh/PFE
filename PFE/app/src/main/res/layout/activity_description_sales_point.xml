@@ -14,8 +14,9 @@
         android:layout_height="wrap_content"
         android:gravity="center"
         android:textColor="#581845"
-        android:textSize="24sp"
+        android:textSize="24dp"
         android:textStyle="bold"
+        android:layout_margin="15dp"
         tools:text="SARL LFB Services"
         />
 

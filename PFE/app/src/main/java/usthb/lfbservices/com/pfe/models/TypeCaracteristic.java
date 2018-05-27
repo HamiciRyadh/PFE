@@ -31,9 +31,16 @@ public class TypeCaracteristic {
 
     public static List<TypeCaracteristic> Data() {
         typesCaracteristics.add (new TypeCaracteristic(1, 0, "CPU"));
-        typesCaracteristics.add (new TypeCaracteristic(2, 0, "ECRAN"));
-        typesCaracteristics.add (new TypeCaracteristic(3, 0, "RAM"));
-        typesCaracteristics.add (new TypeCaracteristic(4, 0, "CARTE GRAPHIQUE"));
+        typesCaracteristics.add (new TypeCaracteristic(2, 0, "Ecran"));
+        typesCaracteristics.add (new TypeCaracteristic(3, 0, "Résolution"));
+        typesCaracteristics.add (new TypeCaracteristic(4, 0, "GPU"));
+        typesCaracteristics.add (new TypeCaracteristic(5, 0, "Batterie"));
+        typesCaracteristics.add (new TypeCaracteristic(6, 0, "Batterie"));
+        typesCaracteristics.add (new TypeCaracteristic(7, 0, "Autonomie"));
+        typesCaracteristics.add (new TypeCaracteristic(8, 0, "Système d'exploitattion"));
+        typesCaracteristics.add (new TypeCaracteristic(9, 0, "Webcam"));
+        typesCaracteristics.add (new TypeCaracteristic(10, 0, "Clavier"));
+
 
         return typesCaracteristics;
     }

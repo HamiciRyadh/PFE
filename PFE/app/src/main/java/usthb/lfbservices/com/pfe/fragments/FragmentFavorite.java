@@ -52,6 +52,7 @@ public class FragmentFavorite extends Fragment {
 
         if (rootView != null) {
             initVariables();
+            implementation.setToolbarTitleForFragmentFavorite();
         }
 
         return rootView;
@@ -68,6 +69,13 @@ public class FragmentFavorite extends Fragment {
             throw new ClassCastException(context.toString()
                     + " must implement FavoriteActions");
         }
+    }
+
+    @Override
+    public void onDetach() {
+        Log.e(TAG, "OnDetach");
+        super.onDetach();
+        implementation = null;
     }
 
     public void initVariables() {
@@ -96,6 +104,6 @@ public class FragmentFavorite extends Fragment {
     }
 
     public interface FavoriteActions {
-
+        void setToolbarTitleForFragmentFavorite();
     }
 }

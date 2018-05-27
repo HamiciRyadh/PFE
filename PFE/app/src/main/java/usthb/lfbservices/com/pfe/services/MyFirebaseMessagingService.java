@@ -43,7 +43,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
             Log.e(TAG, "Message data payload: " + remoteMessage.getData());
             AppRoomDatabase db = AppRoomDatabase.getInstance(MyFirebaseMessagingService.this);
 
-            List<String> list = new ArrayList( remoteMessage.getData().values());
+            List<String> list = new ArrayList(remoteMessage.getData().values());
 
             Date currentTime = Calendar.getInstance().getTime();
             java.sql.Date sDate = new java.sql.Date(currentTime.getTime());

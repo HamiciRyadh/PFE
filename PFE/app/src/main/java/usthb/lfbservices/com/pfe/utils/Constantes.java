@@ -17,6 +17,7 @@ public class Constantes {
     public static final String FRAGMENT_FAVORITE = "FRAGMENT_FAVORITE";
     public static final String FRAGMENT_NOTIFICATIONS = "FRAGMENT_NOTIFICATIONS";
     public static final String FRAGMENT_PARAMETERS = "FRAGMENTS_PARAMETERS";
+    public static final String FRAGMENT_BARCODE_SCANNER = "FRAGMENT_BARCODE_SCANNER";
     /**
      * Base url for retrieving photos from google.
      */
@@ -38,4 +39,12 @@ public class Constantes {
 
     public static final String ITINERAIRE_DRIVING = "driving";
     public static final String ITINERAIRE_WALKING = "walking";
+
+    public static final String SHARED_PREFERENCES_USER_MAP_STYLE = "mapStyle";
+    public static final String SATELLITE = "satellit";
+    public static final String STANDARD = "standard";
+
+    public static final int REQUEST_CAMERA_PERMISSION = 201;
+    public static final int REQUEST_GPS_PERMISSION = 123;
+
 }

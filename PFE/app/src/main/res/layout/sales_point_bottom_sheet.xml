@@ -35,14 +35,15 @@
                     android:layout_height="0dp"
                     android:layout_weight="100"
                     android:orientation="horizontal">
-                    <ImageView
+                    <ImageButton
                         android:id="@+id/notify_me"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginLeft="15dp"
                         android:layout_marginStart="15dp"
                         android:layout_gravity="center"
-                        android:src="@drawable/notification" />
+                        android:src="@drawable/notification"
+                        android:background="@color/white"/>
 
                     <TextView
                         android:id="@+id/sales_point_name_details"
@@ -55,14 +56,14 @@
                         android:textStyle="bold"
                         tools:text="LFB SERVICES" />
 
-                    <ImageView
+                    <ImageButton
                         android:id="@+id/add_to_favorite"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
                         android:layout_marginRight="15dp"
                         android:layout_marginEnd="15dp"
-                        android:src="@drawable/favoris" />
+                        android:background="@drawable/favoris"/>
 
                 </LinearLayout>
 
@@ -70,6 +71,7 @@
                 <LinearLayout
                    android:layout_width="match_parent"
                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="10dp"
                    android:orientation="horizontal">
 
                    <LinearLayout
@@ -83,17 +85,18 @@
                            android:layout_height="wrap_content"
                            android:text="@string/quantity"
                            android:layout_marginLeft="20dp"
-                           android:textSize="15sp" />
+                           android:textColor="@android:color/black"
+                           android:textSize="18sp" />
 
                        <TextView
                            android:id="@+id/product_qte_marker"
                            android:layout_width="wrap_content"
                            android:layout_height="wrap_content"
-                           android:layout_marginLeft="38dp"
-                           android:layout_marginStart="38dp"
+                           android:layout_marginLeft="15dp"
+                           android:layout_marginStart="15dp"
+                           android:textColor="@android:color/black"
                            android:ellipsize="end"
-                           android:textColor="#581845"
-                           android:textSize="25sp"
+                           android:textSize="18sp"
                            tools:text="50" />
                    </LinearLayout>
 
@@ -109,6 +112,7 @@
                            android:layout_width="wrap_content"
                            android:layout_height="wrap_content"
                            android:text="@string/price"
+                           android:textColor="@android:color/black"
                            android:textSize="18sp"
                            />
 
@@ -116,8 +120,8 @@
                            android:id="@+id/product_price_marker"
                            android:layout_width="wrap_content"
                            android:layout_height="wrap_content"
-                           android:layout_marginLeft="46dp"
-                           android:layout_marginStart="46dp"
+                           android:layout_marginLeft="15dp"
+                           android:layout_marginStart="15dp"
                            android:textColor="@android:color/black"
                            android:textSize="18sp"
                            tools:text="19585 DA" />
@@ -158,6 +162,7 @@
                     android:id="@+id/rating"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:textColor="@android:color/black"
                     android:layout_marginLeft="15dp"
                     />
             </LinearLayout>
@@ -181,6 +186,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="15dp"
                     android:layout_weight="1"
+                    android:textColor="@android:color/black"
                     android:textAppearance="?android:textAppearanceMedium"
                     android:textSize="@dimen/history_text_size"
                     tools:text="7 Route Doudou Mokhtar N°14، Ben Aknoun 16304" />
@@ -214,6 +220,7 @@
                     android:layout_marginLeft="@dimen/history_elements_layout_margin"
                     android:layout_marginRight="@dimen/history_elements_layout_margin"
                     android:layout_weight="1"
+                    android:textColor="@android:color/black"
                     android:gravity="center_vertical|left"
                     android:textAppearance="?android:textAppearanceMedium"
                     android:textSize="@dimen/history_text_size"
@@ -245,6 +252,7 @@
                     android:layout_marginRight="@dimen/history_elements_layout_margin"
                     android:layout_weight="1"
                     android:width="1dp"
+                    android:textColor="@android:color/black"
                     android:gravity="center_vertical|left"
                     android:textAppearance="?android:textAppearanceMedium"
                     android:textSize="@dimen/history_text_size"

@@ -52,7 +52,6 @@ public class FragmentNotifications extends Fragment {
         rootView = inflater.inflate(R.layout.fragment_notifications, container, false);
         fragmentBelongActivity = getActivity();
 
-
         if (rootView != null) {
             initVariables();
 
@@ -69,18 +68,15 @@ public class FragmentNotifications extends Fragment {
             else {
                 recyclerView.setVisibility(View.VISIBLE);
                 emptyView.setVisibility(View.GONE);
-
             }
 
-            recyclerView.addItemDecoration(new DividerItemDecoration(getContext(),DividerItemDecoration.VERTICAL));
+            recyclerView.addItemDecoration(new DividerItemDecoration(requireContext(),DividerItemDecoration.VERTICAL));
             ItemTouchHelper.Callback callback = new TouchNotificationAdapter(adapter);
             ItemTouchHelper touchHelper = new ItemTouchHelper(callback);
             touchHelper.attachToRecyclerView(recyclerView);
 
+            implementation.setToolbarTitleForFragmentNotifications();
         }
-
-
-
         return rootView;
     }
 
@@ -97,17 +93,21 @@ public class FragmentNotifications extends Fragment {
         }
     }
 
-    public void initVariables() {
+    @Override
+    public void onDetach() {
+        Log.e(TAG, "OnDetach");
+        super.onDetach();
+        implementation = null;
+    }
 
+    public void initVariables() {
         recyclerView = rootView.findViewById(R.id.recyclerview_Notification);
         emptyView =rootView.findViewById(R.id.empty_list_notification);
         db = AppRoomDatabase.getInstance(getActivity());
-
-
     }
 
     public interface NotificationsActions {
-
+        void setToolbarTitleForFragmentNotifications();
     }
 }
 

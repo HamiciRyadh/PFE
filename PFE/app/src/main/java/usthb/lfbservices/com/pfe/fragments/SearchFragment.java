@@ -74,6 +74,7 @@ public class SearchFragment extends Fragment {
             initCategories();
             initHistory();
         }
+        implementation.setToolbarTitleForSearchFragment();
         return rootView;
     }
 
@@ -89,18 +90,27 @@ public class SearchFragment extends Fragment {
         }
     }
 
+    @Override
+    public void onDetach() {
+        Log.e(TAG, "OnDetach");
+        super.onDetach();
+        implementation = null;
+    }
+
     public void initVariables() {
         db = AppRoomDatabase.getInstance(fragmentBelongActivity);
         emptyTextViewHistory = rootView.findViewById(R.id.empty_history);
         listView = rootView.findViewById(R.id.list_view_history);
-        categories = db.categorytDao().getAll();
+        ArrayList<String> listCategoryNames = new ArrayList<>();
+        for (Category category : Category.Data()) listCategoryNames.add(category.getCategoryName());
+        categories = listCategoryNames.toArray(new String[]{});
         icon = new ArrayList<>();
         icon.add(BitmapFactory.decodeResource(getResources(), R.drawable.computer));
         icon.add(BitmapFactory.decodeResource(getResources(), R.drawable.telephone));
-        icon.add(BitmapFactory.decodeResource(getResources(), R.drawable.camera));
+        icon.add(BitmapFactory.decodeResource(getResources(), R.drawable.montre));
         icon.add(BitmapFactory.decodeResource(getResources(), R.drawable.voiture));
         icon.add(BitmapFactory.decodeResource(getResources(), R.drawable.materiel));
-        icon.add(BitmapFactory.decodeResource(getResources(), R.drawable.montre));
+        icon.add(BitmapFactory.decodeResource(getResources(), R.drawable.camera));
 
         numberOfCategoriesToDisplay = calculateNumberOfCategoriesToDisplay();
         listCategories = getMinimumCategoriesToDisplay();
@@ -147,12 +157,7 @@ public class SearchFragment extends Fragment {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Log.e(TAG, "History Network Call");
-                if (Utils.isNetworkAvailable(fragmentBelongActivity)) {
-                    implementation.searchQuery(historyAdapter.getItem(position));
-                }
-                else {
-                    Toast.makeText(fragmentBelongActivity, getString(R.string.no_internet), Toast.LENGTH_LONG).show();
-                }
+                implementation.searchQuery(historyAdapter.getItem(position));
             }
         });
     }
@@ -180,6 +185,7 @@ public class SearchFragment extends Fragment {
 
     public void addToHistorySearches(final String history) {
         Log.e(TAG, "WRITING TO FILE : " + Constantes.HISTORY_FILE_NAME);
+        if (listHistorySearches.contains(history)) listHistorySearches.remove(history);
         listHistorySearches.add(0, history);
         try {
             File file = new File(fragmentBelongActivity.getFilesDir(), Constantes.HISTORY_FILE_NAME);
@@ -251,5 +257,6 @@ public class SearchFragment extends Fragment {
 
         void onCategorySelected(int category);
         void searchQuery(String query);
+        void setToolbarTitleForSearchFragment();
     }
 }

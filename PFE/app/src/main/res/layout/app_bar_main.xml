@@ -6,13 +6,19 @@
     android:layout_height="match_parent"
     tools:context="usthb.lfbservices.com.pfe.activities.MainActivity">
 
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
     <android.support.design.widget.AppBarLayout
+        android:id="@+id/action_bar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:theme="@style/AppTheme.AppBarOverlay">
 
         <android.support.v7.widget.Toolbar
             android:id="@+id/toolbar"
+            app:title="@string/title_fragment_map"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             android:background="?attr/colorPrimary"
@@ -23,10 +29,12 @@
     <android.support.design.widget.CoordinatorLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginTop="56dp">
+        android:layout_below="@id/action_bar"
+        >
 
         <include layout="@layout/content_main" />
 
     </android.support.design.widget.CoordinatorLayout>
 
+    </RelativeLayout>
 </android.support.design.widget.CoordinatorLayout>

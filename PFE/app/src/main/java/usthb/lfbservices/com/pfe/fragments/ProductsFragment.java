@@ -3,6 +3,7 @@ package usthb.lfbservices.com.pfe.fragments;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
@@ -62,7 +63,7 @@ public class ProductsFragment extends Fragment {
 
     @Nullable
     @Override
-    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         Log.e(TAG, "onCreateView");
         rootView = inflater.inflate(R.layout.fragment_list_products, container, false);
         fragmentBelongActivity = getActivity();
@@ -76,11 +77,12 @@ public class ProductsFragment extends Fragment {
                     implementation.onProductSelected(product.getProductBarcode());
                 }
             });
+            initVariables();
+            initMarquesButton();
+            initTypeButton();
         }
 
-        initVariables();
-        initMarquesButton();
-        initTypeButton();
+        implementation.setToolbarTitleForProductFragment();
 
         return rootView;
     }
@@ -106,6 +108,8 @@ public class ProductsFragment extends Fragment {
         if (savedProductsAdapter != null) {
             listView.setAdapter(savedProductsAdapter);
             if (progressBar != null) progressBar.setVisibility(View.GONE);
+        } else {
+            if (progressBar != null) progressBar.setVisibility(View.VISIBLE);
         }
 
         super.onResume();
@@ -124,6 +128,13 @@ public class ProductsFragment extends Fragment {
         }
 
         super.onPause();
+    }
+
+    @Override
+    public void onDetach() {
+        Log.e(TAG, "OnDetach");
+        super.onDetach();
+        implementation = null;
     }
 
 
@@ -327,7 +338,7 @@ public class ProductsFragment extends Fragment {
         }
 
         else {
-            temporaryProductsList = new ArrayList<Product>();
+            temporaryProductsList = new ArrayList<>();
             for (Product product : productsSortedByType) {
                 for (String tradeMark : listCheckedTradeMarks) {
                     if (product.getProductTradeMark().equals(tradeMark)) {
@@ -339,10 +350,17 @@ public class ProductsFragment extends Fragment {
         return temporaryProductsList;
     }
 
+    public void clearProductsFragment() {
+        if (savedProductsAdapter != null ) {
+            savedProductsAdapter.clear();
+            savedProductsAdapter = null;
+        }
+    }
 
 
     public interface ProductsFragmentActions {
 
         void onProductSelected(final String productBarcode);
+        void setToolbarTitleForProductFragment();
     }
 }

@@ -61,7 +61,7 @@ public class NotificationListAdapter extends RecyclerView.Adapter< NotificationL
                 DateUtils.MINUTE_IN_MILLIS, DateUtils.FORMAT_NO_YEAR | DateUtils.FORMAT_ABBREV_ALL);
 
        holder.notificationNewQuantity.setText(String.valueOf(notifications.get(position).getNotificationNewQuantity()));
-       holder.notificationNewPrice.setText(String.valueOf(notifications.get(position).getNotificationNewPrice()));
+       holder.notificationNewPrice.setText(String.format("%.2f DA", notifications.get(position).getNotificationNewPrice()));
        //holder.notificationDate.setText(df.format(notifications.get(position).getNotificationDate()));
 
         holder.notificationDate.setText(ago);

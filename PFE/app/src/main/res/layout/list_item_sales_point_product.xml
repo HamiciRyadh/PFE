@@ -6,18 +6,21 @@
     android:background="@color/white"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:padding="20dp">
+    android:paddingBottom="20dp"
+    android:paddingTop="10dp">
 
 
     <TextView
         android:id="@+id/sales_point_name_details"
-        android:layout_width="287dp"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center"
         android:textColor="#581845"
         android:textSize="24sp"
         android:textStyle="bold"
-        tools:text="SARL LFB Services" />
+        tools:text="SARL LFB Services"
+        android:paddingRight="20dp"
+        android:paddingLeft="20dp"/>
 
 
     <LinearLayout
@@ -44,17 +47,17 @@
                     android:layout_marginLeft="20dp"
                     android:text="@string/quantity"
                     android:textColor="@color/colorPrimary"
-                    android:textSize="15sp" />
+                    android:textSize="18sp" />
 
                 <TextView
                     android:id="@+id/product_qte_marker"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="38dp"
-                    android:layout_marginStart="38dp"
+                    android:layout_marginLeft="26dp"
+                    android:layout_marginStart="26dp"
+                    android:textColor="@android:color/black"
                     android:ellipsize="end"
-                    android:textColor="#581845"
-                    android:textSize="25sp"
+                    android:textSize="18sp"
                     tools:text="50" />
             </LinearLayout>
 
@@ -77,14 +80,13 @@
                     android:id="@+id/product_price_marker"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="46dp"
-                    android:layout_marginStart="46dp"
+                    android:layout_marginLeft="26dp"
+                    android:layout_marginStart="26dp"
+                    android:paddingRight="10dp"
                     android:textColor="@android:color/black"
                     android:textSize="18sp"
                     tools:text="19585 DA" />
             </LinearLayout>
-
-
         </LinearLayout>
     </LinearLayout>
 </LinearLayout>

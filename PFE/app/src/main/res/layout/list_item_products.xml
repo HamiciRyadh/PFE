@@ -28,7 +28,7 @@
                     android:ellipsize="end"
                     android:lines="2"
                     android:textColor="#900C3F"
-                    android:textSize="16sp"
+                    android:textSize="14sp"
                     tools:text="HP" />
         </LinearLayout>
 
@@ -40,7 +40,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
-                    android:src="@drawable/category"/>
+                    android:src="@drawable/more_info2_32"/>
         </LinearLayout>
 
 

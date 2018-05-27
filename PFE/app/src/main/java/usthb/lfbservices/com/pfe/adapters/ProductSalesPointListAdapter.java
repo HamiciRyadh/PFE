@@ -30,7 +30,6 @@ public class ProductSalesPointListAdapter extends RecyclerView.Adapter<ProductSa
 
     public ProductSalesPointListAdapter (List<ProductSalesPoint> productSalesPoints) {
         this.productSalesPoints = productSalesPoints;
-        Log.e(TAG, "SIZE : " + productSalesPoints.size());
     }
 
     @Override
@@ -46,7 +45,7 @@ public class ProductSalesPointListAdapter extends RecyclerView.Adapter<ProductSa
         String salespointId = productSalesPoints.get(position).getSalesPointId();
         String salespointName = db.salesPointDao().getSalesPointNameById(salespointId);
         holder.salesPointid.setText(salespointName);
-        holder.price.setText(String.valueOf(productSalesPoints.get(position).getProductPrice()));
+        holder.price.setText(String.format("%.2f DA", productSalesPoints.get(position).getProductPrice()));
         holder.quantity.setText(String.valueOf(productSalesPoints.get(position).getProductQuantity()));
     }
 
