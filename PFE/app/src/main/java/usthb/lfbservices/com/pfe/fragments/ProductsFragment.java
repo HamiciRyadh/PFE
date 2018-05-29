@@ -21,7 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import usthb.lfbservices.com.pfe.R;
-import usthb.lfbservices.com.pfe.RoomDatabase.AppRoomDatabase;
+import usthb.lfbservices.com.pfe.roomDatabase.AppRoomDatabase;
 import usthb.lfbservices.com.pfe.adapters.ProductsAdapter;
 import usthb.lfbservices.com.pfe.models.Product;
 import usthb.lfbservices.com.pfe.models.Singleton;

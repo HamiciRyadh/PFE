@@ -22,7 +22,6 @@ import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.iid.FirebaseInstanceId;
@@ -44,7 +43,7 @@ import usthb.lfbservices.com.pfe.itinerary.place.GooglePlaceDetails;
 import usthb.lfbservices.com.pfe.itinerary.place.Location;
 import usthb.lfbservices.com.pfe.models.Singleton;
 import usthb.lfbservices.com.pfe.network.PfeAPI;
-import usthb.lfbservices.com.pfe.utils.Constantes;
+import usthb.lfbservices.com.pfe.utils.Constants;
 import usthb.lfbservices.com.pfe.utils.Utils;
 
 import static android.content.Context.MODE_PRIVATE;
@@ -129,12 +128,12 @@ public class FragmentParameters extends Fragment {
     }
 
     public void init() {
-        SharedPreferences sharedPreferences = fragmentBelongActivity.getSharedPreferences(Constantes.SHARED_PREFERENCES_POSITION, MODE_PRIVATE);
-        String sMapStyle = sharedPreferences.getString(Constantes.SHARED_PREFERENCES_USER_MAP_STYLE, null);
+        SharedPreferences sharedPreferences = fragmentBelongActivity.getSharedPreferences(Constants.SHARED_PREFERENCES_POSITION, MODE_PRIVATE);
+        String sMapStyle = sharedPreferences.getString(Constants.SHARED_PREFERENCES_USER_MAP_STYLE, null);
         if (sMapStyle != null) {
-            if (sMapStyle.equalsIgnoreCase(Constantes.SATELLITE)) {
+            if (sMapStyle.equalsIgnoreCase(Constants.SATELLITE)) {
                 radioStyleMapGroup.check(R.id.radio_satellite_map);
-            } else if (sMapStyle.equalsIgnoreCase(Constantes.STANDARD)) {
+            } else if (sMapStyle.equalsIgnoreCase(Constants.STANDARD)) {
                 radioStyleMapGroup.check(R.id.radio_standard_map);
             }
         }
@@ -148,7 +147,7 @@ public class FragmentParameters extends Fragment {
                 mBuilder.setPositiveButton(R.string.ok_label, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int which) {
-                        File file = new File(fragmentBelongActivity.getFilesDir(), Constantes.HISTORY_FILE_NAME);
+                        File file = new File(fragmentBelongActivity.getFilesDir(), Constants.HISTORY_FILE_NAME);
                         try {
                             FileOutputStream fos = new FileOutputStream(file);
                             fos.close();
@@ -196,15 +195,15 @@ public class FragmentParameters extends Fragment {
                 final GoogleMap mMap = Singleton.getInstance().getMap();
                 boolean isChecked = checkedRadioButton.isChecked();
                 if (isChecked) {
-                    SharedPreferences.Editor editor = fragmentBelongActivity.getSharedPreferences(Constantes.SHARED_PREFERENCES_POSITION, MODE_PRIVATE).edit();
+                    SharedPreferences.Editor editor = fragmentBelongActivity.getSharedPreferences(Constants.SHARED_PREFERENCES_POSITION, MODE_PRIVATE).edit();
                     if(checkedRadioButton.getText().equals("Satellite")) {
                         Log.e(TAG, "Satellite Checked ");
-                        editor.putString(Constantes.SHARED_PREFERENCES_USER_MAP_STYLE, Constantes.SATELLITE);
+                        editor.putString(Constants.SHARED_PREFERENCES_USER_MAP_STYLE, Constants.SATELLITE);
                         if (mMap != null) mMap.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
                     }
                     if(checkedRadioButton.getText().equals("Standard")) {
                         Log.e(TAG, "Standard Checked ");
-                        editor.putString(Constantes.SHARED_PREFERENCES_USER_MAP_STYLE, Constantes.STANDARD);
+                        editor.putString(Constants.SHARED_PREFERENCES_USER_MAP_STYLE, Constants.STANDARD);
                         if (mMap != null) mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
                     }
                     editor.apply();
@@ -237,9 +236,9 @@ public class FragmentParameters extends Fragment {
                                             if (location != null) {
                                                 LatLng userLatLng =new LatLng(location.getLatitude(),location.getLongitude());
 
-                                                SharedPreferences.Editor editor = getActivity().getSharedPreferences(Constantes.SHARED_PREFERENCES_POSITION, MODE_PRIVATE).edit();
-                                                editor.putString(Constantes.SHARED_PREFERENCES_POSITION_LATITUDE, ""+userLatLng.latitude);
-                                                editor.putString(Constantes.SHARED_PREFERENCES_POSITION_LONGITUDE, ""+userLatLng.longitude);
+                                                SharedPreferences.Editor editor = getActivity().getSharedPreferences(Constants.SHARED_PREFERENCES_POSITION, MODE_PRIVATE).edit();
+                                                editor.putString(Constants.SHARED_PREFERENCES_POSITION_LATITUDE, ""+userLatLng.latitude);
+                                                editor.putString(Constants.SHARED_PREFERENCES_POSITION_LONGITUDE, ""+userLatLng.longitude);
                                                 editor.apply();
 
 
@@ -351,9 +350,9 @@ public class FragmentParameters extends Fragment {
                 Location places = response.body().getResult().getGeometry().getLocation();
                 LatLng userLatLng = new LatLng(places.getLat(), places.getLng());
 
-                SharedPreferences.Editor editor = getActivity().getSharedPreferences(Constantes.SHARED_PREFERENCES_POSITION, MODE_PRIVATE).edit();
-                editor.putString(Constantes.SHARED_PREFERENCES_POSITION_LATITUDE, ""+userLatLng.latitude);
-                editor.putString(Constantes.SHARED_PREFERENCES_POSITION_LONGITUDE, ""+userLatLng.longitude);
+                SharedPreferences.Editor editor = getActivity().getSharedPreferences(Constants.SHARED_PREFERENCES_POSITION, MODE_PRIVATE).edit();
+                editor.putString(Constants.SHARED_PREFERENCES_POSITION_LATITUDE, ""+userLatLng.latitude);
+                editor.putString(Constants.SHARED_PREFERENCES_POSITION_LONGITUDE, ""+userLatLng.longitude);
                 editor.apply();
             }
 

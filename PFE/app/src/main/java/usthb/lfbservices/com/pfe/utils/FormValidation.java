@@ -1,7 +1,7 @@
 package usthb.lfbservices.com.pfe.utils;
 
 /**
- * Created by ryadh on 16/04/2018.
+ * Contains a list of static methods used for form validation.
  */
 
 public class FormValidation {

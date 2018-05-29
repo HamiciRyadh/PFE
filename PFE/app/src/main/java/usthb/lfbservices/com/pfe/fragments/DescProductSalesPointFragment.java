@@ -17,12 +17,10 @@ import android.widget.TextView;
 import java.util.List;
 
 import usthb.lfbservices.com.pfe.R;
-import usthb.lfbservices.com.pfe.RoomDatabase.AppRoomDatabase;
+import usthb.lfbservices.com.pfe.roomDatabase.AppRoomDatabase;
 import usthb.lfbservices.com.pfe.adapters.ProductSalesPointListAdapter;
 import usthb.lfbservices.com.pfe.adapters.TouchSalespointAdapter;
 import usthb.lfbservices.com.pfe.models.ProductSalesPoint;
-import usthb.lfbservices.com.pfe.network.PfeRx;
-import usthb.lfbservices.com.pfe.utils.Utils;
 
 public class DescProductSalesPointFragment extends Fragment {
 

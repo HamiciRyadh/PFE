@@ -15,10 +15,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import usthb.lfbservices.com.pfe.R;
-import usthb.lfbservices.com.pfe.RoomDatabase.AppRoomDatabase;
+import usthb.lfbservices.com.pfe.roomDatabase.AppRoomDatabase;
 import usthb.lfbservices.com.pfe.models.SalesPoint;
 import usthb.lfbservices.com.pfe.models.Singleton;
-import usthb.lfbservices.com.pfe.utils.Constantes;
+import usthb.lfbservices.com.pfe.utils.Constants;
 
 public class DescSalesPointActivity extends AppCompatActivity {
 
@@ -55,7 +55,7 @@ public class DescSalesPointActivity extends AppCompatActivity {
                         listeSP.add(salesPoint);
                         Singleton.getInstance().setSalesPointList(listeSP);
                         final Intent intent = new Intent(DescSalesPointActivity.this, ItineraireActivity.class);
-                        intent.putExtra(Constantes.INTENT_SALES_POINT_ID, salesPoint.getSalesPointId());
+                        intent.putExtra(Constants.INTENT_SALES_POINT_ID, salesPoint.getSalesPointId());
                         startActivity(intent);
                     }
                 });

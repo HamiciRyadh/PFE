@@ -54,7 +54,7 @@ import usthb.lfbservices.com.pfe.R;
 import usthb.lfbservices.com.pfe.models.SalesPoint;
 import usthb.lfbservices.com.pfe.models.Singleton;
 import usthb.lfbservices.com.pfe.network.PfeAPI;
-import usthb.lfbservices.com.pfe.utils.Constantes;
+import usthb.lfbservices.com.pfe.utils.Constants;
 import usthb.lfbservices.com.pfe.utils.Utils;
 
 public class ItineraireActivity extends FragmentActivity implements OnMapReadyCallback  {
@@ -119,10 +119,10 @@ public class ItineraireActivity extends FragmentActivity implements OnMapReadyCa
                 .icon(BitmapDescriptorFactory.fromResource(R.drawable.marker_blue)));
         origin = defaultPosition;
 
-        SharedPreferences preferences = getSharedPreferences(Constantes.SHARED_PREFERENCES_POSITION, MODE_PRIVATE);
-        String sUserLatitude = preferences.getString(Constantes.SHARED_PREFERENCES_POSITION_LATITUDE, null);
-        String sUserLongitude = preferences.getString(Constantes.SHARED_PREFERENCES_POSITION_LONGITUDE, null);
-        String sMapStyle = preferences.getString(Constantes.SHARED_PREFERENCES_USER_MAP_STYLE, null);
+        SharedPreferences preferences = getSharedPreferences(Constants.SHARED_PREFERENCES_POSITION, MODE_PRIVATE);
+        String sUserLatitude = preferences.getString(Constants.SHARED_PREFERENCES_POSITION_LATITUDE, null);
+        String sUserLongitude = preferences.getString(Constants.SHARED_PREFERENCES_POSITION_LONGITUDE, null);
+        String sMapStyle = preferences.getString(Constants.SHARED_PREFERENCES_USER_MAP_STYLE, null);
         LatLng userPosition = null;
 
         if (sUserLatitude != null && sUserLongitude != null) {
@@ -133,7 +133,7 @@ public class ItineraireActivity extends FragmentActivity implements OnMapReadyCa
             }
         }
 
-        String salesPointID = getIntent().getStringExtra(Constantes.INTENT_SALES_POINT_ID);
+        String salesPointID = getIntent().getStringExtra(Constants.INTENT_SALES_POINT_ID);
         if (salesPointID != null) {
             for (SalesPoint salesPoint : salesPointList) {
                 if (salesPoint.getSalesPointId().equals(salesPointID)) {
@@ -216,9 +216,9 @@ public class ItineraireActivity extends FragmentActivity implements OnMapReadyCa
         });
 
         if (sMapStyle != null) {
-            if (sMapStyle.equalsIgnoreCase(Constantes.SATELLITE)) {
+            if (sMapStyle.equalsIgnoreCase(Constants.SATELLITE)) {
                 mMap.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
-            } else if (sMapStyle.equalsIgnoreCase(Constantes.STANDARD)) {
+            } else if (sMapStyle.equalsIgnoreCase(Constants.STANDARD)) {
                 mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
             }
         }
@@ -249,7 +249,7 @@ public class ItineraireActivity extends FragmentActivity implements OnMapReadyCa
             @Override
             public void onClick(View v) {
                 Log.e(TAG, "onClick : Driving");
-                get_response(Constantes.ITINERAIRE_DRIVING, origin, dest);
+                get_response(Constants.ITINERAIRE_DRIVING, origin, dest);
             }
         });
         layoutWalking = findViewById(R.id.layout_walking);
@@ -257,7 +257,7 @@ public class ItineraireActivity extends FragmentActivity implements OnMapReadyCa
             @Override
             public void onClick(View v) {
                 Log.e(TAG, "onClick : Walking");
-                get_response(Constantes.ITINERAIRE_WALKING, origin, dest);
+                get_response(Constants.ITINERAIRE_WALKING, origin, dest);
             }
         });
         blockItineraire = findViewById(R.id.block_itineraire);
@@ -344,7 +344,7 @@ public class ItineraireActivity extends FragmentActivity implements OnMapReadyCa
                 Utils.hideKeyboard(ItineraireActivity.this);
                 Log.e(TAG, "onClick : Arrivee");
                 get_distance(origin, dest);
-                get_response(Constantes.ITINERAIRE_DRIVING,origin,dest);
+                get_response(Constants.ITINERAIRE_DRIVING,origin,dest);
             }
         });
 
@@ -388,14 +388,14 @@ public class ItineraireActivity extends FragmentActivity implements OnMapReadyCa
                                         if (location != null) {
                                             userPosition =new LatLng(location.getLatitude(),location.getLongitude());
 
-                                            SharedPreferences.Editor editor = getSharedPreferences(Constantes.SHARED_PREFERENCES_POSITION, MODE_PRIVATE).edit();
-                                            editor.putString(Constantes.SHARED_PREFERENCES_POSITION_LATITUDE, ""+userPosition.latitude);
-                                            editor.putString(Constantes.SHARED_PREFERENCES_POSITION_LONGITUDE, ""+userPosition.longitude);
+                                            SharedPreferences.Editor editor = getSharedPreferences(Constants.SHARED_PREFERENCES_POSITION, MODE_PRIVATE).edit();
+                                            editor.putString(Constants.SHARED_PREFERENCES_POSITION_LATITUDE, ""+userPosition.latitude);
+                                            editor.putString(Constants.SHARED_PREFERENCES_POSITION_LONGITUDE, ""+userPosition.longitude);
                                             editor.apply();
 
                                             origin = userPosition;
                                             get_distance(userPosition, dest);
-                                            get_response(Constantes.ITINERAIRE_DRIVING, userPosition, dest);
+                                            get_response(Constants.ITINERAIRE_DRIVING, userPosition, dest);
                                         }
                                     }
                                 })
@@ -418,7 +418,7 @@ public class ItineraireActivity extends FragmentActivity implements OnMapReadyCa
 
     private void get_distance(LatLng origin, LatLng dest) {
 
-        Call<GoogleDirections> call = pfeAPI.getDistanceDuration(apiKey,"metric", origin.latitude + "," + origin.longitude,dest.latitude + "," + dest.longitude,Constantes.ITINERAIRE_WALKING);
+        Call<GoogleDirections> call = pfeAPI.getDistanceDuration(apiKey,"metric", origin.latitude + "," + origin.longitude,dest.latitude + "," + dest.longitude, Constants.ITINERAIRE_WALKING);
         call.enqueue(new Callback<GoogleDirections>() {
 
             @Override
@@ -482,7 +482,7 @@ public class ItineraireActivity extends FragmentActivity implements OnMapReadyCa
                 Location places = response.body().getResult().getGeometry().getLocation();
                 origin = new LatLng(places.getLat(), places.getLng());
                 get_distance(origin, dest);
-                get_response(Constantes.ITINERAIRE_DRIVING, origin, dest);
+                get_response(Constants.ITINERAIRE_DRIVING, origin, dest);
             }
 
             @Override
@@ -513,7 +513,7 @@ public class ItineraireActivity extends FragmentActivity implements OnMapReadyCa
                     time =  time.replaceAll("hour","h");
                     String timeDistance = time  + " \n (" + distance + ")";
 
-                    if (type.equals(Constantes.ITINERAIRE_WALKING)){
+                    if (type.equals(Constants.ITINERAIRE_WALKING)){
                         ShowDistanceDurationWalking.setText(timeDistance);
                     } else {
                         ShowDistanceDurationDriving.setText(timeDistance);

@@ -21,17 +21,17 @@ import java.util.Calendar;
 import java.util.List;
 
 import usthb.lfbservices.com.pfe.R;
-import usthb.lfbservices.com.pfe.RoomDatabase.AppRoomDatabase;
+import usthb.lfbservices.com.pfe.roomDatabase.AppRoomDatabase;
 import usthb.lfbservices.com.pfe.activities.MainActivity;
 import usthb.lfbservices.com.pfe.models.Notification;
 
 public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
     private static final String TAG = "MyFirebaseMsgService";
-    String productName ;
+    private String productName ;
 
     /**
-     * Called when message is received.
+     * Called when a message is received.
      *
      * @param remoteMessage Object representing the message received from Firebase Cloud Messaging.
      */
@@ -43,7 +43,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
             Log.e(TAG, "Message data payload: " + remoteMessage.getData());
             AppRoomDatabase db = AppRoomDatabase.getInstance(MyFirebaseMessagingService.this);
 
-            List<String> list = new ArrayList(remoteMessage.getData().values());
+            List<String> list = new ArrayList<>(remoteMessage.getData().values());
 
             Date currentTime = Calendar.getInstance().getTime();
             java.sql.Date sDate = new java.sql.Date(currentTime.getTime());
@@ -62,17 +62,14 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
     }
 
     /**
-     * Create and show a simple notification containing the received FCM message.
-     *
+     * Create and show a notification containing the received FCM message.
      * @param messageBody FCM message body received.
      */
-
     private void sendNotification(String messageBody) {
         Intent intent = new Intent(this, MainActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0 /* Request code */, intent,
                 PendingIntent.FLAG_ONE_SHOT);
-
 
         String channelId = getString(R.string.default_notification_channel_id);
         Uri defaultSoundUri= RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);

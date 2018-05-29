@@ -13,7 +13,7 @@ import java.util.Collections;
 import java.util.List;
 
 import usthb.lfbservices.com.pfe.R;
-import usthb.lfbservices.com.pfe.RoomDatabase.AppRoomDatabase;
+import usthb.lfbservices.com.pfe.roomDatabase.AppRoomDatabase;
 import usthb.lfbservices.com.pfe.activities.DescriptiveActivity;
 import usthb.lfbservices.com.pfe.models.Product;
 

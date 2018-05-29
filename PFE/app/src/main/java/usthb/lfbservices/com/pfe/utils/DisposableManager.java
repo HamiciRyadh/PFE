@@ -1,19 +1,16 @@
 package usthb.lfbservices.com.pfe.utils;
 
-import android.util.Log;
-
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
 
 /**
- * Created by root on 06/03/18.
  * A static class that is used to dispose of Disposable objects that are used with RxAndroid
  * to avoid memory leaks
  */
 
 public class DisposableManager {
 
-    private static final String TAG = DisposableManager.class.getName();
+    private static final String TAG = "DisposableManager";
 
     /**
      * A CompositeDisposable that is used to contain all the Disposables objects to Dispose

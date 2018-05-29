@@ -8,10 +8,6 @@ import android.content.SharedPreferences;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomSheetBehavior;
 import android.support.design.widget.Snackbar;
-import android.support.v7.widget.DividerItemDecoration;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.helper.ItemTouchHelper;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
@@ -43,12 +39,10 @@ import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 
 import usthb.lfbservices.com.pfe.R;
-import usthb.lfbservices.com.pfe.RoomDatabase.AppRoomDatabase;
+import usthb.lfbservices.com.pfe.roomDatabase.AppRoomDatabase;
 import usthb.lfbservices.com.pfe.activities.MainActivity;
-import usthb.lfbservices.com.pfe.adapters.ProductSalesPointListAdapter;
 import usthb.lfbservices.com.pfe.adapters.ProductsAdapter;
 import usthb.lfbservices.com.pfe.adapters.SalesPointsAdapter;
-import usthb.lfbservices.com.pfe.adapters.TouchSalespointAdapter;
 import usthb.lfbservices.com.pfe.fragments.FragmentMap;
 import usthb.lfbservices.com.pfe.models.BottomSheetDataSetter;
 import usthb.lfbservices.com.pfe.models.KeyValue;
@@ -58,8 +52,7 @@ import usthb.lfbservices.com.pfe.models.ProductSalesPoint;
 import usthb.lfbservices.com.pfe.models.Result;
 import usthb.lfbservices.com.pfe.models.SalesPoint;
 import usthb.lfbservices.com.pfe.models.Singleton;
-import usthb.lfbservices.com.pfe.models.TypeCaracteristic;
-import usthb.lfbservices.com.pfe.utils.Constantes;
+import usthb.lfbservices.com.pfe.utils.Constants;
 import usthb.lfbservices.com.pfe.utils.DisposableManager;
 import usthb.lfbservices.com.pfe.utils.Utils;
 
@@ -127,9 +120,9 @@ public class PfeRx {
                             map.clear();
                             LatLngBounds.Builder builder = new LatLngBounds.Builder();
 
-                            SharedPreferences preferences = activity.getSharedPreferences(Constantes.SHARED_PREFERENCES_POSITION, Context.MODE_PRIVATE);
-                            String sUserLatitude = preferences.getString(Constantes.SHARED_PREFERENCES_POSITION_LATITUDE, null);
-                            String sUserLongitude = preferences.getString(Constantes.SHARED_PREFERENCES_POSITION_LONGITUDE, null);
+                            SharedPreferences preferences = activity.getSharedPreferences(Constants.SHARED_PREFERENCES_POSITION, Context.MODE_PRIVATE);
+                            String sUserLatitude = preferences.getString(Constants.SHARED_PREFERENCES_POSITION_LATITUDE, null);
+                            String sUserLongitude = preferences.getString(Constants.SHARED_PREFERENCES_POSITION_LONGITUDE, null);
                             LatLng userPosition = null;
 
                             if (sUserLatitude != null && sUserLongitude != null) {
@@ -540,9 +533,9 @@ public class PfeRx {
 
                         if (exists) {
                             SharedPreferences.Editor editor =
-                                    activity.getSharedPreferences(Constantes.SHARED_PREFERENCES_USER,  Context.MODE_PRIVATE).edit();
-                            editor.putString(Constantes.SHARED_PREFERENCES_USER_EMAIL, mailAddress);
-                            editor.putString(Constantes.SHARED_PREFERENCES_USER_PASSWORD, password);
+                                    activity.getSharedPreferences(Constants.SHARED_PREFERENCES_USER,  Context.MODE_PRIVATE).edit();
+                            editor.putString(Constants.SHARED_PREFERENCES_USER_EMAIL, mailAddress);
+                            editor.putString(Constants.SHARED_PREFERENCES_USER_PASSWORD, password);
                             editor.apply();
 
                             pfeAPI.setAuthorization(mailAddress, password);
@@ -609,9 +602,9 @@ public class PfeRx {
 
                         if (registered) {
                             SharedPreferences.Editor editor =
-                                    activity.getSharedPreferences(Constantes.SHARED_PREFERENCES_USER, Context.MODE_PRIVATE).edit();
-                            editor.putString(Constantes.SHARED_PREFERENCES_USER_EMAIL, mailAddress);
-                            editor.putString(Constantes.SHARED_PREFERENCES_USER_PASSWORD, password);
+                                    activity.getSharedPreferences(Constants.SHARED_PREFERENCES_USER, Context.MODE_PRIVATE).edit();
+                            editor.putString(Constants.SHARED_PREFERENCES_USER_EMAIL, mailAddress);
+                            editor.putString(Constants.SHARED_PREFERENCES_USER_PASSWORD, password);
                             editor.apply();
 
                             pfeAPI.setAuthorization(mailAddress, password);
@@ -845,15 +838,15 @@ public class PfeRx {
                     @Override
                     public void onComplete() {
                         Log.e(TAG, "GetProductDetails : onComplete");
-                        PfeRx.getProductCaracteristic(activity, productSalesPoint.getProductBarcode());
+                        PfeRx.getProductCharacteristics(activity, productSalesPoint.getProductBarcode());
                     }
                 });
     }
 
 
-    public static void getProductCaracteristic(@NonNull final Activity activity, @NonNull final String productBarcode) {
+    public static void getProductCharacteristics(@NonNull final Activity activity, @NonNull final String productBarcode) {
 
-        pfeAPI.getProductCaracteristic(productBarcode)
+        pfeAPI.getProductCharacteristics(productBarcode)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Observer<List<KeyValue>>() {

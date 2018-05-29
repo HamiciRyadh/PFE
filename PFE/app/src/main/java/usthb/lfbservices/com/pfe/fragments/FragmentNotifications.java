@@ -18,7 +18,7 @@ import android.widget.TextView;
 import java.util.List;
 
 import usthb.lfbservices.com.pfe.R;
-import usthb.lfbservices.com.pfe.RoomDatabase.AppRoomDatabase;
+import usthb.lfbservices.com.pfe.roomDatabase.AppRoomDatabase;
 import usthb.lfbservices.com.pfe.adapters.NotificationListAdapter;
 import usthb.lfbservices.com.pfe.adapters.TouchNotificationAdapter;
 import usthb.lfbservices.com.pfe.models.Notification;

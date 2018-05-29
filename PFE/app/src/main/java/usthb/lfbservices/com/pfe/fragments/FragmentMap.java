@@ -21,7 +21,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ListView;
-import android.widget.SearchView;
 import android.widget.Toast;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -36,7 +35,6 @@ import com.google.android.gms.maps.model.Circle;
 import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
-import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -47,14 +45,14 @@ import java.util.Arrays;
 import java.util.List;
 
 import usthb.lfbservices.com.pfe.R;
-import usthb.lfbservices.com.pfe.RoomDatabase.AppRoomDatabase;
+import usthb.lfbservices.com.pfe.roomDatabase.AppRoomDatabase;
 import usthb.lfbservices.com.pfe.adapters.SalesPointsAdapter;
 import usthb.lfbservices.com.pfe.models.ProductSalesPoint;
 import usthb.lfbservices.com.pfe.models.SalesPoint;
 import usthb.lfbservices.com.pfe.models.Singleton;
 import usthb.lfbservices.com.pfe.models.Wilaya;
 import usthb.lfbservices.com.pfe.network.PfeRx;
-import usthb.lfbservices.com.pfe.utils.Constantes;
+import usthb.lfbservices.com.pfe.utils.Constants;
 import usthb.lfbservices.com.pfe.utils.Utils;
 
 import static android.content.Context.LOCATION_SERVICE;
@@ -158,10 +156,10 @@ public class FragmentMap extends Fragment  implements OnMapReadyCallback {
         Log.e(TAG, "onMapReady");
         mMap = googleMap;
         Singleton.getInstance().setMap(mMap);
-        SharedPreferences sharedPreferences = fragmentBelongActivity.getSharedPreferences(Constantes.SHARED_PREFERENCES_POSITION, fragmentBelongActivity.MODE_PRIVATE);
-        String sLat = sharedPreferences.getString(Constantes.SHARED_PREFERENCES_POSITION_LATITUDE,null);
-        String sLong = sharedPreferences.getString(Constantes.SHARED_PREFERENCES_POSITION_LONGITUDE,null);
-        String sMapStyle = sharedPreferences.getString(Constantes.SHARED_PREFERENCES_USER_MAP_STYLE, null);
+        SharedPreferences sharedPreferences = fragmentBelongActivity.getSharedPreferences(Constants.SHARED_PREFERENCES_POSITION, fragmentBelongActivity.MODE_PRIVATE);
+        String sLat = sharedPreferences.getString(Constants.SHARED_PREFERENCES_POSITION_LATITUDE,null);
+        String sLong = sharedPreferences.getString(Constants.SHARED_PREFERENCES_POSITION_LONGITUDE,null);
+        String sMapStyle = sharedPreferences.getString(Constants.SHARED_PREFERENCES_USER_MAP_STYLE, null);
 
         if (sLat != null && sLong != null) {
             double lat = Double.parseDouble(sLat);
@@ -195,9 +193,9 @@ public class FragmentMap extends Fragment  implements OnMapReadyCallback {
         });
         Log.e(TAG, "Style " + (sMapStyle == null));
         if (sMapStyle != null) {
-            if (sMapStyle.equalsIgnoreCase(Constantes.SATELLITE)) {
+            if (sMapStyle.equalsIgnoreCase(Constants.SATELLITE)) {
                 mMap.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
-            } else if (sMapStyle.equalsIgnoreCase(Constantes.STANDARD)) {
+            } else if (sMapStyle.equalsIgnoreCase(Constants.STANDARD)) {
                 mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
                 //mMap.setMapStyle(MapStyleOptions.loadRawResourceStyle(fragmentBelongActivity, R.raw.map_style));
             }
@@ -287,9 +285,9 @@ public class FragmentMap extends Fragment  implements OnMapReadyCallback {
 
                 @Override
                 public void onClick(View view) {
-                    SharedPreferences preferences = fragmentBelongActivity.getSharedPreferences(Constantes.SHARED_PREFERENCES_POSITION, MODE_PRIVATE);
-                    String sUserLatitude = preferences.getString(Constantes.SHARED_PREFERENCES_POSITION_LATITUDE, null);
-                    String sUserLongitude = preferences.getString(Constantes.SHARED_PREFERENCES_POSITION_LONGITUDE, null);
+                    SharedPreferences preferences = fragmentBelongActivity.getSharedPreferences(Constants.SHARED_PREFERENCES_POSITION, MODE_PRIVATE);
+                    String sUserLatitude = preferences.getString(Constants.SHARED_PREFERENCES_POSITION_LATITUDE, null);
+                    String sUserLongitude = preferences.getString(Constants.SHARED_PREFERENCES_POSITION_LONGITUDE, null);
                     LatLng sUserPosition = null;
 
                     if (sUserLatitude != null && sUserLongitude != null) {
@@ -332,7 +330,7 @@ public class FragmentMap extends Fragment  implements OnMapReadyCallback {
             productsFragment.clearProductsFragment();
             getChildFragmentManager()
                     .beginTransaction()
-                    .add(R.id.map_frame_layout, productsFragment, Constantes.FRAGMENT_PRODUCTS)
+                    .add(R.id.map_frame_layout, productsFragment, Constants.FRAGMENT_PRODUCTS)
                     .addToBackStack(null)
                     .remove(searchFragment)
                     .addToBackStack(null)
@@ -348,7 +346,7 @@ public class FragmentMap extends Fragment  implements OnMapReadyCallback {
             productsFragment.clearProductsFragment();
             getChildFragmentManager()
                     .beginTransaction()
-                    .add(R.id.map_frame_layout, productsFragment, Constantes.FRAGMENT_PRODUCTS)
+                    .add(R.id.map_frame_layout, productsFragment, Constants.FRAGMENT_PRODUCTS)
                     .addToBackStack(null)
                     .remove(searchFragment)
                     .addToBackStack(null)
@@ -416,9 +414,9 @@ public class FragmentMap extends Fragment  implements OnMapReadyCallback {
                                         Log.e(TAG, "AddUserMarkerPosition: AddMarker.");
                                     }
                                     SharedPreferences.Editor editor =
-                                            fragmentBelongActivity.getSharedPreferences(Constantes.SHARED_PREFERENCES_POSITION, MODE_PRIVATE).edit();
-                                    editor.putString(Constantes.SHARED_PREFERENCES_POSITION_LATITUDE, ""+userPosition.latitude);
-                                    editor.putString(Constantes.SHARED_PREFERENCES_POSITION_LONGITUDE, ""+userPosition.longitude);
+                                            fragmentBelongActivity.getSharedPreferences(Constants.SHARED_PREFERENCES_POSITION, MODE_PRIVATE).edit();
+                                    editor.putString(Constants.SHARED_PREFERENCES_POSITION_LATITUDE, ""+userPosition.latitude);
+                                    editor.putString(Constants.SHARED_PREFERENCES_POSITION_LONGITUDE, ""+userPosition.longitude);
                                     editor.apply();
                                     if (zoom) mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(userPosition, FragmentMap.ZOOM_LEVEL));
                                 } else {
@@ -894,7 +892,7 @@ public class FragmentMap extends Fragment  implements OnMapReadyCallback {
     public void hideSearchFragment() {
             SearchFragment searchFragment = implementation.getActivitySearchFragment();
             if (searchFragment != null) {
-                if (getChildFragmentManager().findFragmentByTag(Constantes.FRAGMENT_SEARCH) != null)
+                if (getChildFragmentManager().findFragmentByTag(Constants.FRAGMENT_SEARCH) != null)
                     getChildFragmentManager()
                             .beginTransaction()
                             .remove(searchFragment)
@@ -904,7 +902,7 @@ public class FragmentMap extends Fragment  implements OnMapReadyCallback {
 
     public void removeSearchFragment() {
         SearchFragment searchFragment = implementation.getActivitySearchFragment();
-        if (getChildFragmentManager().findFragmentByTag(Constantes.FRAGMENT_SEARCH) != null)
+        if (getChildFragmentManager().findFragmentByTag(Constants.FRAGMENT_SEARCH) != null)
             getChildFragmentManager()
                     .beginTransaction()
                     .remove(searchFragment)
@@ -913,7 +911,7 @@ public class FragmentMap extends Fragment  implements OnMapReadyCallback {
 
     public void removeProductFragment() {
         ProductsFragment productsFragment = implementation.getActivityProductsFragment();
-        if (getChildFragmentManager().findFragmentByTag(Constantes.FRAGMENT_PRODUCTS) != null)
+        if (getChildFragmentManager().findFragmentByTag(Constants.FRAGMENT_PRODUCTS) != null)
             getChildFragmentManager()
                     .beginTransaction()
                     .remove(productsFragment)
@@ -927,7 +925,7 @@ public class FragmentMap extends Fragment  implements OnMapReadyCallback {
 
     public void popSearchFragment() {
         removeProductFragment();
-        //getChildFragmentManager().popBackStack(Constantes.FRAGMENT_SEARCH, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+        //getChildFragmentManager().popBackStack(Constants.FRAGMENT_SEARCH, FragmentManager.POP_BACK_STACK_INCLUSIVE);
         Log.e(TAG, "BackStackCount : " + getChildFragmentManager().getBackStackEntryCount());
         getChildFragmentManager().popBackStackImmediate();
         Log.e(TAG, "BackStackCount 2: " + getChildFragmentManager().getBackStackEntryCount());
@@ -939,7 +937,7 @@ public class FragmentMap extends Fragment  implements OnMapReadyCallback {
         Log.e(TAG, "BackStackCount : " + getChildFragmentManager().getBackStackEntryCount());
         getChildFragmentManager().popBackStackImmediate();
         Log.e(TAG, "BackStackCount 2: " + getChildFragmentManager().getBackStackEntryCount());
-       // getChildFragmentManager().popBackStack(Constantes.FRAGMENT_PRODUCTS, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+       // getChildFragmentManager().popBackStack(Constants.FRAGMENT_PRODUCTS, FragmentManager.POP_BACK_STACK_INCLUSIVE);
     }
 
     public void resetUserMarker() {
@@ -975,17 +973,17 @@ public class FragmentMap extends Fragment  implements OnMapReadyCallback {
             Log.e(TAG, "Setting SearchFragment");
             getChildFragmentManager()
                     .beginTransaction()
-                    .add(R.id.map_frame_layout, searchFragment, Constantes.FRAGMENT_SEARCH)
+                    .add(R.id.map_frame_layout, searchFragment, Constants.FRAGMENT_SEARCH)
                     .addToBackStack(null)
                     .commit();
-            if (getChildFragmentManager().findFragmentByTag(Constantes.FRAGMENT_SEARCH) != null)
+            if (getChildFragmentManager().findFragmentByTag(Constants.FRAGMENT_SEARCH) != null)
                 searchFragment.refreshHistory();
         }
     }
 
     public void submitSearchQuery(final String searchQuery) {
         final SearchFragment searchFragment = implementation.getActivitySearchFragment();
-        if (getChildFragmentManager().findFragmentByTag(Constantes.FRAGMENT_SEARCH) != null) {
+        if (getChildFragmentManager().findFragmentByTag(Constants.FRAGMENT_SEARCH) != null) {
             searchFragment.addToHistorySearches(searchQuery);
             searchFragment.refreshHistory();
             searchQuery(searchQuery);
@@ -1032,9 +1030,9 @@ public class FragmentMap extends Fragment  implements OnMapReadyCallback {
                     }
                 }
                 SharedPreferences.Editor editor =
-                        fragmentBelongActivity.getSharedPreferences(Constantes.SHARED_PREFERENCES_POSITION,MODE_PRIVATE).edit();
-                editor.putString(Constantes.SHARED_PREFERENCES_POSITION_LATITUDE, ""+userPosition.latitude);
-                editor.putString(Constantes.SHARED_PREFERENCES_POSITION_LONGITUDE, ""+userPosition.longitude);
+                        fragmentBelongActivity.getSharedPreferences(Constants.SHARED_PREFERENCES_POSITION,MODE_PRIVATE).edit();
+                editor.putString(Constants.SHARED_PREFERENCES_POSITION_LATITUDE, ""+userPosition.latitude);
+                editor.putString(Constants.SHARED_PREFERENCES_POSITION_LONGITUDE, ""+userPosition.longitude);
                 editor.apply();
             }
         }

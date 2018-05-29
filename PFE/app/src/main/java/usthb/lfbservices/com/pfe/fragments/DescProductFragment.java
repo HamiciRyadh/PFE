@@ -12,16 +12,13 @@ import android.view.ViewGroup;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import java.security.interfaces.DSAKey;
 import java.util.ArrayList;
-import java.util.List;
 
 import usthb.lfbservices.com.pfe.R;
-import usthb.lfbservices.com.pfe.RoomDatabase.AppRoomDatabase;
+import usthb.lfbservices.com.pfe.roomDatabase.AppRoomDatabase;
 import usthb.lfbservices.com.pfe.adapters.ProductCaracteristicAdapter;
 import usthb.lfbservices.com.pfe.models.KeyValue;
 import usthb.lfbservices.com.pfe.models.Product;
-import usthb.lfbservices.com.pfe.models.Singleton;
 
 public class DescProductFragment extends Fragment {
 

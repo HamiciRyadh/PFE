@@ -27,8 +27,6 @@ import android.util.SparseArray;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.Window;
-import android.view.WindowManager;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.RatingBar;
@@ -44,7 +42,7 @@ import java.net.URL;
 import java.text.DecimalFormat;
 
 import usthb.lfbservices.com.pfe.R;
-import usthb.lfbservices.com.pfe.RoomDatabase.AppRoomDatabase;
+import usthb.lfbservices.com.pfe.roomDatabase.AppRoomDatabase;
 import usthb.lfbservices.com.pfe.adapters.SuggestinAdapter;
 import usthb.lfbservices.com.pfe.fragments.FragmentBarcodeScanner;
 import usthb.lfbservices.com.pfe.fragments.FragmentFavorite;
@@ -57,7 +55,7 @@ import usthb.lfbservices.com.pfe.models.BottomSheetDataSetter;
 import usthb.lfbservices.com.pfe.models.ProductSalesPoint;
 import usthb.lfbservices.com.pfe.models.SalesPoint;
 import usthb.lfbservices.com.pfe.network.PfeRx;
-import usthb.lfbservices.com.pfe.utils.Constantes;
+import usthb.lfbservices.com.pfe.utils.Constants;
 import usthb.lfbservices.com.pfe.utils.DisposableManager;
 import usthb.lfbservices.com.pfe.utils.Utils;
 
@@ -97,7 +95,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         initFragments();
         getSupportFragmentManager()
                 .beginTransaction()
-                .add(R.id.frame_layout, fragmentMap, Constantes.FRAGMENT_MAP)
+                .add(R.id.frame_layout, fragmentMap, Constants.FRAGMENT_MAP)
                 .commit();
         currentFragment = fragmentMap;
         initVariables();
@@ -121,19 +119,19 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         DrawerLayout drawer =  findViewById(R.id.draweer_layout);
         if (drawer != null && drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
-        } else if ((getSupportFragmentManager().findFragmentByTag(Constantes.FRAGMENT_BARCODE_SCANNER) != null) ||
-                (getSupportFragmentManager().findFragmentByTag(Constantes.FRAGMENT_FAVORITE) != null) ||
-                (getSupportFragmentManager().findFragmentByTag(Constantes.FRAGMENT_NOTIFICATIONS) != null) ||
-                (getSupportFragmentManager().findFragmentByTag(Constantes.FRAGMENT_PARAMETERS) != null)) {
+        } else if ((getSupportFragmentManager().findFragmentByTag(Constants.FRAGMENT_BARCODE_SCANNER) != null) ||
+                (getSupportFragmentManager().findFragmentByTag(Constants.FRAGMENT_FAVORITE) != null) ||
+                (getSupportFragmentManager().findFragmentByTag(Constants.FRAGMENT_NOTIFICATIONS) != null) ||
+                (getSupportFragmentManager().findFragmentByTag(Constants.FRAGMENT_PARAMETERS) != null)) {
             getSupportFragmentManager()
                     .beginTransaction()
                     .remove(currentFragment)
-                    .add(R.id.frame_layout, fragmentMap, Constantes.FRAGMENT_MAP)
+                    .add(R.id.frame_layout, fragmentMap, Constants.FRAGMENT_MAP)
                     .commit();
             currentFragment = fragmentMap;
             ActionBar supportActionBar = getSupportActionBar();
             if (supportActionBar != null) supportActionBar.show();
-        } else if (getSupportFragmentManager().findFragmentByTag(Constantes.FRAGMENT_MAP) != null) {
+        } else if (getSupportFragmentManager().findFragmentByTag(Constants.FRAGMENT_MAP) != null) {
             Log.e(TAG, "MapFragment");
             if (searchFragment.isVisible()) {
                 Log.e(TAG, "SearchFragment");
@@ -164,12 +162,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             @Override
             public boolean onMenuItemClick(MenuItem item) {
                 Log.e(TAG, "Redirecting to barcode scanner");
-                if (getSupportFragmentManager().findFragmentByTag(Constantes.FRAGMENT_BARCODE_SCANNER) == null) {
+                if (getSupportFragmentManager().findFragmentByTag(Constants.FRAGMENT_BARCODE_SCANNER) == null) {
                     DisposableManager.dispose();
                     getSupportFragmentManager()
                             .beginTransaction()
                             .remove(currentFragment)
-                            .add(R.id.frame_layout, fragmentBarcodeScanner, Constantes.FRAGMENT_BARCODE_SCANNER)
+                            .add(R.id.frame_layout, fragmentBarcodeScanner, Constants.FRAGMENT_BARCODE_SCANNER)
                             .commit();
                     currentFragment = fragmentBarcodeScanner;
                     ActionBar supportActionBar = getSupportActionBar();
@@ -215,12 +213,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             public void onFocusChange(View v, boolean hasFocus) {
                 Log.e(TAG, "Focus : " + hasFocus);
                 if (hasFocus) {
-                    if (getSupportFragmentManager().findFragmentByTag(Constantes.FRAGMENT_MAP) == null) {
+                    if (getSupportFragmentManager().findFragmentByTag(Constants.FRAGMENT_MAP) == null) {
                         DisposableManager.dispose();
                         getSupportFragmentManager()
                                 .beginTransaction()
                                 .remove(currentFragment)
-                                .add(R.id.frame_layout, fragmentMap, Constantes.FRAGMENT_MAP)
+                                .add(R.id.frame_layout, fragmentMap, Constants.FRAGMENT_MAP)
                                 .commit();
                         currentFragment = fragmentMap;
                         goToSearchFragment = true;
@@ -259,19 +257,19 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         switch (id) {
             case R.id.nav_home : {
-                if (getSupportFragmentManager().findFragmentByTag(Constantes.FRAGMENT_MAP) == null) {
+                if (getSupportFragmentManager().findFragmentByTag(Constants.FRAGMENT_MAP) == null) {
                     DisposableManager.dispose();
                     getSupportFragmentManager()
                             .beginTransaction()
                             .remove(currentFragment)
-                            .add(R.id.frame_layout, fragmentMap, Constantes.FRAGMENT_MAP)
+                            .add(R.id.frame_layout, fragmentMap, Constants.FRAGMENT_MAP)
                             .commit();
                     currentFragment = fragmentMap;
                 }
                 break;
             }
             case R.id.nav_favorite : {
-                if (getSupportFragmentManager().findFragmentByTag(Constantes.FRAGMENT_FAVORITE) == null) {
+                if (getSupportFragmentManager().findFragmentByTag(Constants.FRAGMENT_FAVORITE) == null) {
                     if (!Utils.isUserConnected(MainActivity.this)) {
                         Utils.showConnectDialog(MainActivity.this);
                     } else {
@@ -280,7 +278,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         getSupportFragmentManager()
                                 .beginTransaction()
                                 .remove(currentFragment)
-                                .add(R.id.frame_layout, fragmentFavorite, Constantes.FRAGMENT_FAVORITE)
+                                .add(R.id.frame_layout, fragmentFavorite, Constants.FRAGMENT_FAVORITE)
                                 .commit();
                         currentFragment = fragmentFavorite;
                     }
@@ -288,7 +286,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 break;
             }
             case R.id.nav_notifications : {
-                if (getSupportFragmentManager().findFragmentByTag(Constantes.FRAGMENT_NOTIFICATIONS) == null) {
+                if (getSupportFragmentManager().findFragmentByTag(Constants.FRAGMENT_NOTIFICATIONS) == null) {
                     if (!Utils.isUserConnected(MainActivity.this)) {
                         Utils.showConnectDialog(MainActivity.this);
                     } else {
@@ -297,7 +295,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         getSupportFragmentManager()
                                 .beginTransaction()
                                 .remove(currentFragment)
-                                .add(R.id.frame_layout, fragmentNotifications, Constantes.FRAGMENT_NOTIFICATIONS)
+                                .add(R.id.frame_layout, fragmentNotifications, Constants.FRAGMENT_NOTIFICATIONS)
                                 .commit();
                         currentFragment = fragmentNotifications;
                     }
@@ -305,13 +303,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 break;
             }
             case R.id.nav_parameters : {
-                if (getSupportFragmentManager().findFragmentByTag(Constantes.FRAGMENT_PARAMETERS) == null) {
+                if (getSupportFragmentManager().findFragmentByTag(Constants.FRAGMENT_PARAMETERS) == null) {
                     if (currentFragment == fragmentMap) fragmentMap.removeFragments();
                     DisposableManager.dispose();
                     getSupportFragmentManager()
                             .beginTransaction()
                             .remove(currentFragment)
-                            .add(R.id.frame_layout, fragmentParameters, Constantes.FRAGMENT_PARAMETERS)
+                            .add(R.id.frame_layout, fragmentParameters, Constants.FRAGMENT_PARAMETERS)
                             .commit();
                     currentFragment = fragmentParameters;
                 }
@@ -320,9 +318,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             case R.id.nav_connexion : {
                 if (currentFragment == fragmentMap) fragmentMap.removeFragments();
                 if (Utils.isUserConnected(MainActivity.this)) {
-                    SharedPreferences.Editor preferencesEditor = getSharedPreferences(Constantes.SHARED_PREFERENCES_USER,MODE_PRIVATE).edit();
-                    preferencesEditor.remove(Constantes.SHARED_PREFERENCES_USER_EMAIL)
-                            .remove(Constantes.SHARED_PREFERENCES_USER_PASSWORD)
+                    SharedPreferences.Editor preferencesEditor = getSharedPreferences(Constants.SHARED_PREFERENCES_USER,MODE_PRIVATE).edit();
+                    preferencesEditor.remove(Constants.SHARED_PREFERENCES_USER_EMAIL)
+                            .remove(Constants.SHARED_PREFERENCES_USER_PASSWORD)
                             .apply();
                     navigationView.getMenu().getItem(4).setTitle(R.string.connect);
                     final String deviceId = Utils.getStoredFirebaseTokenId(MainActivity.this);
@@ -428,7 +426,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             @Override
             public void onClick(View v) {
                 final Intent intent = new Intent(MainActivity.this, ItineraireActivity.class);
-                intent.putExtra(Constantes.INTENT_SALES_POINT_ID, salesPoint.getSalesPointId());
+                intent.putExtra(Constants.INTENT_SALES_POINT_ID, salesPoint.getSalesPointId());
                 startActivity(intent);
 
             }
@@ -524,12 +522,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         MainActivity.this.runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                if (getSupportFragmentManager().findFragmentByTag(Constantes.FRAGMENT_MAP) == null) {
+                if (getSupportFragmentManager().findFragmentByTag(Constants.FRAGMENT_MAP) == null) {
                     DisposableManager.dispose();
                     getSupportFragmentManager()
                             .beginTransaction()
                             .remove(currentFragment)
-                            .add(R.id.frame_layout, fragmentMap, Constantes.FRAGMENT_MAP)
+                            .add(R.id.frame_layout, fragmentMap, Constants.FRAGMENT_MAP)
                             .commit();
                     currentFragment = fragmentMap;
                     searchProductBarcode = true;
