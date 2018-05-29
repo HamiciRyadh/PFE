@@ -1,7 +1,11 @@
 package usthb.lfbservices.com.pfe.adapters;
 
+import android.graphics.Canvas;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
+import android.view.View;
+
+import usthb.lfbservices.com.pfe.R;
 
 
 public class TouchNotificationAdapter extends ItemTouchHelper.Callback {
@@ -25,7 +29,7 @@ public class TouchNotificationAdapter extends ItemTouchHelper.Callback {
     @Override
     public int getMovementFlags(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder) {
         int dragFlags = ItemTouchHelper.UP | ItemTouchHelper.DOWN;
-        int swipeFlags = ItemTouchHelper.START | ItemTouchHelper.END;
+        int swipeFlags = ItemTouchHelper.START;
         return makeMovementFlags(dragFlags, swipeFlags);
     }
 
@@ -38,9 +42,23 @@ public class TouchNotificationAdapter extends ItemTouchHelper.Callback {
 
     @Override
     public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
-        mAdapter.onItemDismiss(viewHolder.getAdapterPosition());
+        if (direction == ItemTouchHelper.START) {
+            mAdapter.onItemDismiss(viewHolder.getAdapterPosition());
+        }
     }
 
+    @Override
+    public void onChildDraw(Canvas c, RecyclerView recyclerView,
+                            RecyclerView.ViewHolder viewHolder, float dX, float dY,
+                            int actionState, boolean isCurrentlyActive) {
+
+        if (dX < 0) { // Swiping left
+            ((NotificationListAdapter.ViewHolder) viewHolder).viewBackground.setBackgroundResource(R.drawable.delete);
+        }
+
+        final View foregroundView = ((NotificationListAdapter.ViewHolder) viewHolder).viewForeground;
+        getDefaultUIUtil().onDraw(c, recyclerView, foregroundView, dX, dY, actionState, isCurrentlyActive);
+    }
 
 
 }

@@ -7,6 +7,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import java.util.Collections;
@@ -17,7 +18,6 @@ import usthb.lfbservices.com.pfe.roomDatabase.AppRoomDatabase;
 import usthb.lfbservices.com.pfe.activities.DescriptiveActivity;
 import usthb.lfbservices.com.pfe.models.Product;
 
-//TODO: Remove comments
 public class ProductFavoriteAdapter extends RecyclerView.Adapter< ProductFavoriteAdapter.ViewHolder>  implements ITouchHelperAdapter {
 
     private static final String TAG = ProductFavoriteAdapter.class.getName();
@@ -34,7 +34,7 @@ public class ProductFavoriteAdapter extends RecyclerView.Adapter< ProductFavorit
 
     @Override
     public  ProductFavoriteAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item_products, parent, false);
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item_products_favorite, parent, false);
         return new ViewHolder(view);
     }
 
@@ -61,6 +61,11 @@ public class ProductFavoriteAdapter extends RecyclerView.Adapter< ProductFavorit
     }
 
     @Override
+    public void onItemDismiss(int position, int direction) {
+
+    }
+
+    @Override
     public boolean onItemMove(int fromPosition, int toPosition) {
         if (fromPosition < toPosition) {
             for (int i = fromPosition; i < toPosition; i++) {
@@ -80,7 +85,7 @@ public class ProductFavoriteAdapter extends RecyclerView.Adapter< ProductFavorit
 
         public TextView productName;
         public TextView productTradeMark;
-
+        public RelativeLayout viewBackground, viewForeground;
         public String productBarcode;
 
         public ViewHolder(View itemView) {
@@ -89,6 +94,8 @@ public class ProductFavoriteAdapter extends RecyclerView.Adapter< ProductFavorit
             itemView.setOnClickListener(this);
             productName = itemView.findViewById(R.id.product_name);
             productTradeMark = itemView.findViewById(R.id.product_trademark);
+            viewBackground = itemView.findViewById(R.id.p_view_background);
+            viewForeground = itemView.findViewById(R.id.p_view_foreground);
         }
 
         @Override

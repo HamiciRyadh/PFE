@@ -12,7 +12,7 @@ import usthb.lfbservices.com.pfe.models.Notification;
 @Dao
 public interface NotificationDao {
 
-    @Query("SELECT * FROM Notification ORDER BY NotificationDate ASC ")
+    @Query("SELECT * FROM Notification ORDER BY NotificationDate DESC ")
     List<Notification> getAll();
 
 

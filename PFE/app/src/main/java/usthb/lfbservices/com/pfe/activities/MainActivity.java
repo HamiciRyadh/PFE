@@ -387,6 +387,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                                 })
                                 .setActionTextColor(getResources().getColor(R.color.colorPrimary))
                                 .show();
+                        addToFavorite(productSalesPoint, salesPoint);
                     }
                 }
             });
@@ -399,10 +400,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     if (!Utils.isUserConnected(MainActivity.this)) {
                         Utils.showConnectDialog(MainActivity.this);
                     } else {
-                        db = AppRoomDatabase.getInstance(MainActivity.this);
-                        PfeRx.getProductDetails(MainActivity.this, productSalesPoint);
-                        if (!db.salesPointDao().salesPointExists(salesPoint.getSalesPointId())) db.salesPointDao().insert(salesPoint);
-                        addPhoto(salesPoint.getSalesPointPhotoReference());
+                        addToFavorite(productSalesPoint, salesPoint);
                         Snackbar.make(findViewById(R.id.map_views_layout), getResources().getString(R.string.saving_informations),Snackbar.LENGTH_LONG).show();
                     }
                 }
@@ -604,6 +602,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             } catch(IOException e) {
                 Log.e(TAG, "image " +e );
             }
+        }
+    }
+
+    private void addToFavorite(final ProductSalesPoint productSalesPoint, final SalesPoint salesPoint) {
+        db = AppRoomDatabase.getInstance(MainActivity.this);
+        PfeRx.getProductDetails(MainActivity.this, productSalesPoint);
+        if (!db.salesPointDao().salesPointExists(salesPoint.getSalesPointId())) {
+            db.salesPointDao().insert(salesPoint);
+            addPhoto(salesPoint.getSalesPointPhotoReference());
         }
     }
 

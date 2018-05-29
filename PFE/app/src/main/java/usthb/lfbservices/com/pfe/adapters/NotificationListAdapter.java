@@ -6,6 +6,7 @@ import android.text.format.DateUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -67,6 +68,7 @@ public class NotificationListAdapter extends RecyclerView.Adapter< NotificationL
     }
 
 
+
     @Override
     public int getItemCount() {
         return notifications.size();
@@ -80,6 +82,11 @@ public class NotificationListAdapter extends RecyclerView.Adapter< NotificationL
         db.notificationDao().deleteById(notificationId);
         notifications.remove(position);
         notifyItemRemoved(position);
+    }
+
+    @Override
+    public void onItemDismiss(int position, int direction) {
+
     }
 
     @Override
@@ -105,7 +112,7 @@ public class NotificationListAdapter extends RecyclerView.Adapter< NotificationL
         public TextView notificationDate;
         public TextView notificationNewQuantity;
         public TextView notificationNewPrice;
-
+        public RelativeLayout viewBackground, viewForeground;
 
         public ViewHolder(View itemView) {
             super(itemView);
@@ -118,7 +125,8 @@ public class NotificationListAdapter extends RecyclerView.Adapter< NotificationL
             notificationNewPrice = itemView.findViewById(R.id.notification_price);
             notificationNewQuantity = itemView.findViewById(R.id.notification_qte);
 
-
+            viewBackground = itemView.findViewById(R.id.n_view_background);
+            viewForeground = itemView.findViewById(R.id.n_view_foreground);
         }
 
 
