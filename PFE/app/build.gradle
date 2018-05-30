@@ -55,5 +55,4 @@ dependencies {
     annotationProcessor "android.arch.lifecycle:compiler:$rootProject.archLifecycleVersion"
 }
 
-
 apply plugin: 'com.google.gms.google-services'

@@ -21,6 +21,7 @@ public class Constants {
     public static final String FRAGMENT_NOTIFICATIONS = "FRAGMENT_NOTIFICATIONS";
     public static final String FRAGMENT_PARAMETERS = "FRAGMENTS_PARAMETERS";
     public static final String FRAGMENT_BARCODE_SCANNER = "FRAGMENT_BARCODE_SCANNER";
+    public static final String FRAGMENT_PRODUCT_DESCRIPTION = "FRAGMENT_PRODUCT_DESCRIPTION";
 
     /**
      * Base url for retrieving photos from google.

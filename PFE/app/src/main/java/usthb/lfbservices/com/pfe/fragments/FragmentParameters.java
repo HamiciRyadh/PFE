@@ -48,11 +48,6 @@ import usthb.lfbservices.com.pfe.utils.Utils;
 
 import static android.content.Context.MODE_PRIVATE;
 
-
-/**
- * Created by ryadh on 06/05/18.
- */
-
 public class FragmentParameters extends Fragment {
 
     private static final String TAG = "FragmentParameters";
@@ -141,7 +136,7 @@ public class FragmentParameters extends Fragment {
         history.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                AlertDialog.Builder mBuilder = new AlertDialog.Builder(getContext());
+                AlertDialog.Builder mBuilder = new AlertDialog.Builder(fragmentBelongActivity);
                 mBuilder.setMessage(R.string.dialog_history);
                 mBuilder.setCancelable(false);
                 mBuilder.setPositiveButton(R.string.ok_label, new DialogInterface.OnClickListener() {
@@ -227,16 +222,16 @@ public class FragmentParameters extends Fragment {
                         Log.e(TAG, "  GPS Permissions Ok.");
                         if (Utils.isGPSActivated(getActivity())) {
                             Log.e(TAG, "  GPS Activated.");
-                            mFusedLocationClient = LocationServices.getFusedLocationProviderClient(getActivity());
+                            mFusedLocationClient = LocationServices.getFusedLocationProviderClient(fragmentBelongActivity);
                             mFusedLocationClient.getLastLocation()
-                                    .addOnSuccessListener(getActivity(), new OnSuccessListener<android.location.Location>() {
+                                    .addOnSuccessListener(fragmentBelongActivity, new OnSuccessListener<android.location.Location>() {
                                         @Override
                                         public void onSuccess(android.location.Location location) {
                                             userPosition.setText(getResources().getString(R.string.your_position));
                                             if (location != null) {
                                                 LatLng userLatLng =new LatLng(location.getLatitude(),location.getLongitude());
 
-                                                SharedPreferences.Editor editor = getActivity().getSharedPreferences(Constants.SHARED_PREFERENCES_POSITION, MODE_PRIVATE).edit();
+                                                SharedPreferences.Editor editor = fragmentBelongActivity.getSharedPreferences(Constants.SHARED_PREFERENCES_POSITION, MODE_PRIVATE).edit();
                                                 editor.putString(Constants.SHARED_PREFERENCES_POSITION_LATITUDE, ""+userLatLng.latitude);
                                                 editor.putString(Constants.SHARED_PREFERENCES_POSITION_LONGITUDE, ""+userLatLng.longitude);
                                                 editor.apply();
@@ -316,9 +311,11 @@ public class FragmentParameters extends Fragment {
             ArrayAdapter<String> adapterPosition;
 
             @Override
-            public void onResponse(Call<GoogleAutocompleteResponse> call, Response<GoogleAutocompleteResponse> response) {
+            public void onResponse(@NonNull Call<GoogleAutocompleteResponse> call,@NonNull Response<GoogleAutocompleteResponse> response) {
                 Log.d("onResponse get_places", response.toString());
                 GoogleAutocompleteResponse places = response.body();
+
+                if (places == null) return;
 
                 predictions.clear();
                 predictions.addAll(places.getPredictionList());
@@ -327,12 +324,12 @@ public class FragmentParameters extends Fragment {
                     positions.add(p.getDescription());
                 }
 
-                adapterPosition = new ArrayAdapter<>(getActivity(), android.R.layout.simple_list_item_1, positions);
+                adapterPosition = new ArrayAdapter<>(fragmentBelongActivity, android.R.layout.simple_list_item_1, positions);
                 userPosition.setAdapter(adapterPosition);
             }
 
             @Override
-            public void onFailure(Call<GoogleAutocompleteResponse> call, Throwable t) {
+            public void onFailure(@NonNull Call<GoogleAutocompleteResponse> call,@NonNull Throwable t) {
                 t.printStackTrace();
             }
         });
@@ -345,19 +342,21 @@ public class FragmentParameters extends Fragment {
         call.enqueue(new Callback<GooglePlaceDetails>() {
 
             @Override
-            public void onResponse(Call<GooglePlaceDetails> call, Response<GooglePlaceDetails> response) {
+            public void onResponse(@NonNull Call<GooglePlaceDetails> call,@NonNull Response<GooglePlaceDetails> response) {
                 Log.d("onResponse get_latlng", response.toString());
-                Location places = response.body().getResult().getGeometry().getLocation();
+                GooglePlaceDetails googlePlaceDetails = response.body();
+                if (googlePlaceDetails == null) return;
+                Location places = googlePlaceDetails.getResult().getGeometry().getLocation();
                 LatLng userLatLng = new LatLng(places.getLat(), places.getLng());
 
-                SharedPreferences.Editor editor = getActivity().getSharedPreferences(Constants.SHARED_PREFERENCES_POSITION, MODE_PRIVATE).edit();
+                SharedPreferences.Editor editor = fragmentBelongActivity.getSharedPreferences(Constants.SHARED_PREFERENCES_POSITION, MODE_PRIVATE).edit();
                 editor.putString(Constants.SHARED_PREFERENCES_POSITION_LATITUDE, ""+userLatLng.latitude);
                 editor.putString(Constants.SHARED_PREFERENCES_POSITION_LONGITUDE, ""+userLatLng.longitude);
                 editor.apply();
             }
 
             @Override
-            public void onFailure(Call<GooglePlaceDetails> call, Throwable t) {
+            public void onFailure(@NonNull Call<GooglePlaceDetails> call,@NonNull Throwable t) {
                 t.printStackTrace();
             }
         });

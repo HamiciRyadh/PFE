@@ -362,5 +362,6 @@ public class ProductsFragment extends Fragment {
 
         void onProductSelected(final String productBarcode);
         void setToolbarTitleForProductFragment();
+        void onMoreDetailsSelected(final String productBarcode);
     }
 }

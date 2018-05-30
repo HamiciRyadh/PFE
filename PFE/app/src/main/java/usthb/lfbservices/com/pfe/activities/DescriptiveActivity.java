@@ -36,4 +36,9 @@ public class DescriptiveActivity extends AppCompatActivity implements RecyclerVi
     public void onItemClick() {
 
     }
+
+    @Override
+    public void setToolbarTitleForFragmentDescProduct() {
+
+    }
 }

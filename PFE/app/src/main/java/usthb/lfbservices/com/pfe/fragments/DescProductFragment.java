@@ -60,6 +60,7 @@ public class DescProductFragment extends Fragment {
 
         if (rootView != null) {
             initVariables();
+            implementation.setToolbarTitleForFragmentDescProduct();
 
             if (product != null){
                 if (productName != null) productName.setText(product.getProductName());
@@ -103,7 +104,7 @@ public class DescProductFragment extends Fragment {
     }
 
     public interface FragmentDescriptionProductActions {
-
+        void setToolbarTitleForFragmentDescProduct();
     }
 
 }

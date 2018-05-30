@@ -46,10 +46,10 @@ public class SimpleFragmentPagerAdapter extends FragmentPagerAdapter {
 
         switch (position) {
             case 0: {
-                return mContext.getString(R.string.product);
+                return mContext.getString(R.string.title_fragment_desc_product);
             }
             case 1: {
-                return mContext.getString(R.string.sales_point);
+                return mContext.getString(R.string.title_fragment_list_sales_point);
             }
             default: {
                 return null;

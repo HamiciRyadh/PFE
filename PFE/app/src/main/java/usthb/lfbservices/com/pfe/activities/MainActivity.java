@@ -40,8 +40,10 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.URL;
 import java.text.DecimalFormat;
+import java.util.Locale;
 
 import usthb.lfbservices.com.pfe.R;
+import usthb.lfbservices.com.pfe.fragments.DescProductFragment;
 import usthb.lfbservices.com.pfe.roomDatabase.AppRoomDatabase;
 import usthb.lfbservices.com.pfe.adapters.SuggestinAdapter;
 import usthb.lfbservices.com.pfe.fragments.FragmentBarcodeScanner;
@@ -63,9 +65,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         FragmentMap.MapActions, FragmentFavorite.FavoriteActions,
         FragmentNotifications.NotificationsActions, FragmentParameters.ParametersActions,
         SearchFragment.SearchFragmentActions, ProductsFragment.ProductsFragmentActions,
-        FragmentBarcodeScanner.BarcodeScannerActions, BottomSheetDataSetter {
+        FragmentBarcodeScanner.BarcodeScannerActions, DescProductFragment.FragmentDescriptionProductActions,
+        BottomSheetDataSetter {
 
-    private static final String TAG = MainActivity.class.getName();
+    private static final String TAG = "MainActivity";
 
     private FragmentMap fragmentMap;
     private FragmentFavorite fragmentFavorite;
@@ -74,6 +77,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private SearchFragment searchFragment;
     private ProductsFragment productsFragment;
     private FragmentBarcodeScanner fragmentBarcodeScanner;
+    private DescProductFragment descProductFragment;
     private Fragment currentFragment;
     private AppRoomDatabase db;
     private SearchView searchView;
@@ -139,6 +143,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             } else if (productsFragment.isVisible()) {
                 Log.e(TAG, "ProductFragment");
                 fragmentMap.popSearchFragment();
+            } else if (descProductFragment != null && descProductFragment.isVisible()) {
+                Log.e(TAG, "DescProductFragment");
+                descProductFragment = null;
+                fragmentMap.popProductsFragment();
             } else if (fragmentMap.hasData()) {
                 Log.e(TAG, "HasData");
                 fragmentMap.popProductsFragment();
@@ -162,16 +170,20 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             @Override
             public boolean onMenuItemClick(MenuItem item) {
                 Log.e(TAG, "Redirecting to barcode scanner");
-                if (getSupportFragmentManager().findFragmentByTag(Constants.FRAGMENT_BARCODE_SCANNER) == null) {
-                    DisposableManager.dispose();
-                    getSupportFragmentManager()
-                            .beginTransaction()
-                            .remove(currentFragment)
-                            .add(R.id.frame_layout, fragmentBarcodeScanner, Constants.FRAGMENT_BARCODE_SCANNER)
-                            .commit();
-                    currentFragment = fragmentBarcodeScanner;
-                    ActionBar supportActionBar = getSupportActionBar();
-                    if (supportActionBar != null) supportActionBar.hide();
+                if (!Utils.checkCameraPermission(MainActivity.this)) {
+                    Utils.requestCameraPermission(MainActivity.this);
+                } else {
+                    if (getSupportFragmentManager().findFragmentByTag(Constants.FRAGMENT_BARCODE_SCANNER) == null) {
+                        DisposableManager.dispose();
+                        getSupportFragmentManager()
+                                .beginTransaction()
+                                .remove(currentFragment)
+                                .add(R.id.frame_layout, fragmentBarcodeScanner, Constants.FRAGMENT_BARCODE_SCANNER)
+                                .commit();
+                        currentFragment = fragmentBarcodeScanner;
+                        ActionBar supportActionBar = getSupportActionBar();
+                        if (supportActionBar != null) supportActionBar.hide();
+                    }
                 }
                 return false;
             }
@@ -368,7 +380,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         if (nameTextView != null) nameTextView.setText(salesPoint.getSalesPointName());
         if (quantityTextView != null) quantityTextView.setText(String.valueOf(productSalesPoint.getProductQuantity()));
-        if (priceTextView != null) priceTextView.setText(String.format("%.2f DA",productSalesPoint.getProductPrice()));
+        if (priceTextView != null) priceTextView.setText(String.format(Locale.getDefault(),"%.2f DA",productSalesPoint.getProductPrice()));
 
         if (notifyMe != null) {
             notifyMe.setOnClickListener(new View.OnClickListener() {
@@ -614,6 +626,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
     }
 
+    @Override
+    public void setDescProductFragment(DescProductFragment descProductFragment) {
+        this.descProductFragment = descProductFragment;
+    }
+
+    @Override
+    public void onMoreDetailsSelected(final String productBarcode) {
+        fragmentMap.onProductMoreDetails(productBarcode);
+    }
 
     @Override
     public ProductsFragment getActivityProductsFragment() {
@@ -663,5 +684,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     public void setToolbarTitleForFragmentMap() {
         setToolbarTitle(getResources().getString(R.string.title_fragment_map));
+    }
+
+    @Override
+    public void setToolbarTitleForFragmentDescProduct() {
+        setToolbarTitle(getResources().getString(R.string.title_fragment_desc_product));
     }
 }

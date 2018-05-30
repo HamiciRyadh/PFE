@@ -14,6 +14,7 @@ import android.widget.TextView;
 import java.util.ArrayList;
 
 import usthb.lfbservices.com.pfe.R;
+import usthb.lfbservices.com.pfe.fragments.ProductsFragment;
 import usthb.lfbservices.com.pfe.models.Product;
 
 /**
@@ -32,6 +33,7 @@ public class ProductsAdapter extends ArrayAdapter<Product> {
         this.context = context;
         this.data = data;
     }
+
     @NonNull
     @Override
     public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
@@ -41,23 +43,25 @@ public class ProductsAdapter extends ArrayAdapter<Product> {
                     layoutResourceId, parent, false);
         }
 
-        Product product = getItem(position);
+        final Product product = getItem(position);
 
-       if (product != null) {
-           final TextView tradeMarkTextView = listItemView.findViewById(R.id.product_trademark);
-           if (tradeMarkTextView != null) tradeMarkTextView.setText(product.getProductTradeMark());
+        if (product != null) {
+            final TextView tradeMarkTextView = listItemView.findViewById(R.id.product_trademark);
+            if (tradeMarkTextView != null) tradeMarkTextView.setText(product.getProductTradeMark());
 
-           final TextView nameTextView = listItemView.findViewById(R.id.product_name);
-           if (nameTextView != null) nameTextView.setText(product.getProductName());
+            final TextView nameTextView = listItemView.findViewById(R.id.product_name);
+            if (nameTextView != null) nameTextView.setText(product.getProductName());
 
-           final ImageView productDetails = listItemView.findViewById(R.id.product_details);
-           if (productDetails != null) productDetails.setOnClickListener(new View.OnClickListener() {
+            final ImageView productDetails = listItemView.findViewById(R.id.product_details);
+            if (productDetails != null) productDetails.setOnClickListener(new View.OnClickListener() {
                @Override
                public void onClick(View v) {
-                   //TODO: Insert code here to redirect user to product details
+                   if (context instanceof ProductsFragment.ProductsFragmentActions) {
+                       ((ProductsFragment.ProductsFragmentActions)context).onMoreDetailsSelected(product.getProductBarcode());
+                   }
                }
-           });
-       }
+            });
+        }
 
         return listItemView;
     }

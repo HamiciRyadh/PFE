@@ -79,6 +79,7 @@ public class FragmentMap extends Fragment  implements OnMapReadyCallback {
     private Button showButton;
     private ListView listViewSalesPoints;
     private FloatingActionButton userLocation;
+    private DescProductFragment descProductFragment;
 
     private Button btnWilaya;
     private Button btnSearchPerimeter;
@@ -918,9 +919,21 @@ public class FragmentMap extends Fragment  implements OnMapReadyCallback {
                     .commit();
     }
 
+    public void removeProductDescFragment() {
+        if (getChildFragmentManager().findFragmentByTag(Constants.FRAGMENT_PRODUCT_DESCRIPTION) != null)
+            if (descProductFragment != null) {
+                getChildFragmentManager()
+                        .beginTransaction()
+                        .remove(descProductFragment)
+                        .commit();
+                implementation.setDescProductFragment(null);
+            }
+    }
+
     public void removeFragments() {
         removeSearchFragment();
         removeProductFragment();
+        removeProductDescFragment();
     }
 
     public void popSearchFragment() {
@@ -934,6 +947,7 @@ public class FragmentMap extends Fragment  implements OnMapReadyCallback {
     public void popProductsFragment() {
         onBackPressed();
         hasData = false;
+        removeProductDescFragment();
         Log.e(TAG, "BackStackCount : " + getChildFragmentManager().getBackStackEntryCount());
         getChildFragmentManager().popBackStackImmediate();
         Log.e(TAG, "BackStackCount 2: " + getChildFragmentManager().getBackStackEntryCount());
@@ -989,6 +1003,21 @@ public class FragmentMap extends Fragment  implements OnMapReadyCallback {
             searchQuery(searchQuery);
         }
     }
+
+    public void onProductMoreDetails(final String productBarcode) {
+        final ProductsFragment productsFragment = implementation.getActivityProductsFragment();
+        if (productsFragment.isVisible()) {
+            descProductFragment = DescProductFragment.newInstance(productBarcode);
+            implementation.setDescProductFragment(descProductFragment);
+            getChildFragmentManager()
+                    .beginTransaction()
+                    .remove(productsFragment)
+                    .add(R.id.map_frame_layout, descProductFragment, Constants.FRAGMENT_PRODUCT_DESCRIPTION)
+                    .addToBackStack(null)
+                    .commit();
+        }
+    }
+
     private class GPSLocationListener implements android.location.LocationListener {
         @Override
         public void onLocationChanged(Location location) {
@@ -1065,5 +1094,6 @@ public class FragmentMap extends Fragment  implements OnMapReadyCallback {
         void checkGoToSearchFragment();
         void checkSearchProductBarcode();
         void setToolbarTitleForFragmentMap();
+        void setDescProductFragment(final DescProductFragment descProductFragment);
     }
 }
