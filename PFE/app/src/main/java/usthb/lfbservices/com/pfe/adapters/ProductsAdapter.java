@@ -57,7 +57,7 @@ public class ProductsAdapter extends ArrayAdapter<Product> {
                @Override
                public void onClick(View v) {
                    if (context instanceof ProductsFragment.ProductsFragmentActions) {
-                       ((ProductsFragment.ProductsFragmentActions)context).onMoreDetailsSelected(product.getProductBarcode());
+                       ((ProductsFragment.ProductsFragmentActions)context).onMoreDetailsSelected(product);
                    }
                }
             });

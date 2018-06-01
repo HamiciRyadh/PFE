@@ -60,9 +60,13 @@ public class Constants {
     /**
      * The {@link android.content.SharedPreferences} used for user parameters.
      */
-    public static final String SHARED_PREFERENCES_USER_MAP_STYLE = "mapStyle";
-    public static final String SATELLITE = "satellit";
-    public static final String STANDARD = "standard";
+    public static final String SHARED_PREFERENCES_USER_PREFERENCES = "mapStyle";
+    public static final String MAP_STYLE = "MAP_STYLE";
+    public static final String MAP_SATELLITE = "satellit";
+    public static final String MAP_STANDARD = "standard";
+    public static final String NOTIFICATIONS = "NOTIFICATIONS";
+    public static final String NOTIFICATIONS_ON = "NOTIFICATIONS_ON";
+    public static final String NOTIFICATIONS_OFF = "NOTIFICATIONS_OFF";
 
     /**
      * Request codes used when requesting a permission.

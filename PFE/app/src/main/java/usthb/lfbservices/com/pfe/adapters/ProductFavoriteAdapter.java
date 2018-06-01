@@ -2,6 +2,7 @@ package usthb.lfbservices.com.pfe.adapters;
 
 import android.content.Context;
 import android.content.Intent;
+import android.os.Bundle;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -23,9 +24,7 @@ public class ProductFavoriteAdapter extends RecyclerView.Adapter< ProductFavorit
     private static final String TAG = ProductFavoriteAdapter.class.getName();
     private Context context;
     private AppRoomDatabase db;
-    private String productBarcode;
     private List<Product> products;
-
 
 
     public ProductFavoriteAdapter(List<Product> products) {
@@ -54,7 +53,7 @@ public class ProductFavoriteAdapter extends RecyclerView.Adapter< ProductFavorit
     @Override
     public void onItemDismiss(int position) {
         db = AppRoomDatabase.getInstance(ProductFavoriteAdapter.this.context);
-        productBarcode = products.get(position).getProductBarcode();
+        String productBarcode = products.get(position).getProductBarcode();
         products.remove(position);
         db.productDao().deleteById(productBarcode);
         notifyItemRemoved(position);
@@ -100,11 +99,10 @@ public class ProductFavoriteAdapter extends RecyclerView.Adapter< ProductFavorit
 
         @Override
         public void onClick(View view) {
-            productBarcode = products.get(getLayoutPosition()).getProductBarcode();
+            Product product = products.get(getLayoutPosition());
             Intent intent = new Intent(context, DescriptiveActivity.class);
-            intent.putExtra("usthb.lfbservices.com.pfe.adapters.productBarcode", productBarcode);
+            intent.putExtra("product", product);
             context.startActivity(intent);
-            Log.e(TAG, "onClick Product " + productBarcode.toString());
         }
     }
 }

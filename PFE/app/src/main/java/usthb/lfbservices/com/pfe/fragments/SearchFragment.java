@@ -61,6 +61,11 @@ public class SearchFragment extends Fragment {
     public SearchFragment(){
     }
 
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setRetainInstance(true);
+    }
 
     @Nullable
     @Override
@@ -248,6 +253,10 @@ public class SearchFragment extends Fragment {
      */
     public ArrayList<Category> getMinimumCategoriesToDisplay() {
         ArrayList<Category> list = new ArrayList<>();
+
+        Log.e(TAG, "Number of categories to display : " + numberOfCategoriesToDisplay);
+        Log.e(TAG, "Categories.length : " + categories.length);
+        Log.e(TAG, "Categories data size : " + Category.Data().size());
 
         for (int i = 1; i < numberOfCategoriesToDisplay && i <= categories.length; i++) {
             list.add(new Category(icon.get(i-1), categories[i-1], i));

@@ -154,8 +154,8 @@ public class PfeAPI {
     }
 
 
-    public Observable<SalesPoint> getPlaceDetails(String salesPointId) {
-        return pfeService.getPlaceDetails(salesPointId);
+    public Observable<GooglePlaceDetails> getPlaceDetails(final String key, final String salesPointId) {
+        return itineraryService.getPlaceDetails(key, salesPointId);
     }
 
     /**
@@ -294,6 +294,16 @@ public class PfeAPI {
         return pfeService.getProductCharacteristics(productBarcode);
     }
 
+    /**
+     * Operates a network call to retrieve the search propositions corresponding to the given search
+     * query.
+     * @param query The search query for which the propositions are made.
+     * @return An {@link Observable} of a {@link List} of {@link String} representing the search
+     * propositions relative to the given search query.
+     */
+    public Observable<List<String>> getSearchPropositions(final String query) {
+        return pfeService.getSearchPropositions(query);
+    }
 
 
     //TODO : NEW mais à modifier ! envoyer aussi la liste des points de vente actuelle

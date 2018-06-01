@@ -7,11 +7,14 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.location.Location;
 import android.location.LocationManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
+import android.os.StrictMode;
 import android.provider.Settings;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -22,12 +25,16 @@ import android.view.inputmethod.InputMethodManager;
 
 import com.google.android.gms.maps.model.LatLng;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
 import usthb.lfbservices.com.pfe.R;
 import usthb.lfbservices.com.pfe.activities.LoginActivity;
+import usthb.lfbservices.com.pfe.roomDatabase.AppRoomDatabase;
 
 import static android.content.Context.MODE_PRIVATE;
 
@@ -164,7 +171,7 @@ public class Utils
      * @return true if the GPS is activated, false otherwise.
      */
     public static boolean isGPSActivated(final Context context) {
-        LocationManager service = (LocationManager)context.getSystemService(context.LOCATION_SERVICE);
+        LocationManager service = (LocationManager)context.getSystemService(Context.LOCATION_SERVICE);
         return service.isProviderEnabled(LocationManager.GPS_PROVIDER);
     }
 
@@ -248,6 +255,37 @@ public class Utils
     }
 
     /**
+     * Performs a network operation to get the Google Image associated with the photo reference and insert it
+     * into the database for the corresponding sales point.
+     * @param context The Context of the current Activity.
+     * @param salesPointId The id of the {@link usthb.lfbservices.com.pfe.models.SalesPoint} for which the
+     *                     photo will be inserted.
+     * @param photoReference The reference for the photo to download.
+     */
+    public static void addPhoto(final Context context, final String salesPointId, final String photoReference) {
+        int SDK_INT = android.os.Build.VERSION.SDK_INT;
+        if (SDK_INT > 8) {
+            StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder()
+                    .permitAll().build();
+            StrictMode.setThreadPolicy(policy);
+
+            try {
+                URL url = new URL(Utils.buildGooglePictureUri(context, photoReference).toString());
+                Bitmap bitmap= BitmapFactory.decodeStream(url.openConnection().getInputStream());
+                ByteArrayOutputStream stream = new ByteArrayOutputStream();
+                bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
+                byte[] byteArray = stream.toByteArray();
+                bitmap.recycle();
+                AppRoomDatabase db = AppRoomDatabase.getInstance(context);
+                db.salesPointDao().updatePhoto(salesPointId, byteArray);
+
+            } catch(IOException e) {
+                Log.e(TAG, "image " +e );
+            }
+        }
+    }
+
+    /**
      * Checks if the given position inside the given perimeter.
      * @param center The position of the center of the perimeter.
      * @param position The position to test.
@@ -273,7 +311,7 @@ public class Utils
      * @return A List containing up to the n closest positions to the center.
      */
     public static List<LatLng> getClosestPositions(Iterator<LatLng> positions, LatLng center, int n) {
-        List<LatLng> result = new ArrayList<LatLng>();
+        List<LatLng> result = new ArrayList<>();
         float[] distanceFutureElement;
         float[][] distances = new float[n][2];
         int count = 0;

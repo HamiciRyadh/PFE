@@ -9,6 +9,7 @@ import android.support.v4.app.FragmentPagerAdapter;
 import usthb.lfbservices.com.pfe.R;
 import usthb.lfbservices.com.pfe.fragments.DescProductFragment;
 import usthb.lfbservices.com.pfe.fragments.DescProductSalesPointFragment;
+import usthb.lfbservices.com.pfe.models.Product;
 
 
 public class SimpleFragmentPagerAdapter extends FragmentPagerAdapter {
@@ -16,14 +17,12 @@ public class SimpleFragmentPagerAdapter extends FragmentPagerAdapter {
     private Context mContext;
     private DescProductFragment descProductFragment;
     private DescProductSalesPointFragment descProductSalesPointFragment;
-    private String productBarcode;
 
-    public SimpleFragmentPagerAdapter(Context context, FragmentManager fm, @NonNull String productBarcode) {
+    public SimpleFragmentPagerAdapter(Context context, FragmentManager fm, @NonNull Product product) {
         super(fm);
         mContext = context;
-        this.productBarcode = productBarcode;
-        descProductFragment = DescProductFragment.newInstance(productBarcode);
-        descProductSalesPointFragment = DescProductSalesPointFragment.newInstance(productBarcode);
+        descProductFragment = DescProductFragment.newInstance(product);
+        descProductSalesPointFragment = DescProductSalesPointFragment.newInstance(product);
     }
 
     @Override
@@ -56,5 +55,8 @@ public class SimpleFragmentPagerAdapter extends FragmentPagerAdapter {
             }
         }
     }
-}
 
+    public DescProductFragment getDescProductFragment() {
+        return descProductFragment;
+    }
+}

@@ -24,7 +24,6 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.firebase.iid.FirebaseInstanceId;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -56,7 +55,7 @@ public class FragmentParameters extends Fragment {
     private View rootView;
     private FragmentActivity fragmentBelongActivity;
     private TextView history;
-    private  Switch notification;
+    private Switch notification;
     private AutoCompleteTextView userPosition;
     private String apiKey;
     private List<Prediction> predictions ;
@@ -70,6 +69,11 @@ public class FragmentParameters extends Fragment {
     public FragmentParameters() {
     }
 
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setRetainInstance(true);
+    }
 
     @Nullable
     @Override
@@ -123,12 +127,12 @@ public class FragmentParameters extends Fragment {
     }
 
     public void init() {
-        SharedPreferences sharedPreferences = fragmentBelongActivity.getSharedPreferences(Constants.SHARED_PREFERENCES_POSITION, MODE_PRIVATE);
-        String sMapStyle = sharedPreferences.getString(Constants.SHARED_PREFERENCES_USER_MAP_STYLE, null);
+        SharedPreferences sharedPreferences = fragmentBelongActivity.getSharedPreferences(Constants.SHARED_PREFERENCES_USER_PREFERENCES, MODE_PRIVATE);
+        String sMapStyle = sharedPreferences.getString(Constants.MAP_STYLE, null);
         if (sMapStyle != null) {
-            if (sMapStyle.equalsIgnoreCase(Constants.SATELLITE)) {
+            if (sMapStyle.equalsIgnoreCase(Constants.MAP_SATELLITE)) {
                 radioStyleMapGroup.check(R.id.radio_satellite_map);
-            } else if (sMapStyle.equalsIgnoreCase(Constants.STANDARD)) {
+            } else if (sMapStyle.equalsIgnoreCase(Constants.MAP_STANDARD)) {
                 radioStyleMapGroup.check(R.id.radio_standard_map);
             }
         }
@@ -168,18 +172,16 @@ public class FragmentParameters extends Fragment {
 
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (! isChecked) {
+                SharedPreferences.Editor editor = fragmentBelongActivity.getSharedPreferences(Constants.SHARED_PREFERENCES_USER_PREFERENCES, MODE_PRIVATE).edit();
+                if (!isChecked) {
                     notification.setText(getResources().getString(R.string.turn_on_notifications));
-                    try {
-                        FirebaseInstanceId.getInstance().deleteInstanceId();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
+                    editor.putString(Constants.NOTIFICATIONS, Constants.NOTIFICATIONS_OFF);
                 }
                 else {
                     notification.setText(getResources().getString(R.string.turn_off_notifications));
-                    FirebaseInstanceId.getInstance().getToken();
+                    editor.putString(Constants.NOTIFICATIONS, Constants.NOTIFICATIONS_ON);
                 }
+                editor.apply();
             }
 
         });
@@ -190,15 +192,15 @@ public class FragmentParameters extends Fragment {
                 final GoogleMap mMap = Singleton.getInstance().getMap();
                 boolean isChecked = checkedRadioButton.isChecked();
                 if (isChecked) {
-                    SharedPreferences.Editor editor = fragmentBelongActivity.getSharedPreferences(Constants.SHARED_PREFERENCES_POSITION, MODE_PRIVATE).edit();
-                    if(checkedRadioButton.getText().equals("Satellite")) {
+                    SharedPreferences.Editor editor = fragmentBelongActivity.getSharedPreferences(Constants.SHARED_PREFERENCES_USER_PREFERENCES, MODE_PRIVATE).edit();
+                    if(checkedRadioButton.getId() == R.id.radio_satellite_map) {
                         Log.e(TAG, "Satellite Checked ");
-                        editor.putString(Constants.SHARED_PREFERENCES_USER_MAP_STYLE, Constants.SATELLITE);
+                        editor.putString(Constants.MAP_STYLE, Constants.MAP_SATELLITE);
                         if (mMap != null) mMap.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
                     }
-                    if(checkedRadioButton.getText().equals("Standard")) {
+                    if(checkedRadioButton.getId() == R.id.radio_standard_map) {
                         Log.e(TAG, "Standard Checked ");
-                        editor.putString(Constants.SHARED_PREFERENCES_USER_MAP_STYLE, Constants.STANDARD);
+                        editor.putString(Constants.MAP_STYLE, Constants.MAP_STANDARD);
                         if (mMap != null) mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
                     }
                     editor.apply();

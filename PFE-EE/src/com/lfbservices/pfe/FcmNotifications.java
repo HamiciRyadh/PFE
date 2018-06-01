@@ -18,10 +18,9 @@ public class FcmNotifications {
 	
 	
 	public static String pushFCMNotification(final String userDeviceId, final String salesPointId, final String productBarcode,
-											 final int productQuantity, final double productPrice) throws Exception {
+											 final int productQuantityOld, final double productPriceOld,
+											 final int productQuantityNew, final double productPriceNew) throws Exception {
 		
-		String productName = Access.getProductById(productBarcode).getProductName();
-		//TODO: Put the provided data in the notification message data
 		URL url = new URL(API_URL_FCM);
 		HttpURLConnection conn = (HttpURLConnection) url.openConnection();
 	
@@ -34,25 +33,18 @@ public class FcmNotifications {
 	    
 	    JSONObject json = new JSONObject();
 	    json.put("to", userDeviceId);
-	    
-	    
-	    JSONObject info = new JSONObject();
-	    info.put("title","Du nouveau pour "+ productName);
-	    //info.put("body","Il n'est plus disponible chez AlgerPc.");           
-	    //info.put("body","Il est de nouveau disponible chez AlgerPc.");                  
-	    info.put("body", "Quantité : " + productQuantity + "   -   "+ "Prix : " + String.format("%.2f DA", productPrice));                  
-	    json.put("notification", info);
-	    
-	    
+	  	    
 	    JSONObject data = new JSONObject();
+	    data.put("salesPointId", salesPointId);
 	    data.put("salesPointName", Access.getSalesPointById(salesPointId).getSalesPointName());
 	    data.put("productName", Access.getProductById(productBarcode).getProductName());
-	    data.put("productQuantity", productQuantity);
-	    data.put("productPrice", productPrice);		
+	    data.put("productQuantityOld", productQuantityOld);
+	    data.put("productPriceOld", productPriceOld);
+	    data.put("productQuantityNew", productQuantityNew);
+	    data.put("productPriceNew", productPriceNew);
+	    data.put("productBarcode", productBarcode);
 
 	    json.put("data", data);
-	    
-	    
 	    
 	    try {
 	        OutputStreamWriter wr = new OutputStreamWriter(conn.getOutputStream());

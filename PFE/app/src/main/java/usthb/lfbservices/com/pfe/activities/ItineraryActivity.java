@@ -57,9 +57,9 @@ import usthb.lfbservices.com.pfe.network.PfeAPI;
 import usthb.lfbservices.com.pfe.utils.Constants;
 import usthb.lfbservices.com.pfe.utils.Utils;
 
-public class ItineraireActivity extends FragmentActivity implements OnMapReadyCallback  {
+public class ItineraryActivity extends FragmentActivity implements OnMapReadyCallback  {
 
-    private static final String TAG = ItineraireActivity.class.getName();
+    private static final String TAG = ItineraryActivity.class.getName();
     public static final float ZOOM_LEVEL = 18.23f;
 
     private AutoCompleteTextView depart;
@@ -122,7 +122,8 @@ public class ItineraireActivity extends FragmentActivity implements OnMapReadyCa
         SharedPreferences preferences = getSharedPreferences(Constants.SHARED_PREFERENCES_POSITION, MODE_PRIVATE);
         String sUserLatitude = preferences.getString(Constants.SHARED_PREFERENCES_POSITION_LATITUDE, null);
         String sUserLongitude = preferences.getString(Constants.SHARED_PREFERENCES_POSITION_LONGITUDE, null);
-        String sMapStyle = preferences.getString(Constants.SHARED_PREFERENCES_USER_MAP_STYLE, null);
+        String sMapStyle = getSharedPreferences(Constants.SHARED_PREFERENCES_USER_PREFERENCES, MODE_PRIVATE)
+                .getString(Constants.MAP_STYLE, null);
         LatLng userPosition = null;
 
         if (sUserLatitude != null && sUserLongitude != null) {
@@ -171,7 +172,7 @@ public class ItineraireActivity extends FragmentActivity implements OnMapReadyCa
         mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
             @Override
             public void onMapClick(LatLng latLng) {
-                Utils.hideKeyboard(ItineraireActivity.this);
+                Utils.hideKeyboard(ItineraryActivity.this);
                 if (blockItineraire.getVisibility() == View.VISIBLE) {
                     blockItineraire.animate()
                             .translationY(0)
@@ -205,20 +206,20 @@ public class ItineraireActivity extends FragmentActivity implements OnMapReadyCa
             public boolean onMarkerClick(Marker marker) {
                 Log.e(TAG, "onMarkerClick");
                 marker.showInfoWindow();
-                if (mMap.getCameraPosition().zoom > ItineraireActivity.ZOOM_LEVEL*0.8f) {
+                if (mMap.getCameraPosition().zoom > ItineraryActivity.ZOOM_LEVEL*0.8f) {
                     mMap.animateCamera(cameraUpdate);
                 }
                 else {
-                    mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(marker.getPosition(), ItineraireActivity.ZOOM_LEVEL));
+                    mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(marker.getPosition(), ItineraryActivity.ZOOM_LEVEL));
                 }
                 return true;
             }
         });
 
         if (sMapStyle != null) {
-            if (sMapStyle.equalsIgnoreCase(Constants.SATELLITE)) {
+            if (sMapStyle.equalsIgnoreCase(Constants.MAP_SATELLITE)) {
                 mMap.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
-            } else if (sMapStyle.equalsIgnoreCase(Constants.STANDARD)) {
+            } else if (sMapStyle.equalsIgnoreCase(Constants.MAP_STANDARD)) {
                 mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
             }
         }
@@ -291,7 +292,7 @@ public class ItineraireActivity extends FragmentActivity implements OnMapReadyCa
         depart.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View arg1, int position, long arg3) {
-                Utils.hideKeyboard(ItineraireActivity.this);
+                Utils.hideKeyboard(ItineraryActivity.this);
                 Log.e(TAG, "onClick : Depart");
                 get_latlng(apiKey, predictions.get(position).getPlaceID());
             }
@@ -341,7 +342,7 @@ public class ItineraireActivity extends FragmentActivity implements OnMapReadyCa
                 SalesPoint salesPointSelected = salesPointList.get(position);
                 arrivee.setText(salesPointSelected.getSalesPointAddress());
                 dest = new LatLng(salesPointSelected.getSalesPointLat(),salesPointSelected.getSalesPointLong());
-                Utils.hideKeyboard(ItineraireActivity.this);
+                Utils.hideKeyboard(ItineraryActivity.this);
                 Log.e(TAG, "onClick : Arrivee");
                 get_distance(origin, dest);
                 get_response(Constants.ITINERAIRE_DRIVING,origin,dest);
@@ -371,17 +372,17 @@ public class ItineraireActivity extends FragmentActivity implements OnMapReadyCa
             public void onClick(View v) {
                 Log.e(TAG, "UserLocationClick");
                 Log.e(TAG, "onClick : UserLocation");
-                if (!Utils.checkGPSPermission(ItineraireActivity.this)) {
+                if (!Utils.checkGPSPermission(ItineraryActivity.this)) {
                     Log.e(TAG, "onMapReady : No GPS Permissions.");
-                    Utils.requestGPSPermission(ItineraireActivity.this);
+                    Utils.requestGPSPermission(ItineraryActivity.this);
                 }
-                if (Utils.checkGPSPermission(ItineraireActivity.this)) {
+                if (Utils.checkGPSPermission(ItineraryActivity.this)) {
                     Log.e(TAG, "onMapReady : GPS Permissions Ok.");
-                    if (Utils.isGPSActivated(ItineraireActivity.this)) {
+                    if (Utils.isGPSActivated(ItineraryActivity.this)) {
                         Log.e(TAG, "onMapReady : GPS Activated.");
-                        mFusedLocationClient = LocationServices.getFusedLocationProviderClient(ItineraireActivity.this);
+                        mFusedLocationClient = LocationServices.getFusedLocationProviderClient(ItineraryActivity.this);
                         mFusedLocationClient.getLastLocation()
-                                .addOnSuccessListener(ItineraireActivity.this, new OnSuccessListener<android.location.Location>() {
+                                .addOnSuccessListener(ItineraryActivity.this, new OnSuccessListener<android.location.Location>() {
                                     @Override
                                     public void onSuccess(android.location.Location location) {
                                         depart.setText(getResources().getString(R.string.your_position));
@@ -408,7 +409,7 @@ public class ItineraireActivity extends FragmentActivity implements OnMapReadyCa
                     } else {
                         Log.e(TAG, "onMapReady : GPS Non Activated.");
                         gpsPermissionRequested = true;
-                        Utils.activateGPS(ItineraireActivity.this);
+                        Utils.activateGPS(ItineraryActivity.this);
                     }
                 }
             }
@@ -459,7 +460,7 @@ public class ItineraireActivity extends FragmentActivity implements OnMapReadyCa
                     positions.add(p.getDescription());
                 }
 
-                adapterPosition = new ArrayAdapter<>(ItineraireActivity.this, android.R.layout.simple_list_item_1,positions);
+                adapterPosition = new ArrayAdapter<>(ItineraryActivity.this, android.R.layout.simple_list_item_1,positions);
                 depart.setAdapter(adapterPosition);
             }
 

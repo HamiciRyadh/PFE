@@ -13,8 +13,8 @@
 	</resultMap>
 	
 	<resultMap id="KeyValue" type="com.lfbservices.pfe.model.KeyValueID">
-		<result property="typeCaracteristicId" column="type_caracteristic_id" />
-		<result property="productCaracteristicValue" column="product_caracteristic_value" />
+		<result property="typeCharacteristicId" column="type_caracteristic_id" />
+		<result property="productCharacteristicValue" column="product_caracteristic_value" />
 	</resultMap>
 	
 
@@ -76,9 +76,17 @@
 	</delete>
 
 
-	<select id="getProductCaracteristicID" parameterType="String" resultMap="KeyValue">
+	<select id="getProductCharacteristicID" parameterType="String" resultMap="KeyValue">
 		 SELECT type_caracteristic_id, product_caracteristic_value 
          FROM  ${db.schema}."ProductCaracteristic" WHERE product_barcode = #{value} ;
+	</select>
+	
+	<select id="getPropositions" parameterType="String" resultType="String">
+		 SELECT p.product_name  FROM  ${db.schema}."Product" p 
+		 WHERE p.product_name ILIKE #{query} 
+		 UNION
+		 SELECT k.keyword FROM ${db.schema}."TypeKeyword" k 
+         WHERE k.keyword ILIKE #{query};
 	</select>
 
 </mapper>

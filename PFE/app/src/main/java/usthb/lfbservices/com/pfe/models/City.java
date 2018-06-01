@@ -25,7 +25,7 @@ public class City {
     @Ignore
     private static final List<City> cities = new ArrayList<>();
 
-    public static List<City> Data() {
+    static {
         cities.add( new City(9,"Ain romana", 1));
         cities.add( new City(9,"Ben khellil",2 ));
         cities.add( new City(9,"Beni mered",3 ));
@@ -73,7 +73,9 @@ public class City {
         cities.add( new City(16,"Hammamet",19 ));
         cities.add( new City(16,"Hydra",20 ));
         cities.add( new City(16,"Birkhadem",21 ));
+    }
 
+    public static List<City> Data() {
         return cities;
     }
 

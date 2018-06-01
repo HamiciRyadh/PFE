@@ -5,9 +5,11 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.MatrixCursor;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomSheetBehavior;
 import android.support.design.widget.Snackbar;
+import android.support.v4.widget.CursorAdapter;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
@@ -39,6 +41,11 @@ import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 
 import usthb.lfbservices.com.pfe.R;
+import usthb.lfbservices.com.pfe.activities.DescSalesPointActivity;
+import usthb.lfbservices.com.pfe.fragments.DescProductFragment;
+import usthb.lfbservices.com.pfe.itinerary.place.AddressComponents;
+import usthb.lfbservices.com.pfe.itinerary.place.GooglePlaceDetails;
+import usthb.lfbservices.com.pfe.itinerary.place.ResultDetails;
 import usthb.lfbservices.com.pfe.roomDatabase.AppRoomDatabase;
 import usthb.lfbservices.com.pfe.activities.MainActivity;
 import usthb.lfbservices.com.pfe.adapters.ProductsAdapter;
@@ -47,7 +54,7 @@ import usthb.lfbservices.com.pfe.fragments.FragmentMap;
 import usthb.lfbservices.com.pfe.models.BottomSheetDataSetter;
 import usthb.lfbservices.com.pfe.models.KeyValue;
 import usthb.lfbservices.com.pfe.models.Product;
-import usthb.lfbservices.com.pfe.models.ProductCaracteristic;
+import usthb.lfbservices.com.pfe.models.ProductCharacteristic;
 import usthb.lfbservices.com.pfe.models.ProductSalesPoint;
 import usthb.lfbservices.com.pfe.models.Result;
 import usthb.lfbservices.com.pfe.models.SalesPoint;
@@ -110,7 +117,7 @@ public class PfeRx {
                         final View geolocation = activity.findViewById(R.id.geolocalisation);
                         if (geolocation != null) geolocation.setVisibility(View.VISIBLE);
 
-                        final SalesPointsAdapter salesPointsAdapter1 = new SalesPointsAdapter(activity, R.layout.list_item_salespoint_product, (ArrayList) salesPoints);
+                        final SalesPointsAdapter salesPointsAdapter1 = new SalesPointsAdapter(activity, R.layout.list_item_salespoint_product, (ArrayList<SalesPoint>) salesPoints);
 
                         final ListView listSalesPoints = activity.findViewById(R.id.list_view_sales_points);
                         if (listSalesPoints != null) listSalesPoints.setAdapter(salesPointsAdapter1);
@@ -226,7 +233,7 @@ public class PfeRx {
                                         }
                                         else {
                                             showList.setText(activity.getString(R.string.reduce));
-                                            final SalesPointsAdapter salesPointsAdapter = new SalesPointsAdapter(activity, R.layout.sales_point_list, (ArrayList)salesPoints);
+                                            final SalesPointsAdapter salesPointsAdapter = new SalesPointsAdapter(activity, R.layout.sales_point_list, (ArrayList<SalesPoint>)salesPoints);
                                             listView.setAdapter(salesPointsAdapter);
                                             listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                                                 @Override
@@ -329,7 +336,6 @@ public class PfeRx {
                     @Override
                     public void onComplete() {
                         Log.e(TAG, "SearchFromQuery : onComplete");
-
                         View progressBar = activity.findViewById(R.id.products_progress_bar);
                         TextView emptyTextView = activity.findViewById(R.id.empty_list_products);
                         if (progressBar != null)
@@ -348,10 +354,11 @@ public class PfeRx {
     public static void getPlaceDetails(@NonNull final Activity activity,
                                        @NonNull final String salesPointId) {
 
-        pfeAPI.getPlaceDetails(salesPointId)
+        final String apiKey = activity.getResources().getString(R.string.google_maps_key);
+        pfeAPI.getPlaceDetails(apiKey, salesPointId)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Observer<SalesPoint>() {
+                .subscribe(new Observer<GooglePlaceDetails>() {
                     @Override
                     public void onSubscribe(Disposable d) {
                         Log.e(TAG, "GetPlaceDetails : onSubscribe");
@@ -359,30 +366,71 @@ public class PfeRx {
                     }
 
                     @Override
-                    public void onNext(SalesPoint salesPoint) {
+                    public void onNext(GooglePlaceDetails googlePlaceDetails) {
                         Log.e(TAG, "GetPlaceDetails : onNext");
 
-                        List<SalesPoint> salesPoints = Singleton.getInstance().getSalesPointList();
+                        final List<SalesPoint> salesPoints = Singleton.getInstance().getSalesPointList();
+                        final ResultDetails resultDetails = googlePlaceDetails.getResult();
+                        final SalesPoint result = new SalesPoint();
 
-                        for (SalesPoint salesPointTemps : salesPoints) {
-                            if (salesPointTemps.getSalesPointId().equals(salesPoint.getSalesPointId())) {
-                                salesPointTemps.setSalesPointPhoneNumber(salesPoint.getSalesPointPhoneNumber());
-                                salesPointTemps.setSalesPointPhotoReference(salesPoint.getSalesPointPhotoReference());
-                                salesPointTemps.setSalesPointRating(salesPoint.getSalesPointRating());
-                                salesPointTemps.setSalesPointWebSite(salesPoint.getSalesPointWebSite());
+                        if (resultDetails == null) {
+                            Log.e(TAG, "Result null");
+                            return;
+                        }
+                        if (resultDetails.getPlaceId() == null || resultDetails.getPlaceId().trim().equals("")) {
+                            if (activity instanceof BottomSheetDataSetter) {
+                                BottomSheetDataSetter bottomSheetDataSetter = (BottomSheetDataSetter)activity;
+                                bottomSheetDataSetter.setBottomSheetDataDetails(result);
+                            } else if (activity instanceof DescSalesPointActivity) {
+                                ((DescSalesPointActivity) activity).initViews(result, false);
+                            }
+                        }
 
-                                salesPoint.setSalesPointLat(salesPointTemps.getSalesPointLat());
-                                salesPoint.setSalesPointLong(salesPointTemps.getSalesPointLong());
-                                salesPoint.setSalesPointName(salesPointTemps.getSalesPointName());
-                                salesPoint.setSalesPointAddress(salesPointTemps.getSalesPointAddress());
-                                salesPoint.setSalesPointWilaya(salesPointTemps.getSalesPointWilaya());
+                        result.setSalesPointId(resultDetails.getPlaceId());
+                        result.setSalesPointName(resultDetails.getName());
+                        result.setSalesPointAddress(resultDetails.getFormattedAddress());
+                        result.setSalesPointLat(resultDetails.getGeometry().getLocation().getLat());
+                        result.setSalesPointLong(resultDetails.getGeometry().getLocation().getLng());
+                        String phoneNumber = resultDetails.getInternationalPhoneNumber();
+                        if (phoneNumber == null || phoneNumber.trim().equalsIgnoreCase("")) {
+                            phoneNumber = resultDetails.getInternationalPhoneNumber();
+                            if (phoneNumber == null || phoneNumber.trim().equalsIgnoreCase("")) {
+                                phoneNumber = activity.getResources().getString(R.string.not_available);
+                            }
+                        }
+                        result.setSalesPointPhoneNumber(phoneNumber);
+                        result.setSalesPointPhotoReference(resultDetails.getPhotos()[0].getPhotoReference());
+                        result.setSalesPointRating(resultDetails.getRating());
+                        String website = resultDetails.getWebsite();
+                        if (website == null || website.trim().equalsIgnoreCase(""))
+                            website = activity.getResources().getString(R.string.not_available);
+                        result.setSalesPointWebSite(website);
+
+                        for (AddressComponents addressComponents : resultDetails.getAddressComponents()) {
+                            for (String type : addressComponents.getTypes()) {
+                                if (type.contains("administrative_area_level")) {
+                                    result.setSalesPointWilaya(addressComponents.getLongName());
+                                }
+                            }
+                        }
+
+                        final int size = salesPoints.size();
+                        int correspondingSalesPoint = -1;
+                        for (int i = 0; i < size; i++) {
+                            final SalesPoint salesPoint = salesPoints.get(i);
+                            if (salesPoint.getSalesPointId().equals(result.getSalesPointId())) {
+                                correspondingSalesPoint = i;
+                                salesPoints.remove(i);
+                                salesPoints.add(i, result);
                                 break;
                             }
                         }
 
-                        if (activity instanceof BottomSheetDataSetter) {
+                        if ((correspondingSalesPoint != -1) && (activity instanceof BottomSheetDataSetter)) {
                             BottomSheetDataSetter bottomSheetDataSetter = (BottomSheetDataSetter)activity;
-                            bottomSheetDataSetter.setBottomSheetDataDetails(salesPoint);
+                            bottomSheetDataSetter.setBottomSheetDataDetails(result);
+                        } else if (activity instanceof DescSalesPointActivity) {
+                            ((DescSalesPointActivity) activity).initViews(result, true);
                         }
                     }
 
@@ -645,7 +693,7 @@ public class PfeRx {
     }
 
 
-    public static void setFirebaseTokenId(@NonNull final String deviceId) {
+    private static void setFirebaseTokenId(@NonNull final String deviceId) {
         pfeAPI.setFirebaseTokenId(deviceId)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -658,10 +706,6 @@ public class PfeRx {
                     @Override
                     public void onNext(Boolean added) {
                         Log.e(TAG, "SetFirebaseTokenId : onNext");
-
-                        if (!added) {
-                            //TODO: Think of someting
-                        }
                     }
 
                     @Override
@@ -691,10 +735,6 @@ public class PfeRx {
                     @Override
                     public void onNext(Boolean updated) {
                         Log.e(TAG, "updateFirebaseTokenId : onNext");
-
-                        if (!updated) {
-                            //TODO: Think of someting
-                        }
                     }
 
                     @Override
@@ -723,10 +763,6 @@ public class PfeRx {
                     @Override
                     public void onNext(Boolean removed) {
                         Log.e(TAG, "removeFirebaseTokenId : onNext");
-
-                        if (!removed) {
-                            //TODO: Think of someting
-                        }
                     }
 
                     @Override
@@ -756,10 +792,6 @@ public class PfeRx {
                     @Override
                     public void onNext(Boolean added) {
                         Log.e(TAG, "addToNotificationsList : onNext");
-
-                        if (!added) {
-                            //TODO: Think of someting
-                        }
                     }
 
                     @Override
@@ -789,10 +821,6 @@ public class PfeRx {
                     @Override
                     public void onNext(Boolean added) {
                         Log.e(TAG, "removeFromNotificationsList : onNext");
-
-                        if (!added) {
-                            //TODO: Think of someting
-                        }
                     }
 
                     @Override
@@ -828,6 +856,7 @@ public class PfeRx {
                         AppRoomDatabase db = AppRoomDatabase.getInstance(activity);
                         if (!db.productDao().productExists(product.getProductBarcode())) db.productDao().insert(product);
                         db.productSalesPointDao().insertAll(productSalesPoint);
+                        PfeRx.getProductCharacteristics(activity, product, true);
                     }
 
                     @Override
@@ -838,62 +867,103 @@ public class PfeRx {
                     @Override
                     public void onComplete() {
                         Log.e(TAG, "GetProductDetails : onComplete");
-                        PfeRx.getProductCharacteristics(activity, productSalesPoint.getProductBarcode());
                     }
                 });
     }
 
 
-    public static void getProductCharacteristics(@NonNull final Activity activity, @NonNull final String productBarcode) {
+    public static void getProductCharacteristics(@NonNull final Activity activity,
+                                                 @NonNull final Product product,
+                                                 final boolean addToDatabase) {
 
-        pfeAPI.getProductCharacteristics(productBarcode)
+        pfeAPI.getProductCharacteristics(product.getProductBarcode())
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Observer<List<KeyValue>>() {
                     @Override
                     public void onSubscribe(Disposable d) {
-                        Log.e(TAG, "getProductCaracteristic : onSubscribe");
+                        Log.e(TAG, "getProductCharacteristics : onSubscribe");
                         DisposableManager.add(d);
                     }
 
                     @Override
-                    public void onNext(List<KeyValue> listProductsCaracteristic) {
-                        Log.e(TAG, "getProductCaracteristic : onNext");
+                    public void onNext(List<KeyValue> listProductsCharacteristics) {
+                        Log.e(TAG, "getProductCharacteristics : onNext");
 
                         final AppRoomDatabase db = AppRoomDatabase.getInstance(activity);
-                        final List<ProductCaracteristic> listProductCaracteristic = new ArrayList<>();
-                        String productCaracteristicValue;
-                        int typeCaracteristicId;
+                        final List<ProductCharacteristic> productCharacteristics = new ArrayList<>();
+                        String productCharacteristicValue;
+                        int typeCharacteristicId;
 
-                        for (KeyValue keyValue : listProductsCaracteristic) {
-                            productCaracteristicValue = keyValue.getProductCaracteristicValue();
-                            typeCaracteristicId = keyValue.getTypeCaracteristicId();
+                        for (KeyValue keyValue : listProductsCharacteristics) {
+                            productCharacteristicValue = keyValue.getProductCharacteristicValue();
+                            typeCharacteristicId = keyValue.getTypeCharacteristicId();
 
-                            listProductCaracteristic.add(new ProductCaracteristic(typeCaracteristicId, productBarcode, productCaracteristicValue));
+                            Log.e("TypeChar : ", "" + typeCharacteristicId);
+                            Log.e("Characteristic : ", productCharacteristicValue);
+                            productCharacteristics.add(new ProductCharacteristic(typeCharacteristicId, product.getProductBarcode(), productCharacteristicValue));
                         }
-                        db.productCaracteristicDao().insertAll(listProductCaracteristic);
+                        if (addToDatabase) {
+                            db.productCharacteristicDao().insertAll(productCharacteristics);
+                        } else {
+                            if (activity instanceof DescProductFragment.FragmentDescriptionProductActions) {
+                                ((DescProductFragment.FragmentDescriptionProductActions)activity).displayProductCharacteristics(product, listProductsCharacteristics);
+                            }
+                        }
                     }
 
                     @Override
                     public void onError(Throwable e) {
-                        Log.e(TAG, "getProductCaracteristic : onError " + e.toString());
+                        Log.e(TAG, "getProductCharacteristics : onError " + e.toString());
                     }
 
                     @Override
                     public void onComplete() {
-                        Log.e(TAG, "getProductCaracteristic : onComplete");
+                        Log.e(TAG, "getProductCharacteristics : onComplete");
                     }
                 });
     }
 
 
+    public static void getSearchPropositions(@NonNull final Activity activity,
+                                             @NonNull final String query,
+                                             @NonNull final CursorAdapter cursorAdapter) {
+        pfeAPI.getSearchPropositions(query)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<List<String>>() {
+                    @Override
+                    public void onSubscribe(Disposable d) {
+                        Log.e(TAG, "getSearchPropositions : onSubscribe");
+                        Disposable old = Singleton.getInstance().getSearchPropositionDisposable();
+                        if (old != null) old.dispose();
+                        Singleton.getInstance().setSearchPropositionDisposable(d);
+                    }
 
+                    @Override
+                    public void onNext(List<String> propositions) {
+                        Log.e(TAG, "getSearchPropositions : onNext");
+                        String[] columns = new String[] {"_id", "proposition"};
 
+                        MatrixCursor matrixCursor= new MatrixCursor(columns);
+                        activity.startManagingCursor(matrixCursor);
+                        for (int i = 0; i < propositions.size(); i++) {
+                            matrixCursor.addRow(new Object[] {i, propositions.get(i)});
+                        }
+                        cursorAdapter.changeCursor(matrixCursor);
+                    }
 
+                    @Override
+                    public void onError(Throwable e) {
+                        Log.e(TAG, "getSearchPropositions : onError " + e.toString());
+                    }
 
-
-
-
+                    @Override
+                    public void onComplete() {
+                        Log.e(TAG, "getSearchPropositions : onComplete");
+                    }
+                });
+    }
 
 
     /*

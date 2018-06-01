@@ -28,8 +28,7 @@ public class Type {
     @Ignore
     private static final List<Type> types = new ArrayList<Type>();
 
-
-    public static List<Type> Data() {
+    static {
         types.add(new Type(0,"Ordinateur Portable", 0));
         types.add(new Type(1,"Imprimante & Scanner ", 0));
         types.add(new Type(2,"Ordinateur de Bureau", 0));
@@ -38,6 +37,9 @@ public class Type {
         types.add(new Type(5,"Tablette", 1));
         types.add(new Type(6,"Téléphone fixe", 1));
         types.add(new Type( 7,"Téléphone Portable", 1));
+    }
+
+    public static List<Type> Data() {
         return types;
     }
 

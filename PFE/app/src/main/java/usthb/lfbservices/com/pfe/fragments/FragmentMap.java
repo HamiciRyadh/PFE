@@ -45,6 +45,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import usthb.lfbservices.com.pfe.R;
+import usthb.lfbservices.com.pfe.models.Product;
 import usthb.lfbservices.com.pfe.roomDatabase.AppRoomDatabase;
 import usthb.lfbservices.com.pfe.adapters.SalesPointsAdapter;
 import usthb.lfbservices.com.pfe.models.ProductSalesPoint;
@@ -111,12 +112,18 @@ public class FragmentMap extends Fragment  implements OnMapReadyCallback {
 
     private Location currentLocation;
     private boolean isActivateGPSVisible = false;
+    private boolean paused = false;
     private GPSLocationListener gpsLocationListener = new GPSLocationListener();
 
     public FragmentMap() {
 
     }
 
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setRetainInstance(true);
+    }
 
     @Nullable
     @Override
@@ -157,10 +164,11 @@ public class FragmentMap extends Fragment  implements OnMapReadyCallback {
         Log.e(TAG, "onMapReady");
         mMap = googleMap;
         Singleton.getInstance().setMap(mMap);
-        SharedPreferences sharedPreferences = fragmentBelongActivity.getSharedPreferences(Constants.SHARED_PREFERENCES_POSITION, fragmentBelongActivity.MODE_PRIVATE);
+        SharedPreferences sharedPreferences = fragmentBelongActivity.getSharedPreferences(Constants.SHARED_PREFERENCES_POSITION, MODE_PRIVATE);
         String sLat = sharedPreferences.getString(Constants.SHARED_PREFERENCES_POSITION_LATITUDE,null);
         String sLong = sharedPreferences.getString(Constants.SHARED_PREFERENCES_POSITION_LONGITUDE,null);
-        String sMapStyle = sharedPreferences.getString(Constants.SHARED_PREFERENCES_USER_MAP_STYLE, null);
+        String sMapStyle = fragmentBelongActivity.getSharedPreferences(Constants.SHARED_PREFERENCES_USER_PREFERENCES, MODE_PRIVATE)
+                            .getString(Constants.MAP_STYLE, null);
 
         if (sLat != null && sLong != null) {
             double lat = Double.parseDouble(sLat);
@@ -194,9 +202,9 @@ public class FragmentMap extends Fragment  implements OnMapReadyCallback {
         });
         Log.e(TAG, "Style " + (sMapStyle == null));
         if (sMapStyle != null) {
-            if (sMapStyle.equalsIgnoreCase(Constants.SATELLITE)) {
+            if (sMapStyle.equalsIgnoreCase(Constants.MAP_SATELLITE)) {
                 mMap.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
-            } else if (sMapStyle.equalsIgnoreCase(Constants.STANDARD)) {
+            } else if (sMapStyle.equalsIgnoreCase(Constants.MAP_STANDARD)) {
                 mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
                 //mMap.setMapStyle(MapStyleOptions.loadRawResourceStyle(fragmentBelongActivity, R.raw.map_style));
             }
@@ -231,26 +239,27 @@ public class FragmentMap extends Fragment  implements OnMapReadyCallback {
 
                     userMarker = mMap.addMarker(userMakerOptions);
                 }
-                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(userPosition, ZOOM_LEVEL));
+                if (!paused) mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(userPosition, ZOOM_LEVEL));
             }
             locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, gpsLocationListener);
             locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, gpsLocationListener);
 
-            if (Utils.isGPSActivated(fragmentBelongActivity)) {
-                Log.e(TAG, "Adding user marker position from onResume.");
-            } else {
+            if (!Utils.isGPSActivated(fragmentBelongActivity)) {
                 if (!isActivateGPSVisible) {
                     isActivateGPSVisible = true;
-                    Utils.activateGPS(fragmentBelongActivity);
+                    if (!paused) Utils.activateGPS(fragmentBelongActivity);
                 }
             }
         }
+        Log.e(TAG, "PausedFalse");
+        paused = false;
     }
 
     @Override
     public void onPause() {
         super.onPause();
         Log.e(TAG, "OnPause");
+        paused = true;
         locationManager.removeUpdates(gpsLocationListener);
     }
 
@@ -1004,10 +1013,10 @@ public class FragmentMap extends Fragment  implements OnMapReadyCallback {
         }
     }
 
-    public void onProductMoreDetails(final String productBarcode) {
+    public void onProductMoreDetails(final Product product) {
         final ProductsFragment productsFragment = implementation.getActivityProductsFragment();
         if (productsFragment.isVisible()) {
-            descProductFragment = DescProductFragment.newInstance(productBarcode);
+            descProductFragment = DescProductFragment.newInstance(product);
             implementation.setDescProductFragment(descProductFragment);
             getChildFragmentManager()
                     .beginTransaction()

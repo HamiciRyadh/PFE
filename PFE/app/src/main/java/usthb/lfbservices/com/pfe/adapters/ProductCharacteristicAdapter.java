@@ -21,14 +21,14 @@ import usthb.lfbservices.com.pfe.models.KeyValue;
  */
 
 
-public class ProductCaracteristicAdapter extends ArrayAdapter<KeyValue> {
+public class ProductCharacteristicAdapter extends ArrayAdapter<KeyValue> {
 
     private static String TAG = "ProductCaracAdapter";
 
     private Context context;
     private int layoutResourceId;
 
-    public ProductCaracteristicAdapter(Context context, int layoutResourceId, ArrayList<KeyValue> data) {
+    public ProductCharacteristicAdapter(Context context, int layoutResourceId, ArrayList<KeyValue> data) {
         super(context, layoutResourceId, data);
         this.layoutResourceId = layoutResourceId;
         this.context = context;
@@ -37,7 +37,6 @@ public class ProductCaracteristicAdapter extends ArrayAdapter<KeyValue> {
 
     @Override
     public View getView(final int position, @Nullable View convertView, @NonNull ViewGroup parent) {
-        Log.e("ADAPTER", "position + " + position);
         View listItemView = convertView;
         if (listItemView == null) {
             listItemView = LayoutInflater.from(getContext()).inflate(
@@ -45,16 +44,14 @@ public class ProductCaracteristicAdapter extends ArrayAdapter<KeyValue> {
         }
 
         if (listItemView != null) {
-            final KeyValue productCaracteristic = getItem(position);
-            if (productCaracteristic != null) {
-                String productCaracteristicName = AppRoomDatabase.getInstance(context).typeCaracteristicDao().getTypeCaracteristicName(productCaracteristic.getTypeCaracteristicId());
-                if (productCaracteristicName == null) productCaracteristicName = context.getResources().getString(R.string.not_available);
-                final TextView caracteristicName = listItemView.findViewById(R.id.product_caracteristic_name);
-                if (caracteristicName != null) caracteristicName.setText(productCaracteristicName);
-                final TextView caracteristicValue = listItemView.findViewById(R.id.product_caracteristic_value);
-                if (caracteristicValue != null) caracteristicValue.setText(productCaracteristic.getProductCaracteristicValue());
-
-                Log.e("ADAPTER", "position + " + productCaracteristicName);
+            final KeyValue productCharacteristic = getItem(position);
+            if (productCharacteristic != null) {
+                String productCharacteristicName = AppRoomDatabase.getInstance(context).typeCharacteristicDao().getTypeCharacteristicName(productCharacteristic.getTypeCharacteristicId());
+                if (productCharacteristicName == null) productCharacteristicName = context.getResources().getString(R.string.not_available);
+                final TextView characteristicName = listItemView.findViewById(R.id.product_caracteristic_name);
+                if (characteristicName != null) characteristicName.setText(productCharacteristicName);
+                final TextView characteristicValue = listItemView.findViewById(R.id.product_caracteristic_value);
+                if (characteristicValue != null) characteristicValue.setText(productCharacteristic.getProductCharacteristicValue());
             }
         }
 

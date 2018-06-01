@@ -23,10 +23,6 @@ import usthb.lfbservices.com.pfe.models.SalesPoint;
 
 public interface PfeService {
 
-    //TODO: Replace ==> Get all the informations directly from Google Places
-    @GET("SalesPoint/Place/details/{sales_point_id}")
-    Observable<SalesPoint> getPlaceDetails(@Path("sales_point_id") String salesPointId);
-
     /**
      * Sends a GET request to retrieve a {@link List} of {@link Product} results corresponding
      * to the user's search string.
@@ -154,4 +150,14 @@ public interface PfeService {
      */
     @GET("Search/ProductSalesPoint/{product_barcode}")
     Observable<List<ProductSalesPoint>> getProductSalesPoint(@Path("product_barcode") String productBarcode);
+
+    /**
+     * Sends a GET request to retrieve a {@link List} of {@link String} representing the propositions
+     * corresponding to the given search query.
+     * @param query The search query for which the propositions are made.
+     * @return An {@link Observable} of a {@link List} of {@link String} representing the search
+     * propositions relative to the given search query.
+     */
+    @GET("Search/propositions")
+    Observable<List<String>> getSearchPropositions(@Query("query") String query);
 }

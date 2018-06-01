@@ -10,29 +10,30 @@ import java.sql.Date;
 import usthb.lfbservices.com.pfe.utils.DateConverter;
 
 @Entity
-
 public class Notification {
     @PrimaryKey(autoGenerate = true)
     private int notificationId;
-    private String salespointId;
-    private String productId;
+    private String salesPointId;
+    private String productBarcode;
     @TypeConverters({DateConverter.class})
     private Date NotificationDate;
     private int notificationNewQuantity;
     private double notificationNewPrice;
+    private String productName;
+    private String salesPointName;
 
     public Notification() {
     }
 
-    public Notification( String salespointId, String productId,
-                         int notificationNewQuantity, double notificationNewPrice, Date notificationDate) {
-        this.salespointId = salespointId;
-        this.productId = productId;
+    public Notification(String salesPointId, String productBarcode, Date notificationDate, int notificationNewQuantity, double notificationNewPrice, String productName, String salesPointName) {
+        this.salesPointId = salesPointId;
+        this.productBarcode = productBarcode;
         NotificationDate = notificationDate;
         this.notificationNewQuantity = notificationNewQuantity;
         this.notificationNewPrice = notificationNewPrice;
+        this.productName = productName;
+        this.salesPointName = salesPointName;
     }
-
 
     public int getNotificationId() {
         return notificationId;
@@ -43,21 +44,21 @@ public class Notification {
     }
 
     @NonNull
-    public String getSalespointId() {
-        return salespointId;
+    public String getSalesPointId() {
+        return salesPointId;
     }
 
-    public void setSalespointId(@NonNull String salespointId) {
-        this.salespointId = salespointId;
+    public void setSalesPointId(@NonNull String salesPointId) {
+        this.salesPointId = salesPointId;
     }
 
     @NonNull
-    public String getProductId() {
-        return productId;
+    public String getProductBarcode() {
+        return productBarcode;
     }
 
-    public void setProductId(@NonNull String productId) {
-        this.productId = productId;
+    public void setProductBarcode(@NonNull String productBarcode) {
+        this.productBarcode = productBarcode;
     }
 
     public Date getNotificationDate() {
@@ -82,5 +83,21 @@ public class Notification {
 
     public void setNotificationNewPrice(double notificationNewPrice) {
         this.notificationNewPrice = notificationNewPrice;
+    }
+
+    public String getProductName() {
+        return productName;
+    }
+
+    public void setProductName(String productName) {
+        this.productName = productName;
+    }
+
+    public String getSalesPointName() {
+        return salesPointName;
+    }
+
+    public void setSalesPointName(String salesPointName) {
+        this.salesPointName = salesPointName;
     }
 }

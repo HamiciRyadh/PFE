@@ -33,7 +33,7 @@ public class NotificationService {
 		try {
 			string = FcmNotifications.pushFCMNotification(
 					"fR92nDDOevQ:APA91bHPklTOxG0DbXkHsVDAoP6m5Qzqor2rmEfW_ya925tbSMsaWMpnsTUmnaa7cui5btqCd1uhWzZyA9HFIXk1Lm-UI0n8RGhpD4RR4XiPoOmE8neKRyHp3JVCL3m0rpf_FEDD67d-",
-					"salesPointId", "productBarcode", 10, 5000.00d);
+					"salesPointId", "productBarcode", 4, 50000.00, 4, 50000.00);
 		} catch (Exception e) {
 			throw new WebApplicationException(
 				      Response.status(HttpURLConnection.HTTP_BAD_REQUEST)

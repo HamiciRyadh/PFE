@@ -14,7 +14,7 @@ public class DisposableManager {
 
     /**
      * A CompositeDisposable that is used to contain all the Disposables objects to Dispose
-     * later on
+     * later on.
      */
     private static CompositeDisposable compositeDisposable;
 

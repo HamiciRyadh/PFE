@@ -144,7 +144,9 @@ public class ProductSalesPointListAdapter extends RecyclerView.Adapter<ProductSa
         public void onClick(View view) {
             sSalesPointId = productSalesPoints.get(getLayoutPosition()).getSalesPointId();
             Intent intent = new Intent(context, DescSalesPointActivity.class);
-            intent.putExtra("usthb.lfbservices.com.pfe.adapters.productBarcode", sSalesPointId);
+            intent.putExtra("salesPointID", sSalesPointId);
+            intent.putExtra("productQuantity", productSalesPoints.get(getLayoutPosition()).getProductQuantity());
+            intent.putExtra("productPrice", productSalesPoints.get(getLayoutPosition()).getProductPrice());
             context.startActivity(intent);
         }
     }

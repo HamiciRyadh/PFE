@@ -1,5 +1,6 @@
 package usthb.lfbservices.com.pfe.network;
 
+import io.reactivex.Observable;
 import retrofit2.Call;
 import retrofit2.http.GET;
 import retrofit2.http.Query;
@@ -28,4 +29,9 @@ public interface ItineraryService {
     @GET("place/details/json")
     Call<GooglePlaceDetails> getLatLng(@Query("key") String apiKey,
                                        @Query("placeid") String placeId);
+
+
+    @GET("place/details/json?sensor=false")
+    Observable<GooglePlaceDetails> getPlaceDetails(@Query("key") String apiKey,
+                                                   @Query("placeid") String placeId);
 }

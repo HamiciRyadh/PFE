@@ -48,6 +48,5 @@ public class MyFirebaseInstanceIdService extends FirebaseInstanceIdService {
                 PfeRx.updateFirebaseTokenId(previousToken, newToken);
             }
         }
-
     }
 }

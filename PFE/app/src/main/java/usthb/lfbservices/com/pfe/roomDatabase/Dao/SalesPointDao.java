@@ -5,6 +5,7 @@ import android.arch.persistence.room.Dao;
 import android.arch.persistence.room.Insert;
 import android.arch.persistence.room.OnConflictStrategy;
 import android.arch.persistence.room.Query;
+import android.arch.persistence.room.Update;
 
 import java.util.List;
 
@@ -19,14 +20,17 @@ public interface SalesPointDao {
     @Query("SELECT salesPointName FROM SalesPoint WHERE salesPointId = :salesPointId")
     String getSalesPointNameById(String salesPointId);
 
-    @Query("UPDATE SalesPoint SET image = :image")
-    void update(byte[] image);
+    @Query("UPDATE SalesPoint SET image = :image WHERE salesPointId = :salesPointId")
+    void updatePhoto(String salesPointId, byte[] image);
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insert(SalesPoint... SalesPoints);
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insertAll(List<SalesPoint> SalesPoints);
+
+    @Update
+    void update(SalesPoint salesPoint);
 
     @Query("SELECT EXISTS (SELECT 1 FROM SalesPoint WHERE salesPointId = :salesPointId)")
     boolean salesPointExists(String salesPointId);

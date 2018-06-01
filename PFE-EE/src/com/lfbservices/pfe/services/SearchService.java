@@ -154,6 +154,24 @@ public class SearchService {
 		}
 		return Access.getProductsByCategory(categoryId);
 	}
+	
+	
+	
+	// http://localhost:8080/PFE-EE/api/Search/propositions?query=pro
+	@Path("/propositions")
+	@GET
+	@PermitAll
+	@Produces(MediaType.APPLICATION_JSON)
+	public List<String> getPropositions(@DefaultValue("") @QueryParam("query") String query) throws Exception {
+		if (query == null || query.trim().length() <= 2) {
+		    throw new WebApplicationException(
+		      Response.status(HttpURLConnection.HTTP_BAD_REQUEST)
+		        .entity("category_id parameter is mandatory.")
+		        .build()
+		    );
+		}
+		return Access.getPropositions(query);
+	}
 		
 	
 	
@@ -173,7 +191,7 @@ public class SearchService {
 		    );
 		}
 		
-		return Access.getProductCaracteristicID(productId);
+		return Access.getProductCharacteristicID(productId);
 	}
 		
 		

@@ -60,6 +60,11 @@ public class ProductsFragment extends Fragment {
     public ProductsFragment() {
     }
 
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setRetainInstance(true);
+    }
 
     @Nullable
     @Override
@@ -362,6 +367,6 @@ public class ProductsFragment extends Fragment {
 
         void onProductSelected(final String productBarcode);
         void setToolbarTitleForProductFragment();
-        void onMoreDetailsSelected(final String productBarcode);
+        void onMoreDetailsSelected(final Product product);
     }
 }
