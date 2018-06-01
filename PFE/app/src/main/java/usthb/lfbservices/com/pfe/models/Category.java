@@ -20,14 +20,16 @@ public  class Category
     @Ignore
     private static final List<Category> categories = new ArrayList<Category>();
 
-    public static List<Category> Data() {
+    static {
         categories.add(new Category(0,"Informatique"));
         categories.add(new Category(1,"Téléphone"));
         categories.add(new Category(2,"Montres"));
-        categories.add (new Category(3,"Automobile"));
-        categories.add (new Category(4,"Matériel Professionnel"));
+        categories.add(new Category(3,"Automobile"));
+        categories.add(new Category(4,"Matériel Professionnel"));
         categories.add(new Category(5,"Camera"));
+    }
 
+    public static List<Category> Data() {
         return categories;
     }
 

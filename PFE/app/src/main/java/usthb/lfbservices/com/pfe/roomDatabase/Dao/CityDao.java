@@ -1,4 +1,4 @@
-package usthb.lfbservices.com.pfe.RoomDatabase.Dao;
+package usthb.lfbservices.com.pfe.roomDatabase.Dao;
 
 
 import android.arch.persistence.room.Dao;

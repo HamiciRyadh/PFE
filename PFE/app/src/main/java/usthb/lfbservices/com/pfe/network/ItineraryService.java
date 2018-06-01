@@ -1,5 +1,6 @@
 package usthb.lfbservices.com.pfe.network;
 
+import io.reactivex.Observable;
 import retrofit2.Call;
 import retrofit2.http.GET;
 import retrofit2.http.Query;
@@ -8,10 +9,10 @@ import usthb.lfbservices.com.pfe.itinerary.direction.GoogleDirections;
 import usthb.lfbservices.com.pfe.itinerary.place.GooglePlaceDetails;
 
 /**
- * Created by ryadh on 20/04/18.
+ * An interface that is used by Retrofit to interact with some exposed methods of Google Maps API.
  */
 
-public interface ItineraireService {
+public interface ItineraryService {
     @GET("directions/json")
     Call<GoogleDirections> getDistanceDuration(@Query("key") String apiKey,
                                                @Query("units") String units,
@@ -27,5 +28,10 @@ public interface ItineraireService {
 
     @GET("place/details/json")
     Call<GooglePlaceDetails> getLatLng(@Query("key") String apiKey,
-                                       @Query("placeid") String placeid);
+                                       @Query("placeid") String placeId);
+
+
+    @GET("place/details/json?sensor=false")
+    Observable<GooglePlaceDetails> getPlaceDetails(@Query("key") String apiKey,
+                                                   @Query("placeid") String placeId);
 }

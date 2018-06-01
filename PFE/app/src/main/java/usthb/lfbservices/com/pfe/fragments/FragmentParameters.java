@@ -22,10 +22,8 @@ import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.firebase.iid.FirebaseInstanceId;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -44,15 +42,10 @@ import usthb.lfbservices.com.pfe.itinerary.place.GooglePlaceDetails;
 import usthb.lfbservices.com.pfe.itinerary.place.Location;
 import usthb.lfbservices.com.pfe.models.Singleton;
 import usthb.lfbservices.com.pfe.network.PfeAPI;
-import usthb.lfbservices.com.pfe.utils.Constantes;
+import usthb.lfbservices.com.pfe.utils.Constants;
 import usthb.lfbservices.com.pfe.utils.Utils;
 
 import static android.content.Context.MODE_PRIVATE;
-
-
-/**
- * Created by ryadh on 06/05/18.
- */
 
 public class FragmentParameters extends Fragment {
 
@@ -62,7 +55,7 @@ public class FragmentParameters extends Fragment {
     private View rootView;
     private FragmentActivity fragmentBelongActivity;
     private TextView history;
-    private  Switch notification;
+    private Switch notification;
     private AutoCompleteTextView userPosition;
     private String apiKey;
     private List<Prediction> predictions ;
@@ -76,6 +69,11 @@ public class FragmentParameters extends Fragment {
     public FragmentParameters() {
     }
 
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setRetainInstance(true);
+    }
 
     @Nullable
     @Override
@@ -129,12 +127,12 @@ public class FragmentParameters extends Fragment {
     }
 
     public void init() {
-        SharedPreferences sharedPreferences = fragmentBelongActivity.getSharedPreferences(Constantes.SHARED_PREFERENCES_POSITION, MODE_PRIVATE);
-        String sMapStyle = sharedPreferences.getString(Constantes.SHARED_PREFERENCES_USER_MAP_STYLE, null);
+        SharedPreferences sharedPreferences = fragmentBelongActivity.getSharedPreferences(Constants.SHARED_PREFERENCES_USER_PREFERENCES, MODE_PRIVATE);
+        String sMapStyle = sharedPreferences.getString(Constants.MAP_STYLE, null);
         if (sMapStyle != null) {
-            if (sMapStyle.equalsIgnoreCase(Constantes.SATELLITE)) {
+            if (sMapStyle.equalsIgnoreCase(Constants.MAP_SATELLITE)) {
                 radioStyleMapGroup.check(R.id.radio_satellite_map);
-            } else if (sMapStyle.equalsIgnoreCase(Constantes.STANDARD)) {
+            } else if (sMapStyle.equalsIgnoreCase(Constants.MAP_STANDARD)) {
                 radioStyleMapGroup.check(R.id.radio_standard_map);
             }
         }
@@ -142,13 +140,13 @@ public class FragmentParameters extends Fragment {
         history.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                AlertDialog.Builder mBuilder = new AlertDialog.Builder(getContext());
+                AlertDialog.Builder mBuilder = new AlertDialog.Builder(fragmentBelongActivity);
                 mBuilder.setMessage(R.string.dialog_history);
                 mBuilder.setCancelable(false);
                 mBuilder.setPositiveButton(R.string.ok_label, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int which) {
-                        File file = new File(fragmentBelongActivity.getFilesDir(), Constantes.HISTORY_FILE_NAME);
+                        File file = new File(fragmentBelongActivity.getFilesDir(), Constants.HISTORY_FILE_NAME);
                         try {
                             FileOutputStream fos = new FileOutputStream(file);
                             fos.close();
@@ -174,18 +172,16 @@ public class FragmentParameters extends Fragment {
 
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (! isChecked) {
+                SharedPreferences.Editor editor = fragmentBelongActivity.getSharedPreferences(Constants.SHARED_PREFERENCES_USER_PREFERENCES, MODE_PRIVATE).edit();
+                if (!isChecked) {
                     notification.setText(getResources().getString(R.string.turn_on_notifications));
-                    try {
-                        FirebaseInstanceId.getInstance().deleteInstanceId();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
+                    editor.putString(Constants.NOTIFICATIONS, Constants.NOTIFICATIONS_OFF);
                 }
                 else {
                     notification.setText(getResources().getString(R.string.turn_off_notifications));
-                    FirebaseInstanceId.getInstance().getToken();
+                    editor.putString(Constants.NOTIFICATIONS, Constants.NOTIFICATIONS_ON);
                 }
+                editor.apply();
             }
 
         });
@@ -196,15 +192,15 @@ public class FragmentParameters extends Fragment {
                 final GoogleMap mMap = Singleton.getInstance().getMap();
                 boolean isChecked = checkedRadioButton.isChecked();
                 if (isChecked) {
-                    SharedPreferences.Editor editor = fragmentBelongActivity.getSharedPreferences(Constantes.SHARED_PREFERENCES_POSITION, MODE_PRIVATE).edit();
-                    if(checkedRadioButton.getText().equals("Satellite")) {
+                    SharedPreferences.Editor editor = fragmentBelongActivity.getSharedPreferences(Constants.SHARED_PREFERENCES_USER_PREFERENCES, MODE_PRIVATE).edit();
+                    if(checkedRadioButton.getId() == R.id.radio_satellite_map) {
                         Log.e(TAG, "Satellite Checked ");
-                        editor.putString(Constantes.SHARED_PREFERENCES_USER_MAP_STYLE, Constantes.SATELLITE);
+                        editor.putString(Constants.MAP_STYLE, Constants.MAP_SATELLITE);
                         if (mMap != null) mMap.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
                     }
-                    if(checkedRadioButton.getText().equals("Standard")) {
+                    if(checkedRadioButton.getId() == R.id.radio_standard_map) {
                         Log.e(TAG, "Standard Checked ");
-                        editor.putString(Constantes.SHARED_PREFERENCES_USER_MAP_STYLE, Constantes.STANDARD);
+                        editor.putString(Constants.MAP_STYLE, Constants.MAP_STANDARD);
                         if (mMap != null) mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
                     }
                     editor.apply();
@@ -228,18 +224,18 @@ public class FragmentParameters extends Fragment {
                         Log.e(TAG, "  GPS Permissions Ok.");
                         if (Utils.isGPSActivated(getActivity())) {
                             Log.e(TAG, "  GPS Activated.");
-                            mFusedLocationClient = LocationServices.getFusedLocationProviderClient(getActivity());
+                            mFusedLocationClient = LocationServices.getFusedLocationProviderClient(fragmentBelongActivity);
                             mFusedLocationClient.getLastLocation()
-                                    .addOnSuccessListener(getActivity(), new OnSuccessListener<android.location.Location>() {
+                                    .addOnSuccessListener(fragmentBelongActivity, new OnSuccessListener<android.location.Location>() {
                                         @Override
                                         public void onSuccess(android.location.Location location) {
                                             userPosition.setText(getResources().getString(R.string.your_position));
                                             if (location != null) {
                                                 LatLng userLatLng =new LatLng(location.getLatitude(),location.getLongitude());
 
-                                                SharedPreferences.Editor editor = getActivity().getSharedPreferences(Constantes.SHARED_PREFERENCES_POSITION, MODE_PRIVATE).edit();
-                                                editor.putString(Constantes.SHARED_PREFERENCES_POSITION_LATITUDE, ""+userLatLng.latitude);
-                                                editor.putString(Constantes.SHARED_PREFERENCES_POSITION_LONGITUDE, ""+userLatLng.longitude);
+                                                SharedPreferences.Editor editor = fragmentBelongActivity.getSharedPreferences(Constants.SHARED_PREFERENCES_POSITION, MODE_PRIVATE).edit();
+                                                editor.putString(Constants.SHARED_PREFERENCES_POSITION_LATITUDE, ""+userLatLng.latitude);
+                                                editor.putString(Constants.SHARED_PREFERENCES_POSITION_LONGITUDE, ""+userLatLng.longitude);
                                                 editor.apply();
 
 
@@ -317,9 +313,11 @@ public class FragmentParameters extends Fragment {
             ArrayAdapter<String> adapterPosition;
 
             @Override
-            public void onResponse(Call<GoogleAutocompleteResponse> call, Response<GoogleAutocompleteResponse> response) {
+            public void onResponse(@NonNull Call<GoogleAutocompleteResponse> call,@NonNull Response<GoogleAutocompleteResponse> response) {
                 Log.d("onResponse get_places", response.toString());
                 GoogleAutocompleteResponse places = response.body();
+
+                if (places == null) return;
 
                 predictions.clear();
                 predictions.addAll(places.getPredictionList());
@@ -328,12 +326,12 @@ public class FragmentParameters extends Fragment {
                     positions.add(p.getDescription());
                 }
 
-                adapterPosition = new ArrayAdapter<>(getActivity(), android.R.layout.simple_list_item_1, positions);
+                adapterPosition = new ArrayAdapter<>(fragmentBelongActivity, android.R.layout.simple_list_item_1, positions);
                 userPosition.setAdapter(adapterPosition);
             }
 
             @Override
-            public void onFailure(Call<GoogleAutocompleteResponse> call, Throwable t) {
+            public void onFailure(@NonNull Call<GoogleAutocompleteResponse> call,@NonNull Throwable t) {
                 t.printStackTrace();
             }
         });
@@ -346,19 +344,21 @@ public class FragmentParameters extends Fragment {
         call.enqueue(new Callback<GooglePlaceDetails>() {
 
             @Override
-            public void onResponse(Call<GooglePlaceDetails> call, Response<GooglePlaceDetails> response) {
+            public void onResponse(@NonNull Call<GooglePlaceDetails> call,@NonNull Response<GooglePlaceDetails> response) {
                 Log.d("onResponse get_latlng", response.toString());
-                Location places = response.body().getResult().getGeometry().getLocation();
+                GooglePlaceDetails googlePlaceDetails = response.body();
+                if (googlePlaceDetails == null) return;
+                Location places = googlePlaceDetails.getResult().getGeometry().getLocation();
                 LatLng userLatLng = new LatLng(places.getLat(), places.getLng());
 
-                SharedPreferences.Editor editor = getActivity().getSharedPreferences(Constantes.SHARED_PREFERENCES_POSITION, MODE_PRIVATE).edit();
-                editor.putString(Constantes.SHARED_PREFERENCES_POSITION_LATITUDE, ""+userLatLng.latitude);
-                editor.putString(Constantes.SHARED_PREFERENCES_POSITION_LONGITUDE, ""+userLatLng.longitude);
+                SharedPreferences.Editor editor = fragmentBelongActivity.getSharedPreferences(Constants.SHARED_PREFERENCES_POSITION, MODE_PRIVATE).edit();
+                editor.putString(Constants.SHARED_PREFERENCES_POSITION_LATITUDE, ""+userLatLng.latitude);
+                editor.putString(Constants.SHARED_PREFERENCES_POSITION_LONGITUDE, ""+userLatLng.longitude);
                 editor.apply();
             }
 
             @Override
-            public void onFailure(Call<GooglePlaceDetails> call, Throwable t) {
+            public void onFailure(@NonNull Call<GooglePlaceDetails> call,@NonNull Throwable t) {
                 t.printStackTrace();
             }
         });

@@ -20,12 +20,73 @@
         tools:text="SARL LFB Services"
         />
 
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="10dp"
+        android:orientation="horizontal">
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="50"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="20dp"
+                android:text="@string/quantity"
+                android:textColor="@color/colorPrimary"
+                android:textSize="18sp" />
+
+            <TextView
+                android:id="@+id/desc_product_quantity"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="26dp"
+                android:layout_marginStart="26dp"
+                android:textColor="@android:color/black"
+                android:ellipsize="end"
+                android:textSize="18sp"
+                tools:text="50" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="50"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/textView3"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/price"
+                android:textColor="@color/colorPrimary"
+                android:textSize="18sp" />
+
+            <TextView
+                android:id="@+id/desc_product_price"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="26dp"
+                android:layout_marginStart="26dp"
+                android:paddingRight="10dp"
+                android:textColor="@android:color/black"
+                android:textSize="18sp"
+                tools:text="19585 DA" />
+        </LinearLayout>
+    </LinearLayout>
+
     <ImageView
         android:id="@+id/descsales_point_image_details"
         android:layout_width="match_parent"
         android:layout_height="300dp"
-        android:scaleType="centerCrop"
-        />
+        android:scaleType="centerCrop" />
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -52,6 +113,7 @@
             android:id="@+id/rating"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:textColor="@android:color/black"
             android:layout_marginLeft="15dp"
             />
     </LinearLayout>
@@ -66,7 +128,7 @@
         <ImageView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="30dp"
+            android:layout_marginLeft="15dp"
             android:src="@drawable/address" />
 
         <TextView
@@ -75,7 +137,7 @@
             android:layout_height="wrap_content"
             android:layout_marginLeft="15dp"
             android:layout_weight="1"
-            android:textColor="@color/black"
+            android:textColor="@android:color/black"
             android:textAppearance="?android:textAppearanceMedium"
             android:textSize="@dimen/history_text_size"
             tools:text="7 Route Doudou Mokhtar N°14، Ben Aknoun 16304" />
@@ -109,7 +171,7 @@
             android:layout_marginLeft="@dimen/history_elements_layout_margin"
             android:layout_marginRight="@dimen/history_elements_layout_margin"
             android:layout_weight="1"
-            android:textColor="@color/black"
+            android:textColor="@android:color/black"
             android:gravity="center_vertical|left"
             android:textAppearance="?android:textAppearanceMedium"
             android:textSize="@dimen/history_text_size"
@@ -141,10 +203,10 @@
             android:layout_marginRight="@dimen/history_elements_layout_margin"
             android:layout_weight="1"
             android:width="1dp"
+            android:textColor="@android:color/black"
             android:gravity="center_vertical|left"
             android:textAppearance="?android:textAppearanceMedium"
             android:textSize="@dimen/history_text_size"
-            android:textColor="@color/black"
             tools:text="lfb-services.com" />
 
     </LinearLayout>

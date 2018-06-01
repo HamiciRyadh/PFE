@@ -22,8 +22,10 @@ CREATE OR REPLACE FUNCTION updateProductSalesPoint() RETURNS TRIGGER AS $updatep
             'http://192.168.1.6:8080/PFE-EE/api/ProductSalesPoint/UpdateProductSalesPoint' ||
             '?sales_point_id=' || 'ChIJgbWj2jyxjxIRTEiyXgwGVqA' ||
             '&product_barcode=' || NEW.product_barcode ||
-            '&product_quantity=' || NEW.product_quantity ||
-            '&product_price=' || NEW.product_price,
+            '&product_quantity_old=' || OLD.product_quantity ||
+            '&product_price_old=' || OLD.product_price ||
+            '&product_quantity_new=' || NEW.product_quantity ||
+            '&product_price_new=' || NEW.product_price,
              ARRAY[http_header('Authorization','Basic bWVyY2hhbnRAbGZic2VydmljZXMuY29tOmFkbWlu')],
              '',
              'application/x-form-urlencoded'

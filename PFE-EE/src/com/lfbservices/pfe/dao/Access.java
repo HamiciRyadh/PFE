@@ -2,6 +2,8 @@ package com.lfbservices.pfe.dao;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -96,11 +98,11 @@ public class Access {
 	}
 	
 	
-	public static List<KeyValueID> getProductCaracteristicID(String value) throws SQLException, IOException {
+	public static List<KeyValueID> getProductCharacteristicID(String value) throws SQLException, IOException {
 
 		SqlSession session = DBConnectionFactory.getNewSession();
 
-		List<KeyValueID> listProducts = session.selectList("QueriesProduct.getProductCaracteristicID",value);
+		List<KeyValueID> listProducts = session.selectList("QueriesProduct.getProductCharacteristicID",value);
 
 		session.commit();
 		session.close();
@@ -134,6 +136,36 @@ public class Access {
 		session.close();
 
 		return rowsUpdated == 1;
+	}
+	
+	public static List<String> getPropositions(final String query) {
+		final int NUMBER_OF_PROPOSITIONS = 5;
+		final SqlSession session = DBConnectionFactory.getNewSession();
+		
+		final List<String> propositions = session.selectList("QueriesProduct.getPropositions", query+"%");
+
+		session.close();
+
+		List<String> sortedPropositions = new ArrayList<String>();
+		for (String proposition : propositions) {
+			sortedPropositions.add(proposition.toLowerCase());
+		}
+		
+		sortedPropositions.sort(new Comparator<String>() {
+
+			@Override
+			public int compare(String str1, String str2) {
+				return str1.compareTo(str2);
+			}
+			
+		});
+		
+		List<String> returnedPropositions = new ArrayList<String>();
+		for (int i = 0; (i < NUMBER_OF_PROPOSITIONS) && (i < sortedPropositions.size()); i++) {
+			returnedPropositions.add(sortedPropositions.get(i));
+		}
+		
+		return sortedPropositions;
 	}
 	
 	
@@ -398,15 +430,12 @@ public class Access {
 		return rowsDeleted == 1;
 	}
 	
-	public static List<String> getDevicesIdsForNotification(final String salesPointId, final String productBarcode, final int productQuantity,
-												   			final double productPrice) {
+	public static List<String> getDevicesIdsForNotification(final String salesPointId, final String productBarcode) {
 		final SqlSession session = DBConnectionFactory.getNewSession();
 		
 		final Map<String,Object> parameters = new HashMap<String,Object>();
 		parameters.put("salesPointId", salesPointId);
 		parameters.put("productBarcode", productBarcode);
-		parameters.put("productQuantity", productQuantity);
-		parameters.put("productPrice", productPrice);
 		
 		final List<String> devicesIds = session.selectList("QueriesUsers.getDevicesIdsForNotification", parameters);
 		 

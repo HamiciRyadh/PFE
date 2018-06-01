@@ -3,13 +3,10 @@ package usthb.lfbservices.com.pfe.activities;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.MatrixCursor;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Paint;
 import android.net.Uri;
 import android.os.Bundle;
 
-import android.os.StrictMode;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomSheetBehavior;
 import android.support.design.widget.NavigationView;
@@ -27,8 +24,6 @@ import android.util.SparseArray;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.Window;
-import android.view.WindowManager;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.RatingBar;
@@ -38,14 +33,16 @@ import android.widget.Toast;
 import com.google.android.gms.vision.barcode.Barcode;
 import com.squareup.picasso.Picasso;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.net.URL;
 import java.text.DecimalFormat;
+import java.util.List;
+import java.util.Locale;
 
 import usthb.lfbservices.com.pfe.R;
-import usthb.lfbservices.com.pfe.RoomDatabase.AppRoomDatabase;
-import usthb.lfbservices.com.pfe.adapters.SuggestinAdapter;
+import usthb.lfbservices.com.pfe.fragments.DescProductFragment;
+import usthb.lfbservices.com.pfe.models.KeyValue;
+import usthb.lfbservices.com.pfe.models.Product;
+import usthb.lfbservices.com.pfe.roomDatabase.AppRoomDatabase;
+import usthb.lfbservices.com.pfe.adapters.SuggestionAdapter;
 import usthb.lfbservices.com.pfe.fragments.FragmentBarcodeScanner;
 import usthb.lfbservices.com.pfe.fragments.FragmentFavorite;
 import usthb.lfbservices.com.pfe.fragments.FragmentMap;
@@ -57,7 +54,7 @@ import usthb.lfbservices.com.pfe.models.BottomSheetDataSetter;
 import usthb.lfbservices.com.pfe.models.ProductSalesPoint;
 import usthb.lfbservices.com.pfe.models.SalesPoint;
 import usthb.lfbservices.com.pfe.network.PfeRx;
-import usthb.lfbservices.com.pfe.utils.Constantes;
+import usthb.lfbservices.com.pfe.utils.Constants;
 import usthb.lfbservices.com.pfe.utils.DisposableManager;
 import usthb.lfbservices.com.pfe.utils.Utils;
 
@@ -65,9 +62,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         FragmentMap.MapActions, FragmentFavorite.FavoriteActions,
         FragmentNotifications.NotificationsActions, FragmentParameters.ParametersActions,
         SearchFragment.SearchFragmentActions, ProductsFragment.ProductsFragmentActions,
-        FragmentBarcodeScanner.BarcodeScannerActions, BottomSheetDataSetter {
+        FragmentBarcodeScanner.BarcodeScannerActions, DescProductFragment.FragmentDescriptionProductActions,
+        BottomSheetDataSetter {
 
-    private static final String TAG = MainActivity.class.getName();
+    private static final String TAG = "MainActivity";
 
     private FragmentMap fragmentMap;
     private FragmentFavorite fragmentFavorite;
@@ -76,8 +74,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private SearchFragment searchFragment;
     private ProductsFragment productsFragment;
     private FragmentBarcodeScanner fragmentBarcodeScanner;
+    private DescProductFragment descProductFragment;
     private Fragment currentFragment;
-    private AppRoomDatabase db;
     private SearchView searchView;
     private MenuItem myActionMenuItem;
 
@@ -86,20 +84,25 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private boolean goToSearchFragment = false;
     private boolean searchProductBarcode = false;
+    private boolean paused = false;
     private String productBarcodeTemps;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        Log.e(TAG, "onCreate");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
         initFragments();
-        getSupportFragmentManager()
-                .beginTransaction()
-                .add(R.id.frame_layout, fragmentMap, Constantes.FRAGMENT_MAP)
-                .commit();
+        if (savedInstanceState == null) {
+            getSupportFragmentManager()
+                    .beginTransaction()
+                    .add(R.id.frame_layout, fragmentMap, Constants.FRAGMENT_MAP)
+                    .commit();
+        }
         currentFragment = fragmentMap;
+
         initVariables();
         navigationView.setItemIconTintList(null);
 
@@ -107,7 +110,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             navigationView.getMenu().getItem(4).setTitle(R.string.disconnect);
         }
     }
-
 
     @Override
     protected void onDestroy() {
@@ -117,23 +119,35 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     @Override
+    protected void onResume() {
+        super.onResume();
+        paused = false;
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        paused = true;
+    }
+
+    @Override
     public void onBackPressed() {
         DrawerLayout drawer =  findViewById(R.id.draweer_layout);
         if (drawer != null && drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
-        } else if ((getSupportFragmentManager().findFragmentByTag(Constantes.FRAGMENT_BARCODE_SCANNER) != null) ||
-                (getSupportFragmentManager().findFragmentByTag(Constantes.FRAGMENT_FAVORITE) != null) ||
-                (getSupportFragmentManager().findFragmentByTag(Constantes.FRAGMENT_NOTIFICATIONS) != null) ||
-                (getSupportFragmentManager().findFragmentByTag(Constantes.FRAGMENT_PARAMETERS) != null)) {
+        } else if ((getSupportFragmentManager().findFragmentByTag(Constants.FRAGMENT_BARCODE_SCANNER) != null) ||
+                (getSupportFragmentManager().findFragmentByTag(Constants.FRAGMENT_FAVORITE) != null) ||
+                (getSupportFragmentManager().findFragmentByTag(Constants.FRAGMENT_NOTIFICATIONS) != null) ||
+                (getSupportFragmentManager().findFragmentByTag(Constants.FRAGMENT_PARAMETERS) != null)) {
             getSupportFragmentManager()
                     .beginTransaction()
                     .remove(currentFragment)
-                    .add(R.id.frame_layout, fragmentMap, Constantes.FRAGMENT_MAP)
+                    .add(R.id.frame_layout, fragmentMap, Constants.FRAGMENT_MAP)
                     .commit();
             currentFragment = fragmentMap;
             ActionBar supportActionBar = getSupportActionBar();
             if (supportActionBar != null) supportActionBar.show();
-        } else if (getSupportFragmentManager().findFragmentByTag(Constantes.FRAGMENT_MAP) != null) {
+        } else if (getSupportFragmentManager().findFragmentByTag(Constants.FRAGMENT_MAP) != null) {
             Log.e(TAG, "MapFragment");
             if (searchFragment.isVisible()) {
                 Log.e(TAG, "SearchFragment");
@@ -141,6 +155,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             } else if (productsFragment.isVisible()) {
                 Log.e(TAG, "ProductFragment");
                 fragmentMap.popSearchFragment();
+            } else if (descProductFragment != null && descProductFragment.isVisible()) {
+                Log.e(TAG, "DescProductFragment");
+                descProductFragment = null;
+                fragmentMap.popProductsFragment();
             } else if (fragmentMap.hasData()) {
                 Log.e(TAG, "HasData");
                 fragmentMap.popProductsFragment();
@@ -164,31 +182,33 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             @Override
             public boolean onMenuItemClick(MenuItem item) {
                 Log.e(TAG, "Redirecting to barcode scanner");
-                if (getSupportFragmentManager().findFragmentByTag(Constantes.FRAGMENT_BARCODE_SCANNER) == null) {
-                    DisposableManager.dispose();
-                    getSupportFragmentManager()
-                            .beginTransaction()
-                            .remove(currentFragment)
-                            .add(R.id.frame_layout, fragmentBarcodeScanner, Constantes.FRAGMENT_BARCODE_SCANNER)
-                            .commit();
-                    currentFragment = fragmentBarcodeScanner;
-                    ActionBar supportActionBar = getSupportActionBar();
-                    if (supportActionBar != null) supportActionBar.hide();
+                if (!Utils.checkCameraPermission(MainActivity.this)) {
+                    Utils.requestCameraPermission(MainActivity.this);
+                } else {
+                    if (getSupportFragmentManager().findFragmentByTag(Constants.FRAGMENT_BARCODE_SCANNER) == null) {
+                        DisposableManager.dispose();
+                        getSupportFragmentManager()
+                                .beginTransaction()
+                                .remove(currentFragment)
+                                .add(R.id.frame_layout, fragmentBarcodeScanner, Constants.FRAGMENT_BARCODE_SCANNER)
+                                .commit();
+                        currentFragment = fragmentBarcodeScanner;
+                        ActionBar supportActionBar = getSupportActionBar();
+                        if (supportActionBar != null) supportActionBar.hide();
+                    }
                 }
                 return false;
             }
         });
 
         searchView = (SearchView) myActionMenuItem.getActionView();
-        String[] columns = new String[] {"_id", "prop"};
+        String[] columns = new String[] {"_id", "proposition"};
 
         MatrixCursor matrixCursor= new MatrixCursor(columns);
         startManagingCursor(matrixCursor);
 
-        matrixCursor.addRow(new Object[] {1, "probook 450"});
-
-        SuggestinAdapter suggestinAdapter = new SuggestinAdapter(this, matrixCursor, searchView);
-        searchView.setSuggestionsAdapter(suggestinAdapter);
+        SuggestionAdapter suggestionAdapter = new SuggestionAdapter(this, matrixCursor, searchView);
+        searchView.setSuggestionsAdapter(suggestionAdapter);
         searchView.setOnSuggestionListener(new SearchView.OnSuggestionListener() {
             @Override
             public boolean onSuggestionSelect(int position) {
@@ -199,6 +219,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             @Override
             public boolean onSuggestionClick(int position) {
                 Log.e(TAG, "OnSuggestionClick");
+                searchQuery(searchView.getQuery().toString());
                 return false;
             }
         });
@@ -215,17 +236,17 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             public void onFocusChange(View v, boolean hasFocus) {
                 Log.e(TAG, "Focus : " + hasFocus);
                 if (hasFocus) {
-                    if (getSupportFragmentManager().findFragmentByTag(Constantes.FRAGMENT_MAP) == null) {
+                    if (getSupportFragmentManager().findFragmentByTag(Constants.FRAGMENT_MAP) == null) {
                         DisposableManager.dispose();
                         getSupportFragmentManager()
                                 .beginTransaction()
                                 .remove(currentFragment)
-                                .add(R.id.frame_layout, fragmentMap, Constantes.FRAGMENT_MAP)
+                                .add(R.id.frame_layout, fragmentMap, Constants.FRAGMENT_MAP)
                                 .commit();
                         currentFragment = fragmentMap;
                         goToSearchFragment = true;
                     } else {
-                        fragmentMap.onSearchViewFocus();
+                        if (!paused) fragmentMap.onSearchViewFocus();
                     }
                 }
             }
@@ -240,12 +261,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 }
                 myActionMenuItem.collapseActionView();
                 if (fragmentMap != null) fragmentMap.submitSearchQuery(query);
-                return false;
+                return true;
             }
             @Override
-            public boolean onQueryTextChange(String s) {
+            public boolean onQueryTextChange(String query) {
                 Log.e(TAG, "QueryTextChange");
-                return false;
+                if (query.length() >=2) {
+                    PfeRx.getSearchPropositions(MainActivity.this, query, searchView.getSuggestionsAdapter());
+                }
+                return true;
             }
         });
         return true;
@@ -259,19 +283,19 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         switch (id) {
             case R.id.nav_home : {
-                if (getSupportFragmentManager().findFragmentByTag(Constantes.FRAGMENT_MAP) == null) {
+                if (getSupportFragmentManager().findFragmentByTag(Constants.FRAGMENT_MAP) == null) {
                     DisposableManager.dispose();
                     getSupportFragmentManager()
                             .beginTransaction()
                             .remove(currentFragment)
-                            .add(R.id.frame_layout, fragmentMap, Constantes.FRAGMENT_MAP)
+                            .add(R.id.frame_layout, fragmentMap, Constants.FRAGMENT_MAP)
                             .commit();
                     currentFragment = fragmentMap;
                 }
                 break;
             }
             case R.id.nav_favorite : {
-                if (getSupportFragmentManager().findFragmentByTag(Constantes.FRAGMENT_FAVORITE) == null) {
+                if (getSupportFragmentManager().findFragmentByTag(Constants.FRAGMENT_FAVORITE) == null) {
                     if (!Utils.isUserConnected(MainActivity.this)) {
                         Utils.showConnectDialog(MainActivity.this);
                     } else {
@@ -280,7 +304,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         getSupportFragmentManager()
                                 .beginTransaction()
                                 .remove(currentFragment)
-                                .add(R.id.frame_layout, fragmentFavorite, Constantes.FRAGMENT_FAVORITE)
+                                .add(R.id.frame_layout, fragmentFavorite, Constants.FRAGMENT_FAVORITE)
                                 .commit();
                         currentFragment = fragmentFavorite;
                     }
@@ -288,7 +312,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 break;
             }
             case R.id.nav_notifications : {
-                if (getSupportFragmentManager().findFragmentByTag(Constantes.FRAGMENT_NOTIFICATIONS) == null) {
+                if (getSupportFragmentManager().findFragmentByTag(Constants.FRAGMENT_NOTIFICATIONS) == null) {
                     if (!Utils.isUserConnected(MainActivity.this)) {
                         Utils.showConnectDialog(MainActivity.this);
                     } else {
@@ -297,7 +321,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         getSupportFragmentManager()
                                 .beginTransaction()
                                 .remove(currentFragment)
-                                .add(R.id.frame_layout, fragmentNotifications, Constantes.FRAGMENT_NOTIFICATIONS)
+                                .add(R.id.frame_layout, fragmentNotifications, Constants.FRAGMENT_NOTIFICATIONS)
                                 .commit();
                         currentFragment = fragmentNotifications;
                     }
@@ -305,13 +329,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 break;
             }
             case R.id.nav_parameters : {
-                if (getSupportFragmentManager().findFragmentByTag(Constantes.FRAGMENT_PARAMETERS) == null) {
+                if (getSupportFragmentManager().findFragmentByTag(Constants.FRAGMENT_PARAMETERS) == null) {
                     if (currentFragment == fragmentMap) fragmentMap.removeFragments();
                     DisposableManager.dispose();
                     getSupportFragmentManager()
                             .beginTransaction()
                             .remove(currentFragment)
-                            .add(R.id.frame_layout, fragmentParameters, Constantes.FRAGMENT_PARAMETERS)
+                            .add(R.id.frame_layout, fragmentParameters, Constants.FRAGMENT_PARAMETERS)
                             .commit();
                     currentFragment = fragmentParameters;
                 }
@@ -320,9 +344,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             case R.id.nav_connexion : {
                 if (currentFragment == fragmentMap) fragmentMap.removeFragments();
                 if (Utils.isUserConnected(MainActivity.this)) {
-                    SharedPreferences.Editor preferencesEditor = getSharedPreferences(Constantes.SHARED_PREFERENCES_USER,MODE_PRIVATE).edit();
-                    preferencesEditor.remove(Constantes.SHARED_PREFERENCES_USER_EMAIL)
-                            .remove(Constantes.SHARED_PREFERENCES_USER_PASSWORD)
+                    SharedPreferences.Editor preferencesEditor = getSharedPreferences(Constants.SHARED_PREFERENCES_USER,MODE_PRIVATE).edit();
+                    preferencesEditor.remove(Constants.SHARED_PREFERENCES_USER_EMAIL)
+                            .remove(Constants.SHARED_PREFERENCES_USER_PASSWORD)
                             .apply();
                     navigationView.getMenu().getItem(4).setTitle(R.string.connect);
                     final String deviceId = Utils.getStoredFirebaseTokenId(MainActivity.this);
@@ -370,7 +394,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         if (nameTextView != null) nameTextView.setText(salesPoint.getSalesPointName());
         if (quantityTextView != null) quantityTextView.setText(String.valueOf(productSalesPoint.getProductQuantity()));
-        if (priceTextView != null) priceTextView.setText(String.format("%.2f DA",productSalesPoint.getProductPrice()));
+        if (priceTextView != null) priceTextView.setText(String.format(Locale.getDefault(),"%.2f DA",productSalesPoint.getProductPrice()));
 
         if (notifyMe != null) {
             notifyMe.setOnClickListener(new View.OnClickListener() {
@@ -389,6 +413,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                                 })
                                 .setActionTextColor(getResources().getColor(R.color.colorPrimary))
                                 .show();
+                        //TODO: Removed
+                        //addToFavorite(productSalesPoint, salesPoint);
                     }
                 }
             });
@@ -401,10 +427,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     if (!Utils.isUserConnected(MainActivity.this)) {
                         Utils.showConnectDialog(MainActivity.this);
                     } else {
-                        db = AppRoomDatabase.getInstance(MainActivity.this);
-                        PfeRx.getProductDetails(MainActivity.this, productSalesPoint);
-                        if (!db.salesPointDao().salesPointExists(salesPoint.getSalesPointId())) db.salesPointDao().insert(salesPoint);
-                        addPhoto(salesPoint.getSalesPointPhotoReference());
+                        addToFavorite(productSalesPoint, salesPoint);
                         Snackbar.make(findViewById(R.id.map_views_layout), getResources().getString(R.string.saving_informations),Snackbar.LENGTH_LONG).show();
                     }
                 }
@@ -414,23 +437,28 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     @Override
     public void setBottomSheetDataDetails(@NonNull final SalesPoint salesPoint) {
+        Log.e(TAG, "setBottomSheetDataDetails");
         final TextView addressTextView = findViewById(R.id.sales_point_address_details);
         final ImageView salesPointPhoto = findViewById(R.id.sales_point_image_details);
-        final TextView ratingMark = findViewById(R.id.rating);
         final RatingBar salesPointRating = findViewById(R.id.sales_point_rating_details);
+        final TextView ratingMark = findViewById(R.id.rating);
         final TextView salesPointPhoneNumber = findViewById(R.id.sales_point_phone_number_details);
         final TextView salesPointWebSite = findViewById(R.id.sales_point_website_details);
-        final ImageView salesPointItineraire = findViewById(R.id.sales_point_itineraire);
+        final ImageView salesPointItinerary = findViewById(R.id.sales_point_itineraire);
 
+        if (salesPoint.getSalesPointAddress() == null || salesPoint.getSalesPointAddress().trim().equals("")) {
+            salesPoint.setSalesPointAddress(getResources().getString(R.string.not_available));
+        }
         if (addressTextView != null) addressTextView.setText(salesPoint.getSalesPointAddress());
 
-        if (salesPointItineraire != null) salesPointItineraire.setOnClickListener(new View.OnClickListener() {
+        if (salesPointItinerary != null) salesPointItinerary.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                final Intent intent = new Intent(MainActivity.this, ItineraireActivity.class);
-                intent.putExtra(Constantes.INTENT_SALES_POINT_ID, salesPoint.getSalesPointId());
-                startActivity(intent);
-
+                if (Utils.isNetworkAvailable(MainActivity.this)) {
+                    final Intent intent = new Intent(MainActivity.this, ItineraryActivity.class);
+                    intent.putExtra(Constants.INTENT_SALES_POINT_ID, salesPoint.getSalesPointId());
+                    startActivity(intent);
+                }
             }
         });
 
@@ -445,6 +473,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         if (ratingMark != null) ratingMark.setText(decimalFormat.format(salesPoint.getSalesPointRating()));
         if (salesPointRating != null) salesPointRating.setRating((float) salesPoint.getSalesPointRating());
 
+        if (salesPoint.getSalesPointPhoneNumber() == null || salesPoint.getSalesPointPhoneNumber().trim().equals("")) {
+            salesPoint.setSalesPointPhoneNumber(getResources().getString(R.string.not_available));
+        }
         if (salesPointPhoneNumber != null) {
             salesPointPhoneNumber.setText(salesPoint.getSalesPointPhoneNumber());
             salesPointPhoneNumber.setPaintFlags(salesPointPhoneNumber.getPaintFlags() ^ Paint.UNDERLINE_TEXT_FLAG);
@@ -452,22 +483,29 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 @Override
                 public void onClick(View v) {
                     String phone = salesPointPhoneNumber.getText().toString();
-                    Intent intent = new Intent(Intent.ACTION_DIAL, Uri.fromParts("tel", phone, null));
-                    startActivity(intent);
+                    if (!phone.equalsIgnoreCase(getResources().getString(R.string.not_available))) {
+                        Intent intent = new Intent(Intent.ACTION_DIAL, Uri.fromParts("tel", phone, null));
+                        startActivity(intent);
+                    }
                 }
             });
         }
 
+        if (salesPoint.getSalesPointWebSite() == null || salesPoint.getSalesPointWebSite().trim().equals("")) {
+            salesPoint.setSalesPointWebSite(getResources().getString(R.string.not_available));
+        }
         if (salesPointWebSite != null) {
             salesPointWebSite.setText(salesPoint.getSalesPointWebSite());
             salesPointWebSite.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     String url = salesPointWebSite.getText().toString();
-                    if (!url.startsWith("http://") && !url.startsWith("https://"))
-                        url = "http://" + url;
-                    Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
-                    startActivity(browserIntent);
+                    if (!url.equalsIgnoreCase(getResources().getString(R.string.not_available))) {
+                        if (!url.startsWith("http://") && !url.startsWith("https://"))
+                            url = "http://" + url;
+                        Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+                        startActivity(browserIntent);
+                    }
                 }
             });
         }
@@ -524,12 +562,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         MainActivity.this.runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                if (getSupportFragmentManager().findFragmentByTag(Constantes.FRAGMENT_MAP) == null) {
+                if (getSupportFragmentManager().findFragmentByTag(Constants.FRAGMENT_MAP) == null) {
                     DisposableManager.dispose();
                     getSupportFragmentManager()
                             .beginTransaction()
                             .remove(currentFragment)
-                            .add(R.id.frame_layout, fragmentMap, Constantes.FRAGMENT_MAP)
+                            .add(R.id.frame_layout, fragmentMap, Constants.FRAGMENT_MAP)
                             .commit();
                     currentFragment = fragmentMap;
                     searchProductBarcode = true;
@@ -549,13 +587,20 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     public void initFragments() {
-        fragmentMap = new FragmentMap();
-        fragmentFavorite = new FragmentFavorite();
-        fragmentNotifications = new FragmentNotifications();
-        fragmentParameters = new FragmentParameters();
-        searchFragment = new SearchFragment();
-        productsFragment = new ProductsFragment();
-        fragmentBarcodeScanner = FragmentBarcodeScanner.newInstance();
+        fragmentMap = (FragmentMap)getSupportFragmentManager().findFragmentByTag(Constants.FRAGMENT_MAP);
+        if (fragmentMap == null) fragmentMap = new FragmentMap();
+        fragmentFavorite = (FragmentFavorite)getSupportFragmentManager().findFragmentByTag(Constants.FRAGMENT_FAVORITE);
+        if (fragmentFavorite == null) fragmentFavorite = new FragmentFavorite();
+        fragmentNotifications = (FragmentNotifications)getSupportFragmentManager().findFragmentByTag(Constants.FRAGMENT_NOTIFICATIONS);
+        if (fragmentNotifications == null) fragmentNotifications = new FragmentNotifications();
+        fragmentParameters = (FragmentParameters)getSupportFragmentManager().findFragmentByTag(Constants.FRAGMENT_PARAMETERS);
+        if (fragmentParameters == null) fragmentParameters = new FragmentParameters();
+        searchFragment = (SearchFragment)getSupportFragmentManager().findFragmentByTag(Constants.FRAGMENT_SEARCH);
+        if (searchFragment == null) searchFragment = new SearchFragment();
+        productsFragment = (ProductsFragment)getSupportFragmentManager().findFragmentByTag(Constants.FRAGMENT_PRODUCTS);
+        if (productsFragment == null)  productsFragment = new ProductsFragment();
+        fragmentBarcodeScanner = (FragmentBarcodeScanner)getSupportFragmentManager().findFragmentByTag(Constants.FRAGMENT_BARCODE_SCANNER);
+        if (fragmentBarcodeScanner == null)  fragmentBarcodeScanner = FragmentBarcodeScanner.newInstance();
     }
 
     public void initVariables() {
@@ -568,7 +613,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         drawer.addDrawerListener(toggle);
         toggle.syncState();
 
-        navigationView =  findViewById(R.id.nav_view);
+        navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
     }
 
@@ -584,31 +629,31 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         if (toolbar != null) toolbar.setTitle(title);
     }
 
-    public void addPhoto( String photoReference)
-    {
-        int SDK_INT = android.os.Build.VERSION.SDK_INT;
-        if (SDK_INT > 8)
-        {
-            StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder()
-                    .permitAll().build();
-            StrictMode.setThreadPolicy(policy);
-
-            try {
-                URL url = new URL(Utils.buildGooglePictureUri(MainActivity.this, photoReference).toString());
-                Bitmap bitmap= BitmapFactory.decodeStream(url.openConnection().getInputStream());
-                ByteArrayOutputStream stream = new ByteArrayOutputStream();
-                bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
-                byte[] byteArray = stream.toByteArray();
-                bitmap.recycle();
-                db = AppRoomDatabase.getInstance(MainActivity.this);
-                db.salesPointDao().update(byteArray);
-
-            } catch(IOException e) {
-                Log.e(TAG, "image " +e );
-            }
+    private void addToFavorite(final ProductSalesPoint productSalesPoint, final SalesPoint salesPoint) {
+        AppRoomDatabase db = AppRoomDatabase.getInstance(MainActivity.this);
+        PfeRx.getProductDetails(MainActivity.this, productSalesPoint);
+        if (!db.salesPointDao().salesPointExists(salesPoint.getSalesPointId())) {
+            db.salesPointDao().insert(salesPoint);
+            Utils.addPhoto(MainActivity.this, salesPoint.getSalesPointId(), salesPoint.getSalesPointPhotoReference());
         }
     }
 
+    @Override
+    public void setDescProductFragment(DescProductFragment descProductFragment) {
+        this.descProductFragment = descProductFragment;
+    }
+
+    @Override
+    public void onMoreDetailsSelected(final Product product) {
+        fragmentMap.onProductMoreDetails(product);
+    }
+
+    @Override
+    public void displayProductCharacteristics(final Product product, final List<KeyValue> productCharacteristics) {
+        if (descProductFragment != null) {
+            descProductFragment.displayProductCharacteristics(product, productCharacteristics);
+        }
+    }
 
     @Override
     public ProductsFragment getActivityProductsFragment() {
@@ -658,5 +703,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     public void setToolbarTitleForFragmentMap() {
         setToolbarTitle(getResources().getString(R.string.title_fragment_map));
+    }
+
+    @Override
+    public void setToolbarTitleForFragmentDescProduct() {
+        setToolbarTitle(getResources().getString(R.string.title_fragment_desc_product));
     }
 }

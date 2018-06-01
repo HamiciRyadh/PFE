@@ -3,32 +3,32 @@ package usthb.lfbservices.com.pfe.models;
 
 public class KeyValue {
 
-    private int typeCaracteristicId;
-    private String productCaracteristicValue;
+    private int typeCharacteristicId;
+    private String productCharacteristicValue;
 
 
     public KeyValue() {
 
     }
 
-    public KeyValue(int typeCaracteristicId, String productCaracteristicValue) {
-        this.typeCaracteristicId = typeCaracteristicId;
-        this.productCaracteristicValue = productCaracteristicValue;
+    public KeyValue(int typeCharacteristicId, String productCharacteristicValue) {
+        this.typeCharacteristicId = typeCharacteristicId;
+        this.productCharacteristicValue = productCharacteristicValue;
     }
 
-    public int getTypeCaracteristicId() {
-        return typeCaracteristicId;
+    public int getTypeCharacteristicId() {
+        return typeCharacteristicId;
     }
 
-    public void setTypeCaracteristicId(int typeCaracteristicId) {
-        this.typeCaracteristicId = typeCaracteristicId;
+    public void setTypeCharacteristicId(int typeCharacteristicId) {
+        this.typeCharacteristicId = typeCharacteristicId;
     }
 
-    public String getProductCaracteristicValue() {
-        return productCaracteristicValue;
+    public String getProductCharacteristicValue() {
+        return productCharacteristicValue;
     }
 
-    public void setProductCaracteristicValue(String productCaracteristicValue) {
-        this.productCaracteristicValue = productCaracteristicValue;
+    public void setProductCharacteristicValue(String productCharacteristicValue) {
+        this.productCharacteristicValue = productCharacteristicValue;
     }
 }

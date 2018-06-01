@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="20dp">
+
+
+        <RelativeLayout
+            android:id="@+id/p_view_background"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+
+        </RelativeLayout>
+
+
+        <RelativeLayout
+            android:id="@+id/p_view_foreground"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@android:color/white"
+            android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/product_name"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textColor="#581845"
+                    android:textSize="24sp"
+                    android:textStyle="bold"
+                    tools:text="probook 350" />
+
+                <TextView
+                    android:id="@+id/product_trademark"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="13dp"
+                    android:layout_marginStart="13dp"
+                    android:textColor="#900C3F"
+                    android:layout_below="@+id/product_name"
+                    android:textSize="14sp"
+                    tools:text="HP" />
+        </RelativeLayout>
+</FrameLayout>

@@ -1,8 +1,8 @@
 package com.lfbservices.pfe.model;
 
 public class KeyValueID {
-	private int typeCaracteristicId;
-	private String productCaracteristicValue;
+	private int typeCharacteristicId;
+	private String productCharacteristicValue;
 	
 	
 	public KeyValueID() {
@@ -10,30 +10,30 @@ public class KeyValueID {
 	}
 
 
-	public KeyValueID(int typeCaracteristicId, String productCaracteristicValue) {
+	public KeyValueID(int typeCharacteristicId, String productCharacteristicValue) {
 		super();
-		this.typeCaracteristicId = typeCaracteristicId;
-		this.productCaracteristicValue = productCaracteristicValue;
+		this.typeCharacteristicId = typeCharacteristicId;
+		this.productCharacteristicValue = productCharacteristicValue;
 	}
 
 
-	public int getTypeCaracteristicId() {
-		return typeCaracteristicId;
+	public int getTypeCharacteristicId() {
+		return typeCharacteristicId;
 	}
 
 
-	public String getProductCaracteristicValue() {
-		return productCaracteristicValue;
+	public String getProductCharacteristicValue() {
+		return productCharacteristicValue;
 	}
 
 
-	public void setTypeCaracteristicId(int typeCaracteristicId) {
-		this.typeCaracteristicId = typeCaracteristicId;
+	public void setTypeCharacteristicId(int typeCharacteristicId) {
+		this.typeCharacteristicId = typeCharacteristicId;
 	}
 
 
-	public void setProductCaracteristicValue(String productCaracteristicValue) {
-		this.productCaracteristicValue = productCaracteristicValue;
+	public void setProductCaracteristicValue(String productCharacteristicValue) {
+		this.productCharacteristicValue = productCharacteristicValue;
 	}
 
 

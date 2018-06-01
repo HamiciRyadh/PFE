@@ -1,4 +1,4 @@
-package usthb.lfbservices.com.pfe.RoomDatabase.Dao;
+package usthb.lfbservices.com.pfe.roomDatabase.Dao;
 
 import android.arch.persistence.room.Dao;
 import android.arch.persistence.room.Insert;
@@ -7,15 +7,16 @@ import android.arch.persistence.room.Query;
 
 import java.util.List;
 
-import usthb.lfbservices.com.pfe.models.Category;
+import usthb.lfbservices.com.pfe.models.Wilaya;
 
 @Dao
-public interface CategoryDao {
+public interface WilayaDao {
 
-    @Query("SELECT categoryName FROM Category ORDER BY categoryId ASC")
+    @Query("SELECT wilayaName FROM Wilaya ORDER BY wilayaId ASC")
     String[] getAll();
 
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    void insertAll(List<Category> categories);
+    void insertAll(List<Wilaya> wilayas);
 }
+

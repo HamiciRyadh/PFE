@@ -52,7 +52,9 @@ public class SalesPoint {
 		this.salesPointPhotoReference = salesPointPhotoReference;
 	}
 
+	public SalesPoint() {
 
+	}
 
 
     public SalesPoint(@NonNull String salesPointId, double salesPointLat, double salesPointLong, String salesPointName,

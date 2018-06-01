@@ -15,7 +15,6 @@ import android.widget.AdapterView;
 import android.widget.GridView;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -27,19 +26,20 @@ import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 
 import usthb.lfbservices.com.pfe.R;
-import usthb.lfbservices.com.pfe.RoomDatabase.AppRoomDatabase;
+import usthb.lfbservices.com.pfe.roomDatabase.AppRoomDatabase;
 import usthb.lfbservices.com.pfe.adapters.CategoryAdapter;
 import usthb.lfbservices.com.pfe.adapters.HistoryAdapter;
 import usthb.lfbservices.com.pfe.models.Category;
-import usthb.lfbservices.com.pfe.utils.Constantes;
+import usthb.lfbservices.com.pfe.utils.Constants;
 import usthb.lfbservices.com.pfe.utils.Utils;
 
 /**
+ * A {@link Fragment} that displays the categories and the history searches.
  */
 
 public class SearchFragment extends Fragment {
 
-    private static String TAG = SearchFragment.class.getName();
+    private static String TAG = "SearchFragment";
 
     private SearchFragmentActions implementation;
 
@@ -61,6 +61,12 @@ public class SearchFragment extends Fragment {
     public SearchFragment(){
     }
 
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setRetainInstance(true);
+    }
+
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -78,6 +84,11 @@ public class SearchFragment extends Fragment {
         return rootView;
     }
 
+    /**
+     * Checks if the attached {@link Context} implements the {@link SearchFragmentActions} interface,
+     * if it is not the case, throws a {@link ClassNotFoundException}.
+     * @param context The Context of the current Activity.
+     */
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
@@ -90,6 +101,9 @@ public class SearchFragment extends Fragment {
         }
     }
 
+    /**
+     * Removes the reference to the implementation.
+     */
     @Override
     public void onDetach() {
         Log.e(TAG, "OnDetach");
@@ -97,6 +111,9 @@ public class SearchFragment extends Fragment {
         implementation = null;
     }
 
+    /**
+     * Initializes the variables.
+     */
     public void initVariables() {
         db = AppRoomDatabase.getInstance(fragmentBelongActivity);
         emptyTextViewHistory = rootView.findViewById(R.id.empty_history);
@@ -120,6 +137,10 @@ public class SearchFragment extends Fragment {
         historyAdapter = new HistoryAdapter(fragmentBelongActivity, R.layout.list_item_history, listHistorySearches);
     }
 
+    /**
+     * Initializes the category {@link GridView} with the {@link CategoryAdapter} and displays the
+     * minimal number of categories.
+     */
     public void initCategories() {
         gridView.setAdapter(categoryAdapter);
         gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -145,6 +166,10 @@ public class SearchFragment extends Fragment {
         });
     }
 
+    /**
+     * Initializes the history {@link ListView} with the {@link HistoryAdapter} and the associated
+     * empty {@link TextView}.
+     */
     public void initHistory() {
         listView.setAdapter(historyAdapter);
         listView.setEmptyView(emptyTextViewHistory);
@@ -162,12 +187,16 @@ public class SearchFragment extends Fragment {
         });
     }
 
+    /**
+     * Extracts the history searches from the history file.
+     * @return An {@link ArrayList} of {@link String} representing the history searches.
+     */
     public ArrayList<String> getHistorySearches() {
-        Log.e(TAG, "READING FILE : " + Constantes.HISTORY_FILE_NAME);
+        Log.e(TAG, "READING FILE : " + Constants.HISTORY_FILE_NAME);
         ArrayList<String> list = new ArrayList<String>();
 
         try {
-            File file = new File(fragmentBelongActivity.getFilesDir(), Constantes.HISTORY_FILE_NAME);
+            File file = new File(fragmentBelongActivity.getFilesDir(), Constants.HISTORY_FILE_NAME);
             if (file.exists()) {
                 FileInputStream fis = new FileInputStream(file);
                 ObjectInputStream ois = new ObjectInputStream(fis);
@@ -183,12 +212,16 @@ public class SearchFragment extends Fragment {
         return list;
     }
 
+    /**
+     * Adds a search string to the file containing the history searches.
+     * @param history The history search to add in the file.
+     */
     public void addToHistorySearches(final String history) {
-        Log.e(TAG, "WRITING TO FILE : " + Constantes.HISTORY_FILE_NAME);
+        Log.e(TAG, "WRITING TO FILE : " + Constants.HISTORY_FILE_NAME);
         if (listHistorySearches.contains(history)) listHistorySearches.remove(history);
         listHistorySearches.add(0, history);
         try {
-            File file = new File(fragmentBelongActivity.getFilesDir(), Constantes.HISTORY_FILE_NAME);
+            File file = new File(fragmentBelongActivity.getFilesDir(), Constants.HISTORY_FILE_NAME);
             FileOutputStream fos;
 
             fos = new FileOutputStream(file);
@@ -203,6 +236,9 @@ public class SearchFragment extends Fragment {
         }
     }
 
+    /**
+     * Refreshes the history list view to display the latest searches.
+     */
     public void refreshHistory(){
         listHistorySearches.clear();
         listHistorySearches = getHistorySearches();
@@ -210,8 +246,17 @@ public class SearchFragment extends Fragment {
         historyAdapter.addAll(listHistorySearches);
     }
 
+    /**
+     * Gets the minimal number of {@link Category} to display, they will be displayed on one line in
+     * addition to the "more" option.
+     * @return An {@link ArrayList} of {@link Category}.
+     */
     public ArrayList<Category> getMinimumCategoriesToDisplay() {
         ArrayList<Category> list = new ArrayList<>();
+
+        Log.e(TAG, "Number of categories to display : " + numberOfCategoriesToDisplay);
+        Log.e(TAG, "Categories.length : " + categories.length);
+        Log.e(TAG, "Categories data size : " + Category.Data().size());
 
         for (int i = 1; i < numberOfCategoriesToDisplay && i <= categories.length; i++) {
             list.add(new Category(icon.get(i-1), categories[i-1], i));
@@ -229,6 +274,10 @@ public class SearchFragment extends Fragment {
         return list;
     }
 
+    /**
+     * Gets all the categories to display in addition to the "less" option.
+     * @return An {@link ArrayList} of {@link Category}.
+     */
     public ArrayList<Category> getAllCategoriesToDisplay() {
         ArrayList<Category> list = new ArrayList<Category>();
 
@@ -243,6 +292,10 @@ public class SearchFragment extends Fragment {
         return list;
     }
 
+    /**
+     * Calculates the maximal number of categories to display on one line of the screen.
+     * @return The maximal number of categories to display on one line of the screen.
+     */
     public int calculateNumberOfCategoriesToDisplay() {
         int pxWidth;
         pxWidth = Utils.getDeviceWidthInPixel(fragmentBelongActivity);
@@ -253,6 +306,9 @@ public class SearchFragment extends Fragment {
         return result;
     }
 
+    /**
+     * The interface that needs to be implemented by the attached Activity.
+     */
     public interface SearchFragmentActions {
 
         void onCategorySelected(int category);

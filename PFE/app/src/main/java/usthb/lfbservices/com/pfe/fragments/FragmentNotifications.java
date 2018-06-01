@@ -2,9 +2,9 @@ package usthb.lfbservices.com.pfe.fragments;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -18,45 +18,42 @@ import android.widget.TextView;
 import java.util.List;
 
 import usthb.lfbservices.com.pfe.R;
-import usthb.lfbservices.com.pfe.RoomDatabase.AppRoomDatabase;
+import usthb.lfbservices.com.pfe.roomDatabase.AppRoomDatabase;
 import usthb.lfbservices.com.pfe.adapters.NotificationListAdapter;
 import usthb.lfbservices.com.pfe.adapters.TouchNotificationAdapter;
 import usthb.lfbservices.com.pfe.models.Notification;
 
-/**
- * Created by ryadh on 06/05/18.
- */
 
 public class FragmentNotifications extends Fragment {
 
     private static final String TAG = "FragmentNotifications";
 
-
     private AppRoomDatabase db;
     private RecyclerView recyclerView;
     private TextView emptyView;
-    private NotificationListAdapter adapter;
-    private List<Notification> notifications;
     private NotificationsActions implementation;
     private View rootView;
-    private FragmentActivity fragmentBelongActivity;
 
     public FragmentNotifications() {
     }
 
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setRetainInstance(true);
+    }
 
     @Nullable
     @Override
-    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         Log.e(TAG, "onCreateView");
         rootView = inflater.inflate(R.layout.fragment_notifications, container, false);
-        fragmentBelongActivity = getActivity();
 
         if (rootView != null) {
             initVariables();
 
-            notifications= db.notificationDao().getAll();
-            adapter = new NotificationListAdapter(notifications);
+            final List<Notification> notifications= db.notificationDao().getAll();
+            final NotificationListAdapter adapter = new NotificationListAdapter(notifications);
             recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
             recyclerView.setAdapter(adapter);
 

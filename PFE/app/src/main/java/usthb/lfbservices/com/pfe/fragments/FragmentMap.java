@@ -21,7 +21,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ListView;
-import android.widget.SearchView;
 import android.widget.Toast;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -36,7 +35,6 @@ import com.google.android.gms.maps.model.Circle;
 import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
-import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -47,14 +45,15 @@ import java.util.Arrays;
 import java.util.List;
 
 import usthb.lfbservices.com.pfe.R;
-import usthb.lfbservices.com.pfe.RoomDatabase.AppRoomDatabase;
+import usthb.lfbservices.com.pfe.models.Product;
+import usthb.lfbservices.com.pfe.roomDatabase.AppRoomDatabase;
 import usthb.lfbservices.com.pfe.adapters.SalesPointsAdapter;
 import usthb.lfbservices.com.pfe.models.ProductSalesPoint;
 import usthb.lfbservices.com.pfe.models.SalesPoint;
 import usthb.lfbservices.com.pfe.models.Singleton;
 import usthb.lfbservices.com.pfe.models.Wilaya;
 import usthb.lfbservices.com.pfe.network.PfeRx;
-import usthb.lfbservices.com.pfe.utils.Constantes;
+import usthb.lfbservices.com.pfe.utils.Constants;
 import usthb.lfbservices.com.pfe.utils.Utils;
 
 import static android.content.Context.LOCATION_SERVICE;
@@ -81,6 +80,7 @@ public class FragmentMap extends Fragment  implements OnMapReadyCallback {
     private Button showButton;
     private ListView listViewSalesPoints;
     private FloatingActionButton userLocation;
+    private DescProductFragment descProductFragment;
 
     private Button btnWilaya;
     private Button btnSearchPerimeter;
@@ -112,12 +112,18 @@ public class FragmentMap extends Fragment  implements OnMapReadyCallback {
 
     private Location currentLocation;
     private boolean isActivateGPSVisible = false;
+    private boolean paused = false;
     private GPSLocationListener gpsLocationListener = new GPSLocationListener();
 
     public FragmentMap() {
 
     }
 
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setRetainInstance(true);
+    }
 
     @Nullable
     @Override
@@ -158,10 +164,11 @@ public class FragmentMap extends Fragment  implements OnMapReadyCallback {
         Log.e(TAG, "onMapReady");
         mMap = googleMap;
         Singleton.getInstance().setMap(mMap);
-        SharedPreferences sharedPreferences = fragmentBelongActivity.getSharedPreferences(Constantes.SHARED_PREFERENCES_POSITION, fragmentBelongActivity.MODE_PRIVATE);
-        String sLat = sharedPreferences.getString(Constantes.SHARED_PREFERENCES_POSITION_LATITUDE,null);
-        String sLong = sharedPreferences.getString(Constantes.SHARED_PREFERENCES_POSITION_LONGITUDE,null);
-        String sMapStyle = sharedPreferences.getString(Constantes.SHARED_PREFERENCES_USER_MAP_STYLE, null);
+        SharedPreferences sharedPreferences = fragmentBelongActivity.getSharedPreferences(Constants.SHARED_PREFERENCES_POSITION, MODE_PRIVATE);
+        String sLat = sharedPreferences.getString(Constants.SHARED_PREFERENCES_POSITION_LATITUDE,null);
+        String sLong = sharedPreferences.getString(Constants.SHARED_PREFERENCES_POSITION_LONGITUDE,null);
+        String sMapStyle = fragmentBelongActivity.getSharedPreferences(Constants.SHARED_PREFERENCES_USER_PREFERENCES, MODE_PRIVATE)
+                            .getString(Constants.MAP_STYLE, null);
 
         if (sLat != null && sLong != null) {
             double lat = Double.parseDouble(sLat);
@@ -195,9 +202,9 @@ public class FragmentMap extends Fragment  implements OnMapReadyCallback {
         });
         Log.e(TAG, "Style " + (sMapStyle == null));
         if (sMapStyle != null) {
-            if (sMapStyle.equalsIgnoreCase(Constantes.SATELLITE)) {
+            if (sMapStyle.equalsIgnoreCase(Constants.MAP_SATELLITE)) {
                 mMap.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
-            } else if (sMapStyle.equalsIgnoreCase(Constantes.STANDARD)) {
+            } else if (sMapStyle.equalsIgnoreCase(Constants.MAP_STANDARD)) {
                 mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
                 //mMap.setMapStyle(MapStyleOptions.loadRawResourceStyle(fragmentBelongActivity, R.raw.map_style));
             }
@@ -232,26 +239,27 @@ public class FragmentMap extends Fragment  implements OnMapReadyCallback {
 
                     userMarker = mMap.addMarker(userMakerOptions);
                 }
-                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(userPosition, ZOOM_LEVEL));
+                if (!paused) mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(userPosition, ZOOM_LEVEL));
             }
             locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, gpsLocationListener);
             locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, gpsLocationListener);
 
-            if (Utils.isGPSActivated(fragmentBelongActivity)) {
-                Log.e(TAG, "Adding user marker position from onResume.");
-            } else {
+            if (!Utils.isGPSActivated(fragmentBelongActivity)) {
                 if (!isActivateGPSVisible) {
                     isActivateGPSVisible = true;
-                    Utils.activateGPS(fragmentBelongActivity);
+                    if (!paused) Utils.activateGPS(fragmentBelongActivity);
                 }
             }
         }
+        Log.e(TAG, "PausedFalse");
+        paused = false;
     }
 
     @Override
     public void onPause() {
         super.onPause();
         Log.e(TAG, "OnPause");
+        paused = true;
         locationManager.removeUpdates(gpsLocationListener);
     }
 
@@ -287,9 +295,9 @@ public class FragmentMap extends Fragment  implements OnMapReadyCallback {
 
                 @Override
                 public void onClick(View view) {
-                    SharedPreferences preferences = fragmentBelongActivity.getSharedPreferences(Constantes.SHARED_PREFERENCES_POSITION, MODE_PRIVATE);
-                    String sUserLatitude = preferences.getString(Constantes.SHARED_PREFERENCES_POSITION_LATITUDE, null);
-                    String sUserLongitude = preferences.getString(Constantes.SHARED_PREFERENCES_POSITION_LONGITUDE, null);
+                    SharedPreferences preferences = fragmentBelongActivity.getSharedPreferences(Constants.SHARED_PREFERENCES_POSITION, MODE_PRIVATE);
+                    String sUserLatitude = preferences.getString(Constants.SHARED_PREFERENCES_POSITION_LATITUDE, null);
+                    String sUserLongitude = preferences.getString(Constants.SHARED_PREFERENCES_POSITION_LONGITUDE, null);
                     LatLng sUserPosition = null;
 
                     if (sUserLatitude != null && sUserLongitude != null) {
@@ -332,7 +340,7 @@ public class FragmentMap extends Fragment  implements OnMapReadyCallback {
             productsFragment.clearProductsFragment();
             getChildFragmentManager()
                     .beginTransaction()
-                    .add(R.id.map_frame_layout, productsFragment, Constantes.FRAGMENT_PRODUCTS)
+                    .add(R.id.map_frame_layout, productsFragment, Constants.FRAGMENT_PRODUCTS)
                     .addToBackStack(null)
                     .remove(searchFragment)
                     .addToBackStack(null)
@@ -348,7 +356,7 @@ public class FragmentMap extends Fragment  implements OnMapReadyCallback {
             productsFragment.clearProductsFragment();
             getChildFragmentManager()
                     .beginTransaction()
-                    .add(R.id.map_frame_layout, productsFragment, Constantes.FRAGMENT_PRODUCTS)
+                    .add(R.id.map_frame_layout, productsFragment, Constants.FRAGMENT_PRODUCTS)
                     .addToBackStack(null)
                     .remove(searchFragment)
                     .addToBackStack(null)
@@ -416,9 +424,9 @@ public class FragmentMap extends Fragment  implements OnMapReadyCallback {
                                         Log.e(TAG, "AddUserMarkerPosition: AddMarker.");
                                     }
                                     SharedPreferences.Editor editor =
-                                            fragmentBelongActivity.getSharedPreferences(Constantes.SHARED_PREFERENCES_POSITION, MODE_PRIVATE).edit();
-                                    editor.putString(Constantes.SHARED_PREFERENCES_POSITION_LATITUDE, ""+userPosition.latitude);
-                                    editor.putString(Constantes.SHARED_PREFERENCES_POSITION_LONGITUDE, ""+userPosition.longitude);
+                                            fragmentBelongActivity.getSharedPreferences(Constants.SHARED_PREFERENCES_POSITION, MODE_PRIVATE).edit();
+                                    editor.putString(Constants.SHARED_PREFERENCES_POSITION_LATITUDE, ""+userPosition.latitude);
+                                    editor.putString(Constants.SHARED_PREFERENCES_POSITION_LONGITUDE, ""+userPosition.longitude);
                                     editor.apply();
                                     if (zoom) mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(userPosition, FragmentMap.ZOOM_LEVEL));
                                 } else {
@@ -894,7 +902,7 @@ public class FragmentMap extends Fragment  implements OnMapReadyCallback {
     public void hideSearchFragment() {
             SearchFragment searchFragment = implementation.getActivitySearchFragment();
             if (searchFragment != null) {
-                if (getChildFragmentManager().findFragmentByTag(Constantes.FRAGMENT_SEARCH) != null)
+                if (getChildFragmentManager().findFragmentByTag(Constants.FRAGMENT_SEARCH) != null)
                     getChildFragmentManager()
                             .beginTransaction()
                             .remove(searchFragment)
@@ -904,7 +912,7 @@ public class FragmentMap extends Fragment  implements OnMapReadyCallback {
 
     public void removeSearchFragment() {
         SearchFragment searchFragment = implementation.getActivitySearchFragment();
-        if (getChildFragmentManager().findFragmentByTag(Constantes.FRAGMENT_SEARCH) != null)
+        if (getChildFragmentManager().findFragmentByTag(Constants.FRAGMENT_SEARCH) != null)
             getChildFragmentManager()
                     .beginTransaction()
                     .remove(searchFragment)
@@ -913,21 +921,33 @@ public class FragmentMap extends Fragment  implements OnMapReadyCallback {
 
     public void removeProductFragment() {
         ProductsFragment productsFragment = implementation.getActivityProductsFragment();
-        if (getChildFragmentManager().findFragmentByTag(Constantes.FRAGMENT_PRODUCTS) != null)
+        if (getChildFragmentManager().findFragmentByTag(Constants.FRAGMENT_PRODUCTS) != null)
             getChildFragmentManager()
                     .beginTransaction()
                     .remove(productsFragment)
                     .commit();
     }
 
+    public void removeProductDescFragment() {
+        if (getChildFragmentManager().findFragmentByTag(Constants.FRAGMENT_PRODUCT_DESCRIPTION) != null)
+            if (descProductFragment != null) {
+                getChildFragmentManager()
+                        .beginTransaction()
+                        .remove(descProductFragment)
+                        .commit();
+                implementation.setDescProductFragment(null);
+            }
+    }
+
     public void removeFragments() {
         removeSearchFragment();
         removeProductFragment();
+        removeProductDescFragment();
     }
 
     public void popSearchFragment() {
         removeProductFragment();
-        //getChildFragmentManager().popBackStack(Constantes.FRAGMENT_SEARCH, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+        //getChildFragmentManager().popBackStack(Constants.FRAGMENT_SEARCH, FragmentManager.POP_BACK_STACK_INCLUSIVE);
         Log.e(TAG, "BackStackCount : " + getChildFragmentManager().getBackStackEntryCount());
         getChildFragmentManager().popBackStackImmediate();
         Log.e(TAG, "BackStackCount 2: " + getChildFragmentManager().getBackStackEntryCount());
@@ -936,10 +956,11 @@ public class FragmentMap extends Fragment  implements OnMapReadyCallback {
     public void popProductsFragment() {
         onBackPressed();
         hasData = false;
+        removeProductDescFragment();
         Log.e(TAG, "BackStackCount : " + getChildFragmentManager().getBackStackEntryCount());
         getChildFragmentManager().popBackStackImmediate();
         Log.e(TAG, "BackStackCount 2: " + getChildFragmentManager().getBackStackEntryCount());
-       // getChildFragmentManager().popBackStack(Constantes.FRAGMENT_PRODUCTS, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+       // getChildFragmentManager().popBackStack(Constants.FRAGMENT_PRODUCTS, FragmentManager.POP_BACK_STACK_INCLUSIVE);
     }
 
     public void resetUserMarker() {
@@ -975,22 +996,37 @@ public class FragmentMap extends Fragment  implements OnMapReadyCallback {
             Log.e(TAG, "Setting SearchFragment");
             getChildFragmentManager()
                     .beginTransaction()
-                    .add(R.id.map_frame_layout, searchFragment, Constantes.FRAGMENT_SEARCH)
+                    .add(R.id.map_frame_layout, searchFragment, Constants.FRAGMENT_SEARCH)
                     .addToBackStack(null)
                     .commit();
-            if (getChildFragmentManager().findFragmentByTag(Constantes.FRAGMENT_SEARCH) != null)
+            if (getChildFragmentManager().findFragmentByTag(Constants.FRAGMENT_SEARCH) != null)
                 searchFragment.refreshHistory();
         }
     }
 
     public void submitSearchQuery(final String searchQuery) {
         final SearchFragment searchFragment = implementation.getActivitySearchFragment();
-        if (getChildFragmentManager().findFragmentByTag(Constantes.FRAGMENT_SEARCH) != null) {
+        if (getChildFragmentManager().findFragmentByTag(Constants.FRAGMENT_SEARCH) != null) {
             searchFragment.addToHistorySearches(searchQuery);
             searchFragment.refreshHistory();
             searchQuery(searchQuery);
         }
     }
+
+    public void onProductMoreDetails(final Product product) {
+        final ProductsFragment productsFragment = implementation.getActivityProductsFragment();
+        if (productsFragment.isVisible()) {
+            descProductFragment = DescProductFragment.newInstance(product);
+            implementation.setDescProductFragment(descProductFragment);
+            getChildFragmentManager()
+                    .beginTransaction()
+                    .remove(productsFragment)
+                    .add(R.id.map_frame_layout, descProductFragment, Constants.FRAGMENT_PRODUCT_DESCRIPTION)
+                    .addToBackStack(null)
+                    .commit();
+        }
+    }
+
     private class GPSLocationListener implements android.location.LocationListener {
         @Override
         public void onLocationChanged(Location location) {
@@ -1032,9 +1068,9 @@ public class FragmentMap extends Fragment  implements OnMapReadyCallback {
                     }
                 }
                 SharedPreferences.Editor editor =
-                        fragmentBelongActivity.getSharedPreferences(Constantes.SHARED_PREFERENCES_POSITION,MODE_PRIVATE).edit();
-                editor.putString(Constantes.SHARED_PREFERENCES_POSITION_LATITUDE, ""+userPosition.latitude);
-                editor.putString(Constantes.SHARED_PREFERENCES_POSITION_LONGITUDE, ""+userPosition.longitude);
+                        fragmentBelongActivity.getSharedPreferences(Constants.SHARED_PREFERENCES_POSITION,MODE_PRIVATE).edit();
+                editor.putString(Constants.SHARED_PREFERENCES_POSITION_LATITUDE, ""+userPosition.latitude);
+                editor.putString(Constants.SHARED_PREFERENCES_POSITION_LONGITUDE, ""+userPosition.longitude);
                 editor.apply();
             }
         }
@@ -1067,5 +1103,6 @@ public class FragmentMap extends Fragment  implements OnMapReadyCallback {
         void checkGoToSearchFragment();
         void checkSearchProductBarcode();
         void setToolbarTitleForFragmentMap();
+        void setDescProductFragment(final DescProductFragment descProductFragment);
     }
 }

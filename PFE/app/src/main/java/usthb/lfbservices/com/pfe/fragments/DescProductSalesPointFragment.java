@@ -17,17 +17,16 @@ import android.widget.TextView;
 import java.util.List;
 
 import usthb.lfbservices.com.pfe.R;
-import usthb.lfbservices.com.pfe.RoomDatabase.AppRoomDatabase;
+import usthb.lfbservices.com.pfe.models.Product;
+import usthb.lfbservices.com.pfe.roomDatabase.AppRoomDatabase;
 import usthb.lfbservices.com.pfe.adapters.ProductSalesPointListAdapter;
 import usthb.lfbservices.com.pfe.adapters.TouchSalespointAdapter;
 import usthb.lfbservices.com.pfe.models.ProductSalesPoint;
-import usthb.lfbservices.com.pfe.network.PfeRx;
-import usthb.lfbservices.com.pfe.utils.Utils;
 
 public class DescProductSalesPointFragment extends Fragment {
 
     private static final String TAG = "FragmentPSPDescription";
-    private static final String PRODUCT_BARCODE = "productBarcode";
+    private static final String PRODUCT = "product";
 
     private FragmentProductSalesPointDescriptionActions implementation;
     private FragmentActivity fragmentBelongActivity;
@@ -35,17 +34,17 @@ public class DescProductSalesPointFragment extends Fragment {
     private RecyclerView recyclerView;
     private TextView emptyView;
     private ProductSalesPointListAdapter adapter;
-    private List<ProductSalesPoint> productSalespointsList;
-    private String productBarcode;
+    private List<ProductSalesPoint> productSalesPointsList;
+    private Product product;
 
     public DescProductSalesPointFragment() {
 
     }
 
-    public static DescProductSalesPointFragment newInstance(final String productBarcode) {
+    public static DescProductSalesPointFragment newInstance(final Product product) {
         DescProductSalesPointFragment fragment = new DescProductSalesPointFragment();
         Bundle args = new Bundle();
-        args.putString(PRODUCT_BARCODE, productBarcode);
+        args.putParcelable(PRODUCT, product);
         fragment.setArguments(args);
         return fragment;
     }
@@ -53,8 +52,9 @@ public class DescProductSalesPointFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setRetainInstance(true);
         if (getArguments() != null) {
-            productBarcode = getArguments().getString(PRODUCT_BARCODE);
+            product = getArguments().getParcelable(PRODUCT);
         }
     }
 
@@ -72,9 +72,8 @@ public class DescProductSalesPointFragment extends Fragment {
 
             } else {*/
                 db = AppRoomDatabase.getInstance(getActivity());
-                productSalespointsList= db.productSalesPointDao().getAll(productBarcode);
-                Log.e(TAG, "PSP SIZE " + productSalespointsList.size());
-                adapter = new ProductSalesPointListAdapter(productSalespointsList);
+                productSalesPointsList= db.productSalesPointDao().getAll(product.getProductBarcode());
+                adapter = new ProductSalesPointListAdapter(productSalesPointsList);
                 recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
                 recyclerView.setAdapter(adapter);
                 recyclerView.addItemDecoration(new DividerItemDecoration(fragmentBelongActivity, DividerItemDecoration.VERTICAL));
@@ -86,8 +85,7 @@ public class DescProductSalesPointFragment extends Fragment {
                     recyclerView.setVisibility(View.GONE);
                     emptyView.setVisibility(View.VISIBLE);
                     emptyView.setText(R.string.no_salespoint_saved);
-                }
-                else {
+                } else {
                     recyclerView.setVisibility(View.VISIBLE);
                     emptyView.setVisibility(View.GONE);
                 }

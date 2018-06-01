@@ -2,30 +2,29 @@ package usthb.lfbservices.com.pfe.adapters;
 
 import android.content.Context;
 import android.content.Intent;
+import android.os.Bundle;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import java.util.Collections;
 import java.util.List;
 
 import usthb.lfbservices.com.pfe.R;
-import usthb.lfbservices.com.pfe.RoomDatabase.AppRoomDatabase;
+import usthb.lfbservices.com.pfe.roomDatabase.AppRoomDatabase;
 import usthb.lfbservices.com.pfe.activities.DescriptiveActivity;
 import usthb.lfbservices.com.pfe.models.Product;
 
-//TODO: Remove comments
 public class ProductFavoriteAdapter extends RecyclerView.Adapter< ProductFavoriteAdapter.ViewHolder>  implements ITouchHelperAdapter {
 
     private static final String TAG = ProductFavoriteAdapter.class.getName();
     private Context context;
     private AppRoomDatabase db;
-    private String productBarcode;
     private List<Product> products;
-
 
 
     public ProductFavoriteAdapter(List<Product> products) {
@@ -34,7 +33,7 @@ public class ProductFavoriteAdapter extends RecyclerView.Adapter< ProductFavorit
 
     @Override
     public  ProductFavoriteAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item_products, parent, false);
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item_products_favorite, parent, false);
         return new ViewHolder(view);
     }
 
@@ -54,10 +53,15 @@ public class ProductFavoriteAdapter extends RecyclerView.Adapter< ProductFavorit
     @Override
     public void onItemDismiss(int position) {
         db = AppRoomDatabase.getInstance(ProductFavoriteAdapter.this.context);
-        productBarcode = products.get(position).getProductBarcode();
+        String productBarcode = products.get(position).getProductBarcode();
         products.remove(position);
         db.productDao().deleteById(productBarcode);
         notifyItemRemoved(position);
+    }
+
+    @Override
+    public void onItemDismiss(int position, int direction) {
+
     }
 
     @Override
@@ -80,7 +84,7 @@ public class ProductFavoriteAdapter extends RecyclerView.Adapter< ProductFavorit
 
         public TextView productName;
         public TextView productTradeMark;
-
+        public RelativeLayout viewBackground, viewForeground;
         public String productBarcode;
 
         public ViewHolder(View itemView) {
@@ -89,15 +93,16 @@ public class ProductFavoriteAdapter extends RecyclerView.Adapter< ProductFavorit
             itemView.setOnClickListener(this);
             productName = itemView.findViewById(R.id.product_name);
             productTradeMark = itemView.findViewById(R.id.product_trademark);
+            viewBackground = itemView.findViewById(R.id.p_view_background);
+            viewForeground = itemView.findViewById(R.id.p_view_foreground);
         }
 
         @Override
         public void onClick(View view) {
-            productBarcode = products.get(getLayoutPosition()).getProductBarcode();
+            Product product = products.get(getLayoutPosition());
             Intent intent = new Intent(context, DescriptiveActivity.class);
-            intent.putExtra("usthb.lfbservices.com.pfe.adapters.productBarcode", productBarcode);
+            intent.putExtra("product", product);
             context.startActivity(intent);
-            Log.e(TAG, "onClick Product " + productBarcode.toString());
         }
     }
 }

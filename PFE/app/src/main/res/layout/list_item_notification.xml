@@ -1,7 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
+<FrameLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
     xmlns:tools="http://schemas.android.com/tools"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <RelativeLayout
+        android:id="@+id/n_view_background"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/n_view_foreground"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@android:color/white"
+        android:orientation="vertical">
+
+<LinearLayout
     android:orientation="vertical"
     android:background="@color/white"
     android:layout_width="match_parent"
@@ -111,3 +129,148 @@
         </LinearLayout>
     </LinearLayout>
 </LinearLayout>
+    </RelativeLayout>
+</FrameLayout>
+
+
+    <!--<?xml version="1.0" encoding="utf-8"?>-->
+<!--<FrameLayout-->
+<!--xmlns:android="http://schemas.android.com/apk/res/android"-->
+<!--android:layout_width="match_parent"-->
+<!--xmlns:tools="http://schemas.android.com/tools"-->
+<!--android:layout_height="wrap_content"-->
+<!--android:orientation="vertical">-->
+
+
+<!--<RelativeLayout-->
+    <!--android:id="@+id/n_view_background"-->
+    <!--android:layout_width="match_parent"-->
+    <!--android:layout_height="match_parent">-->
+<!--</RelativeLayout>-->
+
+
+<!--<RelativeLayout-->
+    <!--android:id="@+id/n_view_foreground"-->
+    <!--android:layout_width="match_parent"-->
+    <!--android:layout_height="wrap_content"-->
+    <!--android:background="@android:color/white"-->
+    <!--android:orientation="vertical">-->
+
+
+    <!--<LinearLayout-->
+        <!--xmlns:android="http://schemas.android.com/apk/res/android"-->
+        <!--xmlns:tools="http://schemas.android.com/tools"-->
+        <!--android:orientation="vertical"-->
+        <!--android:background="@color/white"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:padding="20dp">-->
+
+
+        <!--<TextView-->
+            <!--android:id="@+id/notification_product"-->
+            <!--android:layout_width="287dp"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:gravity="center"-->
+            <!--android:textColor="#581845"-->
+            <!--android:textSize="24sp"-->
+            <!--android:textStyle="bold"-->
+            <!--tools:text="PROBOOK 450" />-->
+
+        <!--<TextView-->
+            <!--android:id="@+id/notification_salespoint"-->
+            <!--android:layout_width="287dp"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:gravity="center"-->
+            <!--android:textColor="#581845"-->
+            <!--android:textSize="24sp"-->
+            <!--android:textStyle="bold"-->
+            <!--tools:text="SARL LFB Services" />-->
+
+
+        <!--<LinearLayout-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="50dp"-->
+            <!--android:orientation="vertical">-->
+
+
+            <!--<LinearLayout-->
+                <!--android:layout_width="match_parent"-->
+                <!--android:layout_height="match_parent"-->
+                <!--android:orientation="horizontal">-->
+
+                <!--<LinearLayout-->
+                    <!--android:layout_width="0dp"-->
+                    <!--android:layout_height="match_parent"-->
+                    <!--android:layout_weight="50"-->
+                    <!--android:gravity="center_vertical"-->
+                    <!--android:orientation="horizontal">-->
+
+                    <!--<TextView-->
+                        <!--android:layout_width="wrap_content"-->
+                        <!--android:layout_height="wrap_content"-->
+                        <!--android:layout_marginLeft="20dp"-->
+                        <!--android:text="@string/quantity"-->
+                        <!--android:textColor="@color/colorPrimary"-->
+                        <!--android:textSize="15sp" />-->
+
+                    <!--<TextView-->
+                        <!--android:id="@+id/notification_qte"-->
+                        <!--android:layout_width="wrap_content"-->
+                        <!--android:layout_height="wrap_content"-->
+
+                        <!--android:ellipsize="end"-->
+                        <!--android:textColor="#581845"-->
+                        <!--android:textSize="25sp"-->
+                        <!--tools:text="50" />-->
+                <!--</LinearLayout>-->
+
+                <!--<LinearLayout-->
+                    <!--android:layout_width="0dp"-->
+                    <!--android:layout_height="match_parent"-->
+                    <!--android:layout_weight="50"-->
+                    <!--android:gravity="center_vertical"-->
+                    <!--android:orientation="horizontal">-->
+
+                    <!--<TextView-->
+                        <!--android:id="@+id/textView3"-->
+                        <!--android:layout_width="wrap_content"-->
+                        <!--android:layout_height="wrap_content"-->
+                        <!--android:text="@string/price"-->
+                        <!--android:textColor="@color/colorPrimary"-->
+                        <!--android:textSize="18sp" />-->
+
+                    <!--<TextView-->
+                        <!--android:id="@+id/notification_price"-->
+                        <!--android:layout_width="wrap_content"-->
+                        <!--android:layout_height="wrap_content"-->
+                        <!--android:textColor="@android:color/black"-->
+                        <!--android:textSize="18sp"-->
+                        <!--tools:text="19585 DA" />-->
+                <!--</LinearLayout>-->
+
+
+            <!--</LinearLayout>-->
+        <!--</LinearLayout>-->
+
+
+        <!--<LinearLayout-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:layout_gravity="right"-->
+            <!--android:layout_marginTop="8dp">-->
+
+            <!--<TextView-->
+                <!--android:id="@+id/notification_date"-->
+                <!--android:layout_width="wrap_content"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:textColor="@android:color/black"-->
+                <!--android:textSize="18sp"-->
+                <!--tools:text="il ya 3 mins" />-->
+        <!--</LinearLayout>-->
+
+    <!--</LinearLayout>-->
+
+
+<!--</RelativeLayout>-->
+<!--</FrameLayout>-->

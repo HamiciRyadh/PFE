@@ -7,10 +7,11 @@ import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.iid.FirebaseInstanceIdService;
 
 import usthb.lfbservices.com.pfe.network.PfeRx;
-import usthb.lfbservices.com.pfe.utils.Constantes;
+import usthb.lfbservices.com.pfe.utils.Constants;
 
 /**
- * Created by ryadh on 10/05/18.
+ * An implementation of the {@link FirebaseInstanceIdService}, it is responsible for generating and
+ * refreshing the device's Firebase token id.
  */
 
 public class MyFirebaseInstanceIdService extends FirebaseInstanceIdService {
@@ -27,26 +28,25 @@ public class MyFirebaseInstanceIdService extends FirebaseInstanceIdService {
         String refreshedToken = FirebaseInstanceId.getInstance().getToken();
         Log.e(TAG, "Refreshed token: " + refreshedToken);
         sendRegistrationToServer(refreshedToken);
-        SharedPreferences.Editor editor = getApplicationContext().getSharedPreferences(Constantes.SHARED_PREFERENCES_USER, MODE_PRIVATE).edit();
-        editor.remove(Constantes.SHARED_PREFERENCES_FIREBASE_TOKEN_ID);
-        editor.putString(Constantes.SHARED_PREFERENCES_FIREBASE_TOKEN_ID, refreshedToken);
+        SharedPreferences.Editor editor = getApplicationContext().getSharedPreferences(Constants.SHARED_PREFERENCES_USER, MODE_PRIVATE).edit();
+        editor.remove(Constants.SHARED_PREFERENCES_FIREBASE_TOKEN_ID);
+        editor.putString(Constants.SHARED_PREFERENCES_FIREBASE_TOKEN_ID, refreshedToken);
         editor.apply();
     }
 
     /**
-     * Persist token to third-party servers.
+     * Persists token to third-party servers.
      * @param newToken The new token.
      */
     private void sendRegistrationToServer(final String newToken) {
-        SharedPreferences preferences = getApplicationContext().getSharedPreferences(Constantes.SHARED_PREFERENCES_USER, MODE_PRIVATE);
-        String mailAddress = preferences.getString(Constantes.SHARED_PREFERENCES_USER_EMAIL, null);
-        String password = preferences.getString(Constantes.SHARED_PREFERENCES_USER_PASSWORD, null);
+        SharedPreferences preferences = getApplicationContext().getSharedPreferences(Constants.SHARED_PREFERENCES_USER, MODE_PRIVATE);
+        String mailAddress = preferences.getString(Constants.SHARED_PREFERENCES_USER_EMAIL, null);
+        String password = preferences.getString(Constants.SHARED_PREFERENCES_USER_PASSWORD, null);
         if (mailAddress != null && password != null) {
-            final String previousToken = preferences.getString(Constantes.SHARED_PREFERENCES_FIREBASE_TOKEN_ID, null);
+            final String previousToken = preferences.getString(Constants.SHARED_PREFERENCES_FIREBASE_TOKEN_ID, null);
             if (previousToken != null) {
                 PfeRx.updateFirebaseTokenId(previousToken, newToken);
             }
         }
-
     }
 }

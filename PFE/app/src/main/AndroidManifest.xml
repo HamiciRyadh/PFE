@@ -43,6 +43,7 @@
         <activity
             android:name=".activities.MainActivity"
             android:label="@string/title_activity_main"
+            android:configChanges="keyboardHidden|orientation"
             android:theme="@style/AppTheme.NoActionBar"
             />
         <activity
@@ -54,7 +55,7 @@
             android:theme="@style/AppTheme.Dark"
             />
         <activity
-            android:name=".activities.ItineraireActivity"
+            android:name=".activities.ItineraryActivity"
             android:theme="@style/AppTheme.Dark"
             />
         <activity

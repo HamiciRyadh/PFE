@@ -16,7 +16,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import usthb.lfbservices.com.pfe.R;
-import usthb.lfbservices.com.pfe.RoomDatabase.AppRoomDatabase;
+import usthb.lfbservices.com.pfe.roomDatabase.AppRoomDatabase;
 import usthb.lfbservices.com.pfe.adapters.ProductFavoriteAdapter;
 import usthb.lfbservices.com.pfe.adapters.TouchProductAdapter;
 
@@ -42,6 +42,11 @@ public class FragmentFavorite extends Fragment {
     public FragmentFavorite() {
     }
 
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setRetainInstance(true);
+    }
 
     @Nullable
     @Override

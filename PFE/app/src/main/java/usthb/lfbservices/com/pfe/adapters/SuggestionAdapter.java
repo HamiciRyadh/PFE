@@ -16,13 +16,13 @@ import usthb.lfbservices.com.pfe.R;
  * Created by ryadh on 22/05/18.
  */
 
-public class SuggestinAdapter extends CursorAdapter {
+public class SuggestionAdapter extends CursorAdapter {
 
     private LayoutInflater mLayoutInflater;
     private Context mContext;
     private SearchView searchView;
 
-    public SuggestinAdapter(Context context, Cursor cursor, SearchView sv) {
+    public SuggestionAdapter(Context context, Cursor cursor, SearchView sv) {
         super(context, cursor, false);
         mContext = context;
         searchView = sv;

@@ -1,7 +1,11 @@
 package usthb.lfbservices.com.pfe.adapters;
 
+import android.graphics.Canvas;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
+import android.view.View;
+
+import usthb.lfbservices.com.pfe.R;
 
 
 public class TouchSalespointAdapter extends ItemTouchHelper.Callback {
@@ -38,7 +42,26 @@ public class TouchSalespointAdapter extends ItemTouchHelper.Callback {
 
     @Override
     public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
-        mAdapter.onItemDismiss(viewHolder.getAdapterPosition());
+        if (direction == ItemTouchHelper.END) { //DELETE
+            mAdapter.onItemDismiss(viewHolder.getAdapterPosition(), ItemTouchHelper.END);
+        }
+        if ( direction == ItemTouchHelper.START){ //NOTIFY
+            mAdapter.onItemDismiss(viewHolder.getAdapterPosition(), ItemTouchHelper.START);
+        }
     }
 
+    @Override
+    public void onChildDraw(Canvas c, RecyclerView recyclerView,
+                            RecyclerView.ViewHolder viewHolder, float dX, float dY,
+                            int actionState, boolean isCurrentlyActive) {
+        final View foregroundView = ((ProductSalesPointListAdapter.ViewHolder) viewHolder).viewForeground;
+
+        if (dX > 0) { // swiping right
+            ((ProductSalesPointListAdapter.ViewHolder) viewHolder).viewBackground.setBackgroundResource(R.drawable.notification);
+            getDefaultUIUtil().onDraw(c, recyclerView, foregroundView, dX / 4, dY, actionState, isCurrentlyActive);
+        } else {
+            ((ProductSalesPointListAdapter.ViewHolder) viewHolder).viewBackground.setBackgroundResource(R.drawable.delete);
+            getDefaultUIUtil().onDraw(c, recyclerView, foregroundView, dX, dY, actionState, isCurrentlyActive);
+        }
+    }
 }
