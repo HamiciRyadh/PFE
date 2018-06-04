@@ -16,6 +16,10 @@ import java.io.*;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 
+/**
+ * This class handles the conversion of POJOs to their corresponding JSON representation and 
+ * JSON strings to their corresponding POJOs.
+ */
 @Provider
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)

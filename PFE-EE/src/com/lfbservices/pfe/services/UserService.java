@@ -94,7 +94,7 @@ public class UserService {
 	@Path("/Delete")
 	@RolesAllowed({AuthenticationFilter.ADMIN})
 	@Produces(MediaType.APPLICATION_JSON)
-	public boolean deleteUser(@DefaultValue("") @QueryParam("mailAddress") String mailAddress) {
+	public boolean deleteUser(@DefaultValue("") @QueryParam("mailAddress") String mailAddress) throws Exception {
 		if (mailAddress == null || mailAddress.trim().equals("")) {
 		    throw new WebApplicationException(
 		      Response.status(HttpURLConnection.HTTP_BAD_REQUEST)

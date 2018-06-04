@@ -387,8 +387,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     public void setBottomSheetData(@NonNull final SalesPoint salesPoint, @NonNull final ProductSalesPoint productSalesPoint) {
         final TextView nameTextView = findViewById(R.id.sales_point_name_details);
-        final TextView quantityTextView = findViewById(R.id.product_qte_marker);
-        final TextView priceTextView = findViewById(R.id.product_price_marker);
+        final TextView quantityTextView = findViewById(R.id.product_qte_marker_bottom_sheet);
+        final TextView priceTextView = findViewById(R.id.product_price_marker_bottom_sheet);
         final ImageButton notifyMe = findViewById(R.id.notify_me);
         final ImageButton addToFavorite = findViewById(R.id.add_to_favorite);
 
@@ -413,8 +413,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                                 })
                                 .setActionTextColor(getResources().getColor(R.color.colorPrimary))
                                 .show();
-                        //TODO: Removed
-                        //addToFavorite(productSalesPoint, salesPoint);
                     }
                 }
             });

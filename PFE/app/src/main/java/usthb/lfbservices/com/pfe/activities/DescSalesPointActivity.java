@@ -48,12 +48,14 @@ public class DescSalesPointActivity extends AppCompatActivity {
             final String salesPointID = getIntent().getStringExtra("salesPointID");
             final int productQuantity = getIntent().getIntExtra("productQuantity", -1);
             final double productPrice = getIntent().getDoubleExtra("productPrice", -1);
+            final String salesPointName = getIntent().getStringExtra("salesPointName");
 
             initVariables();
 
             if (salesPointID != null && productPrice != -1 && productQuantity != -1) {
                 this.productQuantity.setText(String.format(Locale.getDefault(),"%d", productQuantity));
                 this.productPrice.setText(String.format(Locale.getDefault(),"%.2f DA", productPrice));
+                this.salesPointName.setText(salesPointName);
             } else {
                 Log.e(TAG, "Missing Intent Arguments.");
                 return;
@@ -73,7 +75,12 @@ public class DescSalesPointActivity extends AppCompatActivity {
 
         public void initViews(final SalesPoint salesPoint, final boolean insertIntoDatabase) {
             Log.e(TAG, "initViews");
-            salesPointName.setText(salesPoint.getSalesPointName());
+            if (salesPointName.getText().toString().trim().equals("")) {
+                if (salesPoint.getSalesPointName().trim().equals("")) {
+                    salesPoint.setSalesPointName(getResources().getString(R.string.not_available));
+                }
+                salesPointName.setText(salesPoint.getSalesPointName());
+            }
             if (salesPoint.getSalesPointAddress() == null || salesPoint.getSalesPointAddress().trim().equals("")) {
                 salesPoint.setSalesPointAddress(getResources().getString(R.string.not_available));
             }

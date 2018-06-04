@@ -34,6 +34,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
     private static final String TAG = "MyFirebaseMsgService";
 
     private String productName;
+    private String salesPointName;
     private Notification notification;
 
     /**
@@ -63,7 +64,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
             productName = list.get(0);
             final String productBarcode = list.get(3);
             final String salesPointId = list.get(6);
-            final String salesPointName = list.get(7);
+            salesPointName = list.get(7);
             final int productQuantityNew = Integer.parseInt(list.get(4));
             final double productPriceNew = Double.parseDouble(list.get(1));
             final int productQuantityOld = Integer.parseInt(list.get(5));
@@ -94,6 +95,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         intent.putExtra("salesPointID", notification.getSalesPointId());
         intent.putExtra("productQuantity", notification.getNotificationNewQuantity());
         intent.putExtra("productPrice", notification.getNotificationNewPrice());
+        intent.putExtra("salesPointName", salesPointName);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent,
                 PendingIntent.FLAG_ONE_SHOT);

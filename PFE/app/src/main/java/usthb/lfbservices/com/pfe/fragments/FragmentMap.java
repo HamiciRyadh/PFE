@@ -45,6 +45,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import usthb.lfbservices.com.pfe.R;
+import usthb.lfbservices.com.pfe.adapters.SalesPointsProductAdapter;
 import usthb.lfbservices.com.pfe.models.Product;
 import usthb.lfbservices.com.pfe.roomDatabase.AppRoomDatabase;
 import usthb.lfbservices.com.pfe.adapters.SalesPointsAdapter;
@@ -274,7 +275,7 @@ public class FragmentMap extends Fragment  implements OnMapReadyCallback {
         db = AppRoomDatabase.getInstance(fragmentBelongActivity);
         sheetBehavior = BottomSheetBehavior.from(rootView.findViewById(R.id.layout_bottom_sheet));
         showButton = rootView.findViewById(R.id.show_list_button);
-        listViewSalesPoints = rootView.findViewById(R.id.list_view_sales_points);
+        listViewSalesPoints = rootView.findViewById(R.id.list_view_salespoint_product);
         userLocation = rootView.findViewById(R.id.geolocalisation);
         btnWilaya = rootView.findViewById(R.id.btn_Wilaya);
         btnVille = rootView.findViewById(R.id.btn_Ville);
@@ -620,8 +621,24 @@ public class FragmentMap extends Fragment  implements OnMapReadyCallback {
 
                         refreshMap(temporarySalespointList);
 
-                        ((SalesPointsAdapter) listViewSalesPoints.getAdapter()).clear();
-                        ((SalesPointsAdapter) listViewSalesPoints.getAdapter()).addAll(temporarySalespointList);
+
+                        //TODO :NEW
+                        List<ProductSalesPoint> productSalesPointList = new ArrayList<>() ;
+
+                        for( ProductSalesPoint productSalesPoint : Singleton.getInstance().getProductSalesPointList())
+                        {
+                            for( SalesPoint temporarySalesPoint : temporarySalespointList)
+                            {
+                                if (productSalesPoint.getSalesPointId().equals(temporarySalesPoint.getSalesPointId()))
+                                    productSalesPointList.add(productSalesPoint);
+                            }
+
+                        }
+
+                        ((SalesPointsProductAdapter) listViewSalesPoints.getAdapter()).clear();
+                        ((SalesPointsProductAdapter) listViewSalesPoints.getAdapter()).addAll(productSalesPointList);
+
+
                     }
                 });
 
@@ -642,8 +659,22 @@ public class FragmentMap extends Fragment  implements OnMapReadyCallback {
                             mUserItemsVille.clear();
 
                             List<SalesPoint> temporarySalespointList = Singleton.getInstance().getSalesPointList();
-                            ((SalesPointsAdapter) listViewSalesPoints.getAdapter()).clear();
-                            ((SalesPointsAdapter) listViewSalesPoints.getAdapter()).addAll(temporarySalespointList);
+
+                            //TODO :NEW
+                            List<ProductSalesPoint> productSalesPointList = new ArrayList<>() ;
+
+                            for( ProductSalesPoint productSalesPoint : Singleton.getInstance().getProductSalesPointList())
+                            {
+                                for( SalesPoint temporarySalesPoint : temporarySalespointList)
+                                {
+                                    if (productSalesPoint.getSalesPointId().equals(temporarySalesPoint.getSalesPointId()))
+                                        productSalesPointList.add(productSalesPoint);
+                                }
+
+                            }
+
+                            ((SalesPointsProductAdapter) listViewSalesPoints.getAdapter()).clear();
+                            ((SalesPointsProductAdapter) listViewSalesPoints.getAdapter()).addAll(productSalesPointList);
                             refreshMap(temporarySalespointList);
                         }
                     }
@@ -823,9 +854,28 @@ public class FragmentMap extends Fragment  implements OnMapReadyCallback {
                             }
                         }
 
+
+                        //TODO :NEW
                         if (listViewSalesPoints.getAdapter() != null) {
-                            ((SalesPointsAdapter)listViewSalesPoints.getAdapter()).clear();
-                            ((SalesPointsAdapter)listViewSalesPoints.getAdapter()).addAll(temporarySalespointList);
+
+                            List<ProductSalesPoint> productSalesPointList = new ArrayList<>() ;
+
+                            for( ProductSalesPoint productSalesPoint : Singleton.getInstance().getProductSalesPointList())
+                            {
+                                for( SalesPoint temporarySalesPoint : temporarySalespointList)
+                                {
+                                    if (productSalesPoint.getSalesPointId().equals(temporarySalesPoint.getSalesPointId()))
+                                        productSalesPointList.add(productSalesPoint);
+                                }
+
+                            }
+
+                            ((SalesPointsProductAdapter) listViewSalesPoints.getAdapter()).clear();
+                            ((SalesPointsProductAdapter) listViewSalesPoints.getAdapter()).addAll(productSalesPointList);
+
+
+
+
                             refreshMap(temporarySalespointList);
                         }
                     }
@@ -853,8 +903,23 @@ public class FragmentMap extends Fragment  implements OnMapReadyCallback {
 
                         List<SalesPoint> temporarySalesPointList = Singleton.getInstance().getSalesPointList();
                         if (listViewSalesPoints.getAdapter() != null) {
-                            ((SalesPointsAdapter)listViewSalesPoints.getAdapter()).clear();
-                            ((SalesPointsAdapter)listViewSalesPoints.getAdapter()).addAll(temporarySalesPointList);
+
+                            //TODO : NEW !
+
+                            List<ProductSalesPoint> productSalesPointList = new ArrayList<>() ;
+
+                            for( ProductSalesPoint productSalesPoint : Singleton.getInstance().getProductSalesPointList())
+                            {
+                                for( SalesPoint temporarySalesPoint : temporarySalesPointList)
+                                {
+                                    if (productSalesPoint.getSalesPointId().equals(temporarySalesPoint.getSalesPointId()))
+                                        productSalesPointList.add(productSalesPoint);
+                                }
+
+                            }
+
+                            ((SalesPointsProductAdapter) listViewSalesPoints.getAdapter()).clear();
+                            ((SalesPointsProductAdapter) listViewSalesPoints.getAdapter()).addAll(productSalesPointList);
                             refreshMap(temporarySalesPointList);
                         }
                     }

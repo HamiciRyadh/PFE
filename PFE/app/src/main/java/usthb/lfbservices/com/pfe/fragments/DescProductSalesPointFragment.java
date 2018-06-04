@@ -14,14 +14,17 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import usthb.lfbservices.com.pfe.R;
 import usthb.lfbservices.com.pfe.models.Product;
+import usthb.lfbservices.com.pfe.network.PfeRx;
 import usthb.lfbservices.com.pfe.roomDatabase.AppRoomDatabase;
 import usthb.lfbservices.com.pfe.adapters.ProductSalesPointListAdapter;
 import usthb.lfbservices.com.pfe.adapters.TouchSalespointAdapter;
 import usthb.lfbservices.com.pfe.models.ProductSalesPoint;
+import usthb.lfbservices.com.pfe.utils.Utils;
 
 public class DescProductSalesPointFragment extends Fragment {
 
@@ -30,6 +33,7 @@ public class DescProductSalesPointFragment extends Fragment {
 
     private FragmentProductSalesPointDescriptionActions implementation;
     private FragmentActivity fragmentBelongActivity;
+    private View rootView;
     private AppRoomDatabase db;
     private RecyclerView recyclerView;
     private TextView emptyView;
@@ -62,34 +66,17 @@ public class DescProductSalesPointFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View rootView = inflater.inflate(R.layout.fragment_desc_product_salespoint, container, false);
+        rootView = inflater.inflate(R.layout.fragment_desc_product_salespoint, container, false);
         fragmentBelongActivity = getActivity();
         if (rootView != null) {
-            recyclerView = rootView.findViewById(R.id.recyclerview_Salespoint);
-            emptyView =rootView.findViewById(R.id.empty_list_productSalespoint);
-/*
-            if (Utils.isNetworkAvailable(getActivity())) {
+            initViews();
+            initVariables();
+            displayProductSalesPoints();
 
-            } else {*/
-                db = AppRoomDatabase.getInstance(getActivity());
-                productSalesPointsList= db.productSalesPointDao().getAll(product.getProductBarcode());
-                adapter = new ProductSalesPointListAdapter(productSalesPointsList);
-                recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-                recyclerView.setAdapter(adapter);
-                recyclerView.addItemDecoration(new DividerItemDecoration(fragmentBelongActivity, DividerItemDecoration.VERTICAL));
-                ItemTouchHelper.Callback callback = new TouchSalespointAdapter(adapter);
-                ItemTouchHelper touchHelper = new ItemTouchHelper(callback);
-                touchHelper.attachToRecyclerView(recyclerView);
-
-                if (adapter.getItemCount() == 0) {
-                    recyclerView.setVisibility(View.GONE);
-                    emptyView.setVisibility(View.VISIBLE);
-                    emptyView.setText(R.string.no_salespoint_saved);
-                } else {
-                    recyclerView.setVisibility(View.VISIBLE);
-                    emptyView.setVisibility(View.GONE);
-                }
-  //          }
+            if (Utils.isNetworkAvailable(fragmentBelongActivity)) {
+                final List<String> salesPointsIds = getListIds(productSalesPointsList);
+                PfeRx.getNewestProductSalesPointsInformations(fragmentBelongActivity, salesPointsIds);
+            }
         }
 
         return rootView;
@@ -108,8 +95,55 @@ public class DescProductSalesPointFragment extends Fragment {
         }
     }
 
+    public void initViews() {
+        recyclerView = rootView.findViewById(R.id.recyclerview_Salespoint);
+        emptyView =rootView.findViewById(R.id.empty_list_productSalespoint);
+    }
+
+    public void initVariables() {
+        db = AppRoomDatabase.getInstance(getActivity());
+        productSalesPointsList = new ArrayList<>();
+        adapter = new ProductSalesPointListAdapter(productSalesPointsList);
+        recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+        recyclerView.setAdapter(adapter);
+        recyclerView.addItemDecoration(new DividerItemDecoration(fragmentBelongActivity, DividerItemDecoration.VERTICAL));
+        ItemTouchHelper.Callback callback = new TouchSalespointAdapter(adapter);
+        ItemTouchHelper touchHelper = new ItemTouchHelper(callback);
+        touchHelper.attachToRecyclerView(recyclerView);
+    }
+
+    public void refreshProductSalesPointsDisplayed(){
+        displayProductSalesPoints();
+    }
+
+    private void displayProductSalesPoints() {
+        recyclerView.setVisibility(View.VISIBLE);
+        emptyView.setVisibility(View.GONE);
+        productSalesPointsList.clear();
+        productSalesPointsList.addAll(db.productSalesPointDao().getAll(product.getProductBarcode()));
+        if (adapter.getItemCount() == 0) {
+            recyclerView.setVisibility(View.GONE);
+            emptyView.setVisibility(View.VISIBLE);
+            emptyView.setText(R.string.no_salespoint_saved);
+        } else {
+            recyclerView.setVisibility(View.VISIBLE);
+            emptyView.setVisibility(View.GONE);
+        }
+    }
+
+    private List<String> getListIds(final List<ProductSalesPoint> productSalesPointsList) {
+        final List<String> salesPointsIds = new ArrayList<>();
+
+        for (ProductSalesPoint productSalesPoint : productSalesPointsList) {
+            salesPointsIds.add(productSalesPoint.getSalesPointId());
+        }
+
+        return salesPointsIds;
+    }
+
     public interface FragmentProductSalesPointDescriptionActions {
 
+        void refreshProductSalesPointsDisplayed();
     }
 
 }

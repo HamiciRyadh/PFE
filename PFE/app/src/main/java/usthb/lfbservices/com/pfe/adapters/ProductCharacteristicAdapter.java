@@ -3,7 +3,6 @@ package usthb.lfbservices.com.pfe.adapters;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,8 +12,8 @@ import android.widget.TextView;
 import java.util.ArrayList;
 
 import usthb.lfbservices.com.pfe.R;
-import usthb.lfbservices.com.pfe.roomDatabase.AppRoomDatabase;
 import usthb.lfbservices.com.pfe.models.KeyValue;
+import usthb.lfbservices.com.pfe.roomDatabase.AppRoomDatabase;
 
 /**
  * Created by ryadh on 15/05/2018.
@@ -27,6 +26,9 @@ public class ProductCharacteristicAdapter extends ArrayAdapter<KeyValue> {
 
     private Context context;
     private int layoutResourceId;
+
+
+
 
     public ProductCharacteristicAdapter(Context context, int layoutResourceId, ArrayList<KeyValue> data) {
         super(context, layoutResourceId, data);

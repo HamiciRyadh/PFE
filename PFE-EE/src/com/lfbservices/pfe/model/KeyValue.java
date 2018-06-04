@@ -1,16 +1,16 @@
 package com.lfbservices.pfe.model;
 
-public class KeyValueID {
+public class KeyValue {
 	private int typeCharacteristicId;
 	private String productCharacteristicValue;
 	
 	
-	public KeyValueID() {
+	public KeyValue() {
 		
 	}
 
 
-	public KeyValueID(int typeCharacteristicId, String productCharacteristicValue) {
+	public KeyValue(int typeCharacteristicId, String productCharacteristicValue) {
 		super();
 		this.typeCharacteristicId = typeCharacteristicId;
 		this.productCharacteristicValue = productCharacteristicValue;

@@ -21,7 +21,8 @@ public class SalesPointsAdapter extends ArrayAdapter<SalesPoint> {
         private Context context;
         private int layoutResourceId;
 
-        public SalesPointsAdapter(Activity context, int layoutResourceId, ArrayList<SalesPoint> data){
+
+    public SalesPointsAdapter(Activity context, int layoutResourceId, ArrayList<SalesPoint> data){
             super(context,0, data);
             this.layoutResourceId = layoutResourceId;
             this.context = context;

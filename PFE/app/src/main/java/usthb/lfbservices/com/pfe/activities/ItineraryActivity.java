@@ -112,7 +112,7 @@ public class ItineraryActivity extends FragmentActivity implements OnMapReadyCal
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
-        mMap.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
+        mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
         originMarker = mMap.addMarker(new MarkerOptions()
                 .position(defaultPosition)
                 .title(getResources().getString(R.string.start_point))

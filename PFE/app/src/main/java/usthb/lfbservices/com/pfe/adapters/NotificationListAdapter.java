@@ -19,28 +19,58 @@ import java.util.Locale;
 
 import usthb.lfbservices.com.pfe.R;
 import usthb.lfbservices.com.pfe.activities.DescSalesPointActivity;
-import usthb.lfbservices.com.pfe.roomDatabase.AppRoomDatabase;
 import usthb.lfbservices.com.pfe.models.Notification;
+import usthb.lfbservices.com.pfe.roomDatabase.AppRoomDatabase;
 import usthb.lfbservices.com.pfe.utils.Utils;
 
 
 public class NotificationListAdapter extends RecyclerView.Adapter<NotificationListAdapter.ViewHolder>
-        implements ITouchHelperAdapter{
+        implements ITouchHelperAdapter {
 
     private Context context;
     private AppRoomDatabase db;
     private List<Notification> notifications;
 
+    /**
+     * Adapter constructor
+     *
+     * @param notifications
+     *         A collection of {@link Notification} which will contain the data that will be used in each ViewHolder
+     */
+
     public NotificationListAdapter(List<Notification> notifications) {
         this.notifications = notifications;
     }
 
+
+    /**
+     * This is where the ViewHolder(s) are created. Since the framework handles the initialization and recycling
+     * we only need to use the viewtype passed in here to inflate our View
+     *
+     * @param parent
+     *         The ViewGroup into which the new View will be added after it is bound to
+     *         an adapter position.
+     * @param viewType
+     *         The view type of the new View.
+     *
+     * @return
+     */
     @NonNull
     @Override
     public  NotificationListAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item_notification , parent, false);
         return new ViewHolder(view);
     }
+
+    /**
+     * This is where the data is bound to each ViewHolder. This method is called at least once and will be
+     * called each time the adapter is notified that the data set has changed
+     *
+     * @param holder
+     *         The ViewHolder
+     * @param position
+     *         The position in our collection of data
+     */
 
     @Override
     public void onBindViewHolder(@NonNull NotificationListAdapter.ViewHolder holder, int position) {
@@ -65,7 +95,11 @@ public class NotificationListAdapter extends RecyclerView.Adapter<NotificationLi
     }
 
 
-
+    /**
+     * Gets the size of the collection of items in our list
+     *
+     * @return An Integer representing the size of the collection that will be displayed
+     */
     @Override
     public int getItemCount() {
         return notifications.size();
@@ -75,8 +109,9 @@ public class NotificationListAdapter extends RecyclerView.Adapter<NotificationLi
     @Override
     public void onItemDismiss(int position) {
         db = AppRoomDatabase.getInstance(NotificationListAdapter.this.context);
-        db.notificationDao().deleteById(notifications.get(position).getNotificationId());
+        //TODO : NEW inversé
         notifications.remove(position);
+        db.notificationDao().deleteById(notifications.get(position).getNotificationId());
         notifyItemRemoved(position);
     }
 
@@ -96,6 +131,11 @@ public class NotificationListAdapter extends RecyclerView.Adapter<NotificationLi
                 Collections.swap(notifications, i, i - 1);
             }
         }
+
+        /**
+         *  Notify any registered observers that the item reflected at fromPosition has been moved to toPosition.
+         */
+
         notifyItemMoved(fromPosition, toPosition);
         return true;
     }
@@ -110,6 +150,13 @@ public class NotificationListAdapter extends RecyclerView.Adapter<NotificationLi
         RelativeLayout viewBackground, viewForeground;
 
         int notificationId;
+
+        /**
+         * The ViewHolder that will be used to display the data in each item shown
+         * in the RecyclerView
+         *
+         * @param itemViem The layout view group used to display the data
+         */
 
         ViewHolder(View itemView) {
             super(itemView);

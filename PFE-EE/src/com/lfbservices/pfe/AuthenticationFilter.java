@@ -21,35 +21,43 @@ import javax.ws.rs.ext.Provider;
 import com.lfbservices.pfe.dao.Access;
  
 /**
- * This filter verify the access permissions for a user
- * based on username and passowrd provided in request
+ * This filter verifies the access permissions for a user based on the mail address and the
+ *  password provided in the request.
  * */
 @Provider
-public class AuthenticationFilter implements javax.ws.rs.container.ContainerRequestFilter
-{
-     
+public class AuthenticationFilter implements javax.ws.rs.container.ContainerRequestFilter {
+    
+	/**
+	 * The different roles available.
+	 */
 	public static final String ADMIN = "ADMIN";
 	public static final String MERCHANT = "MERCHANT";
 	public static final String USER = "USER";
 	
     @Context
     private ResourceInfo resourceInfo;
-     
+    
+    /**
+     * The HTTP header used for the authentication.
+     */
     public static final String AUTHORIZATION_PROPERTY = "Authorization";
+    /**
+     * The beginning of the string representing the mail address and password.
+     */
     public static final String AUTHENTICATION_SCHEME = "Basic";
     
       
-    
+    /**
+     * This method is executed for every request received by the web service and determines whether or
+     * not the client has access to the method he is requesting.
+     */
     @Override
-    public void filter(ContainerRequestContext requestContext)
-    {
+    public void filter(ContainerRequestContext requestContext) {
         Method method = resourceInfo.getResourceMethod();
-        //Access allowed for all
-        if(!method.isAnnotationPresent(PermitAll.class))
-        {
+        //Access not allowed for all
+        if(!method.isAnnotationPresent(PermitAll.class)) {
             //Access denied for all
-            if(method.isAnnotationPresent(DenyAll.class))
-            {
+            if(method.isAnnotationPresent(DenyAll.class)) {
                 requestContext.abortWith(Response.status(Response.Status.FORBIDDEN)
                         .entity("Access blocked for all users !!").build());
                 return;
@@ -62,8 +70,7 @@ public class AuthenticationFilter implements javax.ws.rs.container.ContainerRequ
             final List<String> authorization = headers.get(AUTHORIZATION_PROPERTY);
               
             //If no authorization information present; block access
-            if(authorization == null || authorization.isEmpty())
-            {
+            if(authorization == null || authorization.isEmpty()) {
                 requestContext.abortWith(Response.status(Response.Status.UNAUTHORIZED).entity("You cannot access this resource").build());
                 return;
             }
@@ -74,14 +81,12 @@ public class AuthenticationFilter implements javax.ws.rs.container.ContainerRequ
             final String password = mailAddressPassword[1];
               
             //Verify user access
-            if(method.isAnnotationPresent(RolesAllowed.class))
-            {
+            if(method.isAnnotationPresent(RolesAllowed.class)) {
                 RolesAllowed rolesAnnotation = method.getAnnotation(RolesAllowed.class);
                 Set<String> rolesSet = new HashSet<String>(Arrays.asList(rolesAnnotation.value()));
                   
-                //Is user valid?
-                if(!isUserAllowed(mailAddress, password, rolesSet))
-                {
+                //Is user allowed to have access?
+                if(!isUserAllowed(mailAddress, password, rolesSet)) {
                     requestContext.abortWith(Response.status(Response.Status.UNAUTHORIZED).entity("You cannot access this resource").build());
                     return;
                 }
@@ -90,14 +95,15 @@ public class AuthenticationFilter implements javax.ws.rs.container.ContainerRequ
     }
     
     
-    
+    /**
+     * This method verifies if the given mail address and passwords corresponds to any of the given roles.
+     * @param mailAddress The mail address of the user.
+     * @param password The password of the user.
+     * @param rolesSet A {@link List} of roles authorised to have access to the requested method.
+     * @return true if the user exists and have access to any one of the given roles, false otherwise.
+     */
     private boolean isUserAllowed(final String mailAddress, final String password, final Set<String> rolesSet) {
         boolean isAllowed = false;
-          
-        //Step 1. Fetch password from database and match with password in argument
-        //If both match then get the defined role for user from database and continue; else return isAllowed [false]
-        //Access the database and do this part yourself
-        //String userRole = userMgr.getUserRole(mailAddress);
                  
         String encryptedPassword = null;
         try {
@@ -131,14 +137,19 @@ public class AuthenticationFilter implements javax.ws.rs.container.ContainerRequ
     }
     
     
-    
+    /**
+     * This method extracts the mail address and the password from the given authorization string using the 
+     * authentication scheme defined in this class.
+     * @param authorization The string contained in the Authorization HTTP header.
+     * @return An array of strings of 2 elements that will be empty if an error occurred or will contain at the
+     * position 0 the extracted mail address and at the position 1 the password.
+     */
     public static String[] extractMailAddressPassword(String authorization) {
     	try {
     		//Get encoded mailAddress and password
             final String encodedMailAddressPassword = authorization.replaceFirst(AUTHENTICATION_SCHEME + " ", "");
               
             //Decode mailAddress and password
-            //String usernameAndPassword = new String(Base64.decode(encodedUserPassword.getBytes()));
             String mailAddressAndPassword = new String(java.util.Base64.getMimeDecoder().decode(encodedMailAddressPassword.getBytes()));
 
             //Split mailAddress and password tokens

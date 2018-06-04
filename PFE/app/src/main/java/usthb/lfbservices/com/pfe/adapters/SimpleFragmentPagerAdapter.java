@@ -59,4 +59,8 @@ public class SimpleFragmentPagerAdapter extends FragmentPagerAdapter {
     public DescProductFragment getDescProductFragment() {
         return descProductFragment;
     }
+
+    public DescProductSalesPointFragment getDescProductSalesPointFragment() {
+        return descProductSalesPointFragment;
+    }
 }

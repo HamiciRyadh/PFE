@@ -8,11 +8,10 @@
 		<result property="productBarcode" column="product_barcode" />
 		<result property="productName" column="product_name" />
 		<result property="productType" column="product_type" />
-		<result property="productCategory" column="product_category" />
 		<result property="productTradeMark" column="product_trade_mark" />
 	</resultMap>
 	
-	<resultMap id="KeyValue" type="com.lfbservices.pfe.model.KeyValueID">
+	<resultMap id="KeyValue" type="com.lfbservices.pfe.model.KeyValue">
 		<result property="typeCharacteristicId" column="type_caracteristic_id" />
 		<result property="productCharacteristicValue" column="product_caracteristic_value" />
 	</resultMap>
@@ -37,7 +36,7 @@
 		${db.schema}."Type" type ON
 		(product.product_type = type.type_id)
 		WHERE
-		type.category_id =#{productCategory} ;
+		type.category_id = #{productCategory};
 	</select>
 
 
@@ -54,9 +53,8 @@
 	<insert id="insertProduct" parameterType="com.lfbservices.pfe.model.Product">
 		INSERT INTO
 		${db.schema}."Product"
-		(product_barcode,product_name,product_type,product_category,product_trade_mark)
-		VALUES (#{productBarcode},#{productName}, #{productType},
-		#{productCategory}, #{productTradeMark});
+		(product_barcode,product_name,product_type,product_trade_mark)
+		VALUES (#{productBarcode},#{productName}, #{productType}, #{productTradeMark});
 	</insert>
 
 	<update id="updateProductById" parameterType="com.lfbservices.pfe.model.Product">
@@ -65,7 +63,6 @@
 
 		product_name = #{productName},
 		product_type = #{productType},
-		product_category = #{productCategory},
 		product_trade_mark =#{productTradeMark}
 
 		WHERE product_barcode = #{productBarcode};
@@ -78,7 +75,7 @@
 
 	<select id="getProductCharacteristicID" parameterType="String" resultMap="KeyValue">
 		 SELECT type_caracteristic_id, product_caracteristic_value 
-         FROM  ${db.schema}."ProductCaracteristic" WHERE product_barcode = #{value} ;
+         FROM  ${db.schema}."ProductCaracteristic" WHERE product_barcode = #{productBarcode} ;
 	</select>
 	
 	<select id="getPropositions" parameterType="String" resultType="String">

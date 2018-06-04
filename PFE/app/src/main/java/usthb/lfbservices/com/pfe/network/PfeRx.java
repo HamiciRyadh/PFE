@@ -42,6 +42,7 @@ import io.reactivex.schedulers.Schedulers;
 
 import usthb.lfbservices.com.pfe.R;
 import usthb.lfbservices.com.pfe.activities.DescSalesPointActivity;
+import usthb.lfbservices.com.pfe.adapters.SalesPointsProductAdapter;
 import usthb.lfbservices.com.pfe.fragments.DescProductFragment;
 import usthb.lfbservices.com.pfe.itinerary.place.AddressComponents;
 import usthb.lfbservices.com.pfe.itinerary.place.GooglePlaceDetails;
@@ -49,7 +50,6 @@ import usthb.lfbservices.com.pfe.itinerary.place.ResultDetails;
 import usthb.lfbservices.com.pfe.roomDatabase.AppRoomDatabase;
 import usthb.lfbservices.com.pfe.activities.MainActivity;
 import usthb.lfbservices.com.pfe.adapters.ProductsAdapter;
-import usthb.lfbservices.com.pfe.adapters.SalesPointsAdapter;
 import usthb.lfbservices.com.pfe.fragments.FragmentMap;
 import usthb.lfbservices.com.pfe.models.BottomSheetDataSetter;
 import usthb.lfbservices.com.pfe.models.KeyValue;
@@ -117,9 +117,8 @@ public class PfeRx {
                         final View geolocation = activity.findViewById(R.id.geolocalisation);
                         if (geolocation != null) geolocation.setVisibility(View.VISIBLE);
 
-                        final SalesPointsAdapter salesPointsAdapter1 = new SalesPointsAdapter(activity, R.layout.list_item_salespoint_product, (ArrayList<SalesPoint>) salesPoints);
-
-                        final ListView listSalesPoints = activity.findViewById(R.id.list_view_sales_points);
+                        final SalesPointsProductAdapter salesPointsAdapter1 = new SalesPointsProductAdapter(activity, R.layout.list_item_salespoint_product, (ArrayList<ProductSalesPoint>) productSalesPoints);
+                        final ListView listSalesPoints = activity.findViewById(R.id.list_view_salespoint_product);
                         if (listSalesPoints != null) listSalesPoints.setAdapter(salesPointsAdapter1);
 
                         final GoogleMap map = Singleton.getInstance().getMap();
@@ -225,7 +224,7 @@ public class PfeRx {
 
                                 @Override
                                 public void onClick(View view) {
-                                    final ListView listView = activity.findViewById(R.id.list_view_sales_points);
+                                    final ListView listView = activity.findViewById(R.id.list_view_salespoint_product);
                                     if (listView != null) {
                                         if (listView.getVisibility() == View.VISIBLE) {
                                             showList.setText(activity.getString(R.string.sales_points_show_list));
@@ -233,25 +232,29 @@ public class PfeRx {
                                         }
                                         else {
                                             showList.setText(activity.getString(R.string.reduce));
-                                            final SalesPointsAdapter salesPointsAdapter = new SalesPointsAdapter(activity, R.layout.sales_point_list, (ArrayList<SalesPoint>)salesPoints);
-                                            listView.setAdapter(salesPointsAdapter);
+                                            final SalesPointsProductAdapter productSalesPointListAdapter = new SalesPointsProductAdapter (activity, R.layout.list_item_salespoint_product, (ArrayList<ProductSalesPoint>)productSalesPoints);
+                                            listView.setAdapter(productSalesPointListAdapter);
                                             listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                                                 @Override
                                                 public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
                                                     if (activity instanceof BottomSheetDataSetter) {
-                                                        SalesPoint salesPoint = ((SalesPoint)(adapterView.getItemAtPosition(position)));
-                                                        for (ProductSalesPoint productSalesPoint : productSalesPoints) {
-                                                            if (productSalesPoint.getSalesPointId().equals(salesPoint.getSalesPointId())) {
-                                                                BottomSheetDataSetter bottomSheetDataSetter = (BottomSheetDataSetter)activity;
-                                                                bottomSheetDataSetter.setBottomSheetData(salesPoint, productSalesPoint);
+                                                        listView.setVisibility(View.GONE);
+                                                        showList.setText(activity.getString(R.string.sales_points_show_list));
+                                                        ProductSalesPoint productSalesPointPosition = ((ProductSalesPoint)(adapterView.getItemAtPosition(position)));
+
+                                                        for( SalesPoint salesPointSingleton : Singleton.getInstance().getSalesPointList())
+                                                        {
+                                                            if (salesPointSingleton.getSalesPointId().equals(productSalesPointPosition.getSalesPointId())) {
+                                                                BottomSheetDataSetter bottomSheetDataSetter = (BottomSheetDataSetter) activity;
+                                                                bottomSheetDataSetter.setBottomSheetData(salesPointSingleton, productSalesPointPosition);
                                                                 bottomSheetDataSetter.setBottomSheetState(BottomSheetBehavior.STATE_COLLAPSED);
+                                                                PfeRx.getPlaceDetails(activity, salesPointSingleton.getSalesPointId());
+                                                                CameraUpdate cu = CameraUpdateFactory.newLatLngZoom(salesPointSingleton.getSalesPointLatLng(), FragmentMap.ZOOM_LEVEL);
+                                                                if (map != null)
+                                                                    map.animateCamera(cu);
                                                                 break;
                                                             }
                                                         }
-                                                        PfeRx.getPlaceDetails(activity, salesPoint.getSalesPointId());
-
-                                                        CameraUpdate cu = CameraUpdateFactory.newLatLngZoom(salesPoint.getSalesPointLatLng(), FragmentMap.ZOOM_LEVEL);
-                                                        if (map != null) map.animateCamera(cu);
                                                     }
                                                 }
                                             });
@@ -966,63 +969,39 @@ public class PfeRx {
     }
 
 
-    /*
 
-    //TODO : NEW a modifier envoyer en parametre la liste des points de vente actuelle
-    public static void getProductSalesPoints(@NonNull final Activity activity,
-                                             @NonNull final String productId) {
-
-        pfeAPI.getProductSalesPoint(productId)
+    public static void getNewestProductSalesPointsInformations(@NonNull final Activity activity,
+                                                               @NonNull final List<String> salesPointsIds) {
+        pfeAPI.getNewestInformations(salesPointsIds)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Observer<List<ProductSalesPoint>>() {
                     @Override
                     public void onSubscribe(Disposable d) {
-                        Log.e(TAG, "GetProductSalesPoints : onSubscribe");
+                        Log.e(TAG, "getNewestProductSalesPointsInformations : onSubscribe");
                         DisposableManager.add(d);
                     }
 
                     @Override
                     public void onNext(List<ProductSalesPoint> productSalesPoints) {
-                        Log.e(TAG, "GetProductSalesPoints : onNext");
-                        RecyclerView recyclerView = activity.findViewById(R.id.recyclerview_Salespoint);
-                        TextView emptyView = activity.findViewById(R.id.empty_list_productSalespoint);
+                        Log.e(TAG, "getNewestProductSalesPointsInformations : onNext");
 
-                        if (productSalesPoints != null) {
-                            AppRoomDatabase db = AppRoomDatabase.getInstance(activity);
+                        final AppRoomDatabase db = AppRoomDatabase.getInstance(activity);
 
-                            for (ProductSalesPoint productSalesPoint : productSalesPoints) {
-                                db.productSalesPointDao().insertAll(productSalesPoint);
-                            }
-
-                            ProductSalesPointListAdapter adapter = new ProductSalesPointListAdapter(productSalesPoints);
-                            recyclerView.setLayoutManager(new LinearLayoutManager(activity));
-                            recyclerView.setAdapter(adapter);
-                            recyclerView.addItemDecoration(new DividerItemDecoration(activity, DividerItemDecoration.VERTICAL));
-                            ItemTouchHelper.Callback callback = new TouchSalespointAdapter(adapter);
-                            ItemTouchHelper touchHelper = new ItemTouchHelper(callback);
-                            touchHelper.attachToRecyclerView(recyclerView);
-                            recyclerView.setVisibility(View.VISIBLE);
-                            emptyView.setVisibility(View.GONE);
-                        } else {
-                            recyclerView.setVisibility(View.GONE);
-                            emptyView.setVisibility(View.VISIBLE);
-                            emptyView.setText(R.string.no_salespoint);
+                        for (ProductSalesPoint productSalesPoint : productSalesPoints) {
+                            db.productSalesPointDao().update(productSalesPoint);
                         }
-
-
                     }
 
                     @Override
                     public void onError(Throwable e) {
-                        Log.e(TAG, "GetProductSalesPoints: onError " + e.toString());
+                        Log.e(TAG, "getNewestProductSalesPointsInformations : onError : " + e);
                     }
 
                     @Override
                     public void onComplete() {
-                        Log.e(TAG, "GetProductSalesPoints : onComplete");
+                        Log.e(TAG, "getNewestProductSalesPointsInformations : onComplete");
                     }
                 });
     }
-    */
 }

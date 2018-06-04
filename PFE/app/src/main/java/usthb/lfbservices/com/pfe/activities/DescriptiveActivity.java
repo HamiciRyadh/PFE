@@ -59,6 +59,11 @@ public class DescriptiveActivity extends AppCompatActivity implements RecyclerVi
     }
 
     @Override
+    public void refreshProductSalesPointsDisplayed() {
+        adapter.getDescProductSalesPointFragment().refreshProductSalesPointsDisplayed();
+    }
+
+    @Override
     public void displayProductCharacteristics(Product product, List<KeyValue> productCharacteristics) {
         if (adapter != null) {
             adapter.getDescProductFragment().displayProductCharacteristics(product, productCharacteristics);

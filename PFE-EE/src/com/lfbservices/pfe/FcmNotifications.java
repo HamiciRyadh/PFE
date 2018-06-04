@@ -10,13 +10,33 @@ import org.json.JSONObject;
 
 import com.lfbservices.pfe.dao.Access;
 
+/**
+ * This class handles the process of sending messages to the users' devices.
+ */
 public class FcmNotifications {
 
-
-	public final static String AUTH_KEY_FCM ="AIzaSyDpu4063a0w3YrDnqZFlClqZEonXh9p5XM";
+	/**
+	 * The base url used to query Firebase's servers and send messages.
+	 */
 	public final static String API_URL_FCM = "https://fcm.googleapis.com/fcm/send";
+	/**
+	 * The Firebase API Key used to identify the web sevrice and send the messages.
+	 */
+	public final static String AUTH_KEY_FCM ="AIzaSyDpu4063a0w3YrDnqZFlClqZEonXh9p5XM";
 	
-	
+	/**
+	 * This method sends a message to the user identified by its userDeviceId, the notification will contain all 
+	 * the other parameters of this method so that the mobile application can then show a notification accordingly.
+	 * @param userDeviceId The Firebase token id representing the user's device to notify.
+	 * @param salesPointId The {@link SalesPoint#salesPointId} of the {@link SalesPoint] where the modification occured.
+	 * @param productBarcode The {@link Product#productBarcode} of the {@link Product} for which the modification occured.
+	 * @param productQuantityOld The quantity of the {@link Product} prior to the modification.
+	 * @param productPriceOld The price of the {@link Product} prior to the modification.
+	 * @param productQuantityNew The quantity of the {@link Product} after the modification.
+	 * @param productPriceNew The price of the {@link Product} after the modification.
+	 * @return A JSON {@link String} representing the query sent to the Firebase's server.
+	 * @throws Exception If an error occurred when sending the JSON request.
+	 */
 	public static String pushFCMNotification(final String userDeviceId, final String salesPointId, final String productBarcode,
 											 final int productQuantityOld, final double productPriceOld,
 											 final int productQuantityNew, final double productPriceNew) throws Exception {

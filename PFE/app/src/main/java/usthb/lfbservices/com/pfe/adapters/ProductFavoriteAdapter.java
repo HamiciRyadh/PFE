@@ -2,9 +2,7 @@ package usthb.lfbservices.com.pfe.adapters;
 
 import android.content.Context;
 import android.content.Intent;
-import android.os.Bundle;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,9 +13,9 @@ import java.util.Collections;
 import java.util.List;
 
 import usthb.lfbservices.com.pfe.R;
-import usthb.lfbservices.com.pfe.roomDatabase.AppRoomDatabase;
 import usthb.lfbservices.com.pfe.activities.DescriptiveActivity;
 import usthb.lfbservices.com.pfe.models.Product;
+import usthb.lfbservices.com.pfe.roomDatabase.AppRoomDatabase;
 
 public class ProductFavoriteAdapter extends RecyclerView.Adapter< ProductFavoriteAdapter.ViewHolder>  implements ITouchHelperAdapter {
 
@@ -27,16 +25,45 @@ public class ProductFavoriteAdapter extends RecyclerView.Adapter< ProductFavorit
     private List<Product> products;
 
 
+    /**
+     * Adapter constructor
+     *
+     * @param products
+     *         A collection of {@link Product } which will contain the data that will be used in each ViewHolder
+     */
+
     public ProductFavoriteAdapter(List<Product> products) {
         this.products = products;
     }
 
+
+    /**
+     * This is where the ViewHolder(s) are created. Since the framework handles the initialization and recycling
+     * we only need to use the viewtype passed in here to inflate our View
+     *
+     * @param parent
+     *         The ViewGroup into which the new View will be added after it is bound to
+     *         an adapter position.
+     * @param viewType
+     *         The view type of the new View.
+     *
+     * @return
+     */
     @Override
     public  ProductFavoriteAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item_products_favorite, parent, false);
         return new ViewHolder(view);
     }
 
+    /**
+     * This is where the data is bound to each ViewHolder. This method is called at least once and will be
+     * called each time the adapter is notified that the data set has changed
+     *
+     * @param holder
+     *         The ViewHolder
+     * @param position
+     *         The position in our collection of data
+     */
     @Override
     public void onBindViewHolder(ProductFavoriteAdapter.ViewHolder holder, int position) {
         holder.productName.setText(products.get(position).getProductName());
@@ -44,6 +71,11 @@ public class ProductFavoriteAdapter extends RecyclerView.Adapter< ProductFavorit
     }
 
 
+    /**
+     * Gets the size of the collection of items in our list
+     *
+     * @return An Integer representing the size of the collection that will be displayed
+     */
     @Override
     public int getItemCount() {
         return products.size();
@@ -75,6 +107,11 @@ public class ProductFavoriteAdapter extends RecyclerView.Adapter< ProductFavorit
                 Collections.swap(products, i, i - 1);
             }
         }
+
+        /**
+         *  Notify any registered observers that the item reflected at fromPosition has been moved to toPosition.
+         */
+
         notifyItemMoved(fromPosition, toPosition);
         return true;
     }
@@ -86,6 +123,14 @@ public class ProductFavoriteAdapter extends RecyclerView.Adapter< ProductFavorit
         public TextView productTradeMark;
         public RelativeLayout viewBackground, viewForeground;
         public String productBarcode;
+
+        /**
+         * The ViewHolder that will be used to display the data in each item shown
+         * in the RecyclerView
+         *
+         * @param itemView
+         *         The layout view group used to display the data
+         */
 
         public ViewHolder(View itemView) {
             super(itemView);

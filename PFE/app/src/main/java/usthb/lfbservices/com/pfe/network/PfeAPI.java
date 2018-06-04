@@ -259,6 +259,17 @@ public class PfeAPI {
         return pfeService.removeFromNotificationsList(salesPointId, productBarcode);
     }
 
+    /**
+     * Operates a network call to get the newest informations about a group of {@link Product} and
+     * their associated {@link SalesPoint}.
+     * @param salesPointsIds A {@link List} of {@link String}.
+     * @return An {@link Observable} of a {@link List} of {@link ProductSalesPoint} representing the
+     * newest informations about the products and sales points sent.
+     */
+    public Observable<List<ProductSalesPoint>> getNewestInformations(final List<String> salesPointsIds) {
+        return pfeService.getNewestInformations(salesPointsIds);
+    }
+
 
     public Call<GoogleDirections> getDistanceDuration(final String apiKey, final String units, final String origin,
                                                       final String destination, final String mode) {

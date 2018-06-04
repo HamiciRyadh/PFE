@@ -18,7 +18,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import com.lfbservices.pfe.dao.Access;
-import com.lfbservices.pfe.model.KeyValueID;
+import com.lfbservices.pfe.model.KeyValue;
 import com.lfbservices.pfe.model.Product;
 import com.lfbservices.pfe.model.ProductSalesPoint;
 import com.lfbservices.pfe.model.Result;
@@ -180,7 +180,7 @@ public class SearchService {
 	@GET
 	@PermitAll
 	@Produces(MediaType.APPLICATION_JSON)
-	public List<KeyValueID> getTypeCaracteristic(
+	public List<KeyValue> getTypeCaracteristic(
 			@DefaultValue("") @PathParam("product_barcode") String productId) throws Exception {
 		
 		if (productId.trim().equals("")) {

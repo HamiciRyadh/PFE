@@ -97,7 +97,7 @@
             </HorizontalScrollView>
 
             <ListView
-                android:id="@+id/list_view_sales_points"
+                android:id="@+id/list_view_salespoint_product"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"

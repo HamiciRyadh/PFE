@@ -89,7 +89,7 @@
                            android:textSize="18sp" />
 
                        <TextView
-                           android:id="@+id/product_qte_marker"
+                           android:id="@+id/product_qte_marker_bottom_sheet"
                            android:layout_width="wrap_content"
                            android:layout_height="wrap_content"
                            android:layout_marginLeft="15dp"
@@ -117,7 +117,7 @@
                            />
 
                        <TextView
-                           android:id="@+id/product_price_marker"
+                           android:id="@+id/product_price_marker_bottom_sheet"
                            android:layout_width="wrap_content"
                            android:layout_height="wrap_content"
                            android:layout_marginLeft="15dp"

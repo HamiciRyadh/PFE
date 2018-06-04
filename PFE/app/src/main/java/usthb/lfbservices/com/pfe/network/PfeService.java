@@ -160,4 +160,15 @@ public interface PfeService {
      */
     @GET("Search/propositions")
     Observable<List<String>> getSearchPropositions(@Query("query") String query);
+
+    /**
+     * Sends a GET request to retrieve a {@link List} of {@link ProductSalesPoint} representing the
+     * newest informations about the products' prices and quantities.
+     * @param salesPointsIds A {@link List} of {@link String}.
+     * @return An {@link Observable} of a {@link List} of {@link ProductSalesPoint} representing the
+     * newest informations about the products and sales points sent.
+     */
+    @GET("ProductSalesPoint/getNewestInformations")
+    Observable<List<ProductSalesPoint>> getNewestInformations(@Query("salesPointsIds") List<String> salesPointsIds);
+
 }
