@@ -154,44 +154,6 @@ public class Access {
 		return listProducts;
 	}
 	
-
-	/********************************	Queries for ProductSalesPoint	*************************************/
-	
-	/**
-	 * This method returns a {@link List} of {@link ProductSalesPoint} for a given {@link Product} represented by its barcode.
-	 * @param productBarcode The unique identifier of a {@link Product}.
-	 * @return A {@link List} of {@link ProductSalesPoint}.
-	 * @throws SQLException If an error occurred while querying the database.
-	 * @throws IOException If the resource to use to query the database is not found.
-	 */
-	public static List<ProductSalesPoint> getProductSalesPointList(final String productBarcode) throws SQLException, IOException {
-		final SqlSession session = DBConnectionFactory.getNewSession();
-
-		final List<ProductSalesPoint> listProductSalesPoint = session.selectList("QueriesProductSalesPoint.getSalesPointsAndQte", productBarcode);
-
-		session.close();
-
-		return listProductSalesPoint;
-	}
-	
-	/**
-	 * This method updates a {@link ProductSalesPoint}.
-	 * @param productSalesPoint The new {@link ProductSalesPoint}.
-	 * @return true if the update succeeded, false otherwise.
-	 * @throws SQLException If an error occurred while querying the database.
-	 * @throws IOException If the resource to use to query the database is not found.
-	 */
-	public static boolean updateProductSalesPoint(final ProductSalesPoint productSalesPoint) throws SQLException, IOException {
-		final SqlSession session = DBConnectionFactory.getNewSession();
-		
-		int rowsUpdated = session.update("QueriesProductSalesPoint.updateProductSalesPoint", productSalesPoint);
-
-		session.commit();
-		session.close();
-
-		return rowsUpdated == 1;
-	}
-	
 	/**
 	 * This method extracts from the system's database a {@link List} of {@link String} representing
 	 * the propositions corresponding to the given search query, it then filters it and returns the 
@@ -231,8 +193,63 @@ public class Access {
 		return sortedPropositions;
 	}
 	
-	
 
+	/********************************	Queries for ProductSalesPoint	*************************************/
+	
+	/**
+	 * This method returns a {@link List} of {@link ProductSalesPoint} for a given {@link Product} represented by its barcode.
+	 * @param productBarcode The unique identifier of a {@link Product}.
+	 * @return A {@link List} of {@link ProductSalesPoint}.
+	 * @throws SQLException If an error occurred while querying the database.
+	 * @throws IOException If the resource to use to query the database is not found.
+	 */
+	public static List<ProductSalesPoint> getProductSalesPointList(final String productBarcode) throws SQLException, IOException {
+		final SqlSession session = DBConnectionFactory.getNewSession();
+
+		final List<ProductSalesPoint> listProductSalesPoint = session.selectList("QueriesProductSalesPoint.getSalesPointsAndQte", productBarcode);
+
+		session.close();
+
+		return listProductSalesPoint;
+	}
+	
+	/**
+	 * This method updates a {@link ProductSalesPoint}.
+	 * @param productSalesPoint The new {@link ProductSalesPoint}.
+	 * @return true if the update succeeded, false otherwise.
+	 * @throws SQLException If an error occurred while querying the database.
+	 * @throws IOException If the resource to use to query the database is not found.
+	 */
+	public static boolean updateProductSalesPoint(final ProductSalesPoint productSalesPoint) throws SQLException, IOException {
+		final SqlSession session = DBConnectionFactory.getNewSession();
+		
+		int rowsUpdated = session.update("QueriesProductSalesPoint.updateProductSalesPoint", productSalesPoint);
+
+		session.commit();
+		session.close();
+
+		return rowsUpdated == 1;
+	}
+	
+	public static List<ProductSalesPoint> getProductSalesPointsForPlaceAndProduct(final String productBarcode, final List<String> salesPointsIds) {
+		final SqlSession session = DBConnectionFactory.getNewSession();
+		final List<ProductSalesPoint> productSalesPointsList = new ArrayList<ProductSalesPoint>();
+		final Map<String,Object> parameters = new HashMap<String,Object>();
+		ProductSalesPoint productSalesPoint;
+		
+		parameters.put("productBarcode", productBarcode);
+		for (String salesPointId : salesPointsIds) {
+			parameters.remove("salesPointId");
+			parameters.put("salesPointId", salesPointId);
+			productSalesPoint = session.selectOne("", parameters);
+			productSalesPointsList.add(productSalesPoint);
+		}
+		
+		session.close();
+		return productSalesPointsList;
+	}
+	
+	
 	/********************************	Queries for SalesPoints		*************************************/
 
 	/**

@@ -4,23 +4,30 @@
 
 <mapper namespace="QueriesProductSalesPoint">
 
-<resultMap id = "result" type = "com.lfbservices.pfe.model.ProductSalesPoint">
-   <result property = "salesPointId" column = "sales_point_id"/>
-   <result property = "productBarcode" column="product_barcode" />
-   <result property = "productPrice" column = "product_price"/>
-   <result property = "productQuantity" column = "product_quantity"/>
-</resultMap>
-
-
-<select id = "getSalesPointsAndQte" parameterType = "String" resultMap = "result">
-   SELECT *  FROM  ${db.schema}."ProductSalesPoint" WHERE product_barcode  =  #{productBarcode} ; 
-</select>
-
-<update id="updateProductSalesPoint" parameterType="com.lfbservices.pfe.model.ProductSalesPoint">
-		UPDATE ${db.schema}."ProductSalesPoint" SET
-		product_price = #{productPrice},
-		product_quantity = #{productQuantity} 
-		WHERE product_barcode = #{productBarcode} AND sales_point_id = #{salesPointId};
+	<resultMap id = "result" type = "com.lfbservices.pfe.model.ProductSalesPoint">
+	   <result property = "salesPointId" column = "sales_point_id"/>
+	   <result property = "productBarcode" column="product_barcode" />
+	   <result property = "productPrice" column = "product_price"/>
+	   <result property = "productQuantity" column = "product_quantity"/>
+	</resultMap>
+	
+	
+	<select id = "getSalesPointsAndQte" parameterType = "String" resultMap = "result">
+	   SELECT *  FROM  ${db.schema}."ProductSalesPoint" WHERE product_barcode  =  #{productBarcode} ; 
+	</select>
+	
+	<update id="updateProductSalesPoint" parameterType="com.lfbservices.pfe.model.ProductSalesPoint">
+			UPDATE ${db.schema}."ProductSalesPoint" SET
+			product_price = #{productPrice},
+			product_quantity = #{productQuantity} 
+			WHERE product_barcode = #{productBarcode} AND sales_point_id = #{salesPointId};
 	</update>
+	
+	<select id = "getProductSalesPointForPlaceAndProduct" parameterType = "map">
+		SELECT * 
+		FROM ${db.schema}."ProductSalesPoint" 
+		WHERE product_barcode  =  #{productBarcode} 
+			  AND sales_point_id = #{salesPointId}; 
+	</select>
 
 </mapper>

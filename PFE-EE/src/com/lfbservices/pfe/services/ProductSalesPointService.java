@@ -4,11 +4,14 @@ import java.net.HttpURLConnection;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.annotation.security.PermitAll;
 import javax.annotation.security.RolesAllowed;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DefaultValue;
+import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
@@ -27,7 +30,8 @@ public class ProductSalesPointService {
 	@POST
 	@RolesAllowed({AuthenticationFilter.MERCHANT})
 	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
-	public void updateProductSalesPoint(
+	@Produces(MediaType.APPLICATION_JSON)
+	public boolean updateProductSalesPoint(
 			@DefaultValue("") @QueryParam("sales_point_id") String salesPointId,
 			@DefaultValue("") @QueryParam("product_barcode") String productBarcode,
 			@DefaultValue("-1") @QueryParam("product_quantity_old") int productQuantityOld,
@@ -61,5 +65,25 @@ public class ProductSalesPointService {
 				}
 			}
 		}
+		return updated;
+	}
+	
+
+	@Path("getNewestInformations")
+	@GET
+	@PermitAll
+	@Produces(MediaType.APPLICATION_JSON)
+    public List<ProductSalesPoint> getNewestInformations(@QueryParam("salesPointsIds") List<String> salesPointsIds,
+    													 @QueryParam("productBarcode") String productBarcode) {
+		if (salesPointsIds == null || salesPointsIds.size() == 0 ||
+				productBarcode == null || productBarcode.trim().equals("")) {
+		    throw new WebApplicationException(
+		      Response.status(HttpURLConnection.HTTP_BAD_REQUEST)
+		        .entity("salesPointsIds and productBarcode parameters are mandatory")
+		        .build()
+		    );
+		}
+		
+		return Access.getProductSalesPointsForPlaceAndProduct(productBarcode, salesPointsIds);
 	}
 }

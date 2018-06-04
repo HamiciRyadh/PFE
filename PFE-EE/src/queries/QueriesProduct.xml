@@ -42,10 +42,14 @@
 
 	<select id="getProductsByName" parameterType="map" resultMap="result">
 
-		SELECT * FROM ${db.schema}."Product" WHERE (product_name ILIKE
-		#{value} OR product_trade_mark ILIKE #{value})
+		SELECT * 
+		FROM ${db.schema}."Product" 
+		WHERE (product_name ILIKE #{value} 
+		OR product_trade_mark ILIKE #{value}
+		OR product_type IN (SELECT type_id FROM ${db.schema}."TypeKeyword" WHERE keyword ILIKE #{value})
 		<if test='tradeMark != null'>AND product_trade_mark ILIKE #{tradeMark}</if>
 		<if test='type != null'>AND product_type = #{type}</if>
+		)
 		;
 	</select>
 

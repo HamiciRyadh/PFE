@@ -229,10 +229,10 @@ ALTER TABLE public."UserDevice"
 INSERT INTO public."Category"(category_id, category_name) VALUES 
   (0, 'Informatique'),
   (1, 'Téléphone'),
-  (2, 'Appreil Photo'),
+  (2, 'Montre'),
   (3, 'Automobile'),
   (4, 'Matériel Professionnel'),
-  (5, 'Montre');
+  (5, 'Appreil Photo');
 
 
 INSERT INTO public."Type"(type_id, type_name, category_id) VALUES 
