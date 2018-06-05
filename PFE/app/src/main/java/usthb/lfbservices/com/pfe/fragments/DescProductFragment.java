@@ -11,6 +11,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,6 +22,7 @@ import usthb.lfbservices.com.pfe.roomDatabase.AppRoomDatabase;
 import usthb.lfbservices.com.pfe.adapters.ProductCharacteristicAdapter;
 import usthb.lfbservices.com.pfe.models.KeyValue;
 import usthb.lfbservices.com.pfe.models.Product;
+import usthb.lfbservices.com.pfe.utils.Utils;
 
 public class DescProductFragment extends Fragment {
 
@@ -32,7 +34,7 @@ public class DescProductFragment extends Fragment {
     private AppRoomDatabase db;
     private Product product;
     private View rootView;
-    private TextView productName, productType,productCategory,productMark;
+    private TextView productName, productType,productCategory,productMark, emptyTextView;
     private ListView listProductCharacteristics;
     private ProductCharacteristicAdapter productCharacteristicAdapter;
 
@@ -93,7 +95,9 @@ public class DescProductFragment extends Fragment {
         productType = rootView.findViewById(R.id.descProduct_Type);
         productCategory = rootView.findViewById(R.id.descProduct_Category);
         productMark = rootView.findViewById(R.id.descProduct_Mark);
+        emptyTextView = rootView.findViewById(R.id.empty_characteristics);
         listProductCharacteristics = rootView.findViewById(R.id.list_product_caracteristics);
+        listProductCharacteristics.setEmptyView(emptyTextView);
         productCharacteristicAdapter = new ProductCharacteristicAdapter(getActivity(), R.layout.list_item_product_caracteristic , new ArrayList<KeyValue>());
         if (listProductCharacteristics != null) listProductCharacteristics.setAdapter(productCharacteristicAdapter);
         db = AppRoomDatabase.getInstance(getActivity());
@@ -112,18 +116,24 @@ public class DescProductFragment extends Fragment {
             if (characteristics != null && characteristics.size() > 0) {
                 productCharacteristicAdapter.addAll(characteristics);
             } else {
-                PfeRx.getProductCharacteristics(fragmentBelongActivity, product, false);
+                if (Utils.isNetworkAvailable(fragmentBelongActivity)) {
+                    PfeRx.getProductCharacteristics(fragmentBelongActivity, product, false);
+                } else {
+                    Toast.makeText(fragmentBelongActivity, fragmentBelongActivity.getResources().getString(R.string.no_internet), Toast.LENGTH_LONG).show();
+                }
             }
         }
     }
 
     private void setCharacteristicsFromNetwork(final List<KeyValue> productCharacteristics) {
         if (listProductCharacteristics != null) {
+            productCharacteristicAdapter.clear();
             productCharacteristicAdapter.addAll(productCharacteristics);
         }
     }
 
     public void displayProductCharacteristics(final Product product, final List<KeyValue> productCharacteristics) {
+        Log.e(TAG, "displayProductCharacteristics");
         setProductInformations(product);
         setCharacteristicsFromNetwork(productCharacteristics);
     }

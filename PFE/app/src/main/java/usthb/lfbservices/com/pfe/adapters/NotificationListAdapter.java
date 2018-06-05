@@ -109,9 +109,8 @@ public class NotificationListAdapter extends RecyclerView.Adapter<NotificationLi
     @Override
     public void onItemDismiss(int position) {
         db = AppRoomDatabase.getInstance(NotificationListAdapter.this.context);
-        //TODO : NEW inversé
-        notifications.remove(position);
         db.notificationDao().deleteById(notifications.get(position).getNotificationId());
+        notifications.remove(position);
         notifyItemRemoved(position);
     }
 

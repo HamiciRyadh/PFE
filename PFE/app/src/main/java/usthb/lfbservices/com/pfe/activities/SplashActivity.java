@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.util.Log;
 
 import usthb.lfbservices.com.pfe.network.PfeAPI;
+import usthb.lfbservices.com.pfe.roomDatabase.AppRoomDatabase;
 import usthb.lfbservices.com.pfe.utils.Constants;
 
 public class SplashActivity extends AppCompatActivity {
@@ -15,6 +16,7 @@ public class SplashActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        AppRoomDatabase.getInstance(this);
         SharedPreferences preferences = getSharedPreferences(Constants.SHARED_PREFERENCES_USER,MODE_PRIVATE);
         String mailAddress = preferences.getString(Constants.SHARED_PREFERENCES_USER_EMAIL, null);
         String password = preferences.getString(Constants.SHARED_PREFERENCES_USER_PASSWORD, null);

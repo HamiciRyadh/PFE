@@ -135,40 +135,43 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         DrawerLayout drawer =  findViewById(R.id.draweer_layout);
         if (drawer != null && drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
-        } else if ((getSupportFragmentManager().findFragmentByTag(Constants.FRAGMENT_BARCODE_SCANNER) != null) ||
-                (getSupportFragmentManager().findFragmentByTag(Constants.FRAGMENT_FAVORITE) != null) ||
-                (getSupportFragmentManager().findFragmentByTag(Constants.FRAGMENT_NOTIFICATIONS) != null) ||
-                (getSupportFragmentManager().findFragmentByTag(Constants.FRAGMENT_PARAMETERS) != null)) {
-            getSupportFragmentManager()
-                    .beginTransaction()
-                    .remove(currentFragment)
-                    .add(R.id.frame_layout, fragmentMap, Constants.FRAGMENT_MAP)
-                    .commit();
-            currentFragment = fragmentMap;
-            ActionBar supportActionBar = getSupportActionBar();
-            if (supportActionBar != null) supportActionBar.show();
-        } else if (getSupportFragmentManager().findFragmentByTag(Constants.FRAGMENT_MAP) != null) {
-            Log.e(TAG, "MapFragment");
-            if (searchFragment.isVisible()) {
-                Log.e(TAG, "SearchFragment");
-                fragmentMap.hideSearchFragment();
-            } else if (productsFragment.isVisible()) {
-                Log.e(TAG, "ProductFragment");
-                fragmentMap.popSearchFragment();
-            } else if (descProductFragment != null && descProductFragment.isVisible()) {
-                Log.e(TAG, "DescProductFragment");
-                descProductFragment = null;
-                fragmentMap.popProductsFragment();
-            } else if (fragmentMap.hasData()) {
-                Log.e(TAG, "HasData");
-                fragmentMap.popProductsFragment();
+        } else {
+            DisposableManager.dispose();
+            if ((getSupportFragmentManager().findFragmentByTag(Constants.FRAGMENT_BARCODE_SCANNER) != null) ||
+                    (getSupportFragmentManager().findFragmentByTag(Constants.FRAGMENT_FAVORITE) != null) ||
+                    (getSupportFragmentManager().findFragmentByTag(Constants.FRAGMENT_NOTIFICATIONS) != null) ||
+                    (getSupportFragmentManager().findFragmentByTag(Constants.FRAGMENT_PARAMETERS) != null)) {
+                getSupportFragmentManager()
+                        .beginTransaction()
+                        .remove(currentFragment)
+                        .add(R.id.frame_layout, fragmentMap, Constants.FRAGMENT_MAP)
+                        .commit();
+                currentFragment = fragmentMap;
+                ActionBar supportActionBar = getSupportActionBar();
+                if (supportActionBar != null) supportActionBar.show();
+            } else if (getSupportFragmentManager().findFragmentByTag(Constants.FRAGMENT_MAP) != null) {
+                Log.e(TAG, "MapFragment");
+                if (searchFragment.isVisible()) {
+                    Log.e(TAG, "SearchFragment");
+                    fragmentMap.hideSearchFragment();
+                } else if (productsFragment.isVisible()) {
+                    Log.e(TAG, "ProductFragment");
+                    fragmentMap.popSearchFragment();
+                } else if (descProductFragment != null && descProductFragment.isVisible()) {
+                    Log.e(TAG, "DescProductFragment");
+                    descProductFragment = null;
+                    fragmentMap.popProductsFragment();
+                } else if (fragmentMap.hasData()) {
+                    Log.e(TAG, "HasData");
+                    fragmentMap.popProductsFragment();
+                } else {
+                    Log.e(TAG, "No SearchFragment, backpressed");
+                    fragmentMap.onBackPressed();
+                    super.onBackPressed();
+                }
             } else {
-                Log.e(TAG, "No SearchFragment, backpressed");
-                fragmentMap.onBackPressed();
                 super.onBackPressed();
             }
-        } else {
-            super.onBackPressed();
         }
     }
 

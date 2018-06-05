@@ -7,6 +7,7 @@ import java.util.List;
 import javax.annotation.security.PermitAll;
 import javax.annotation.security.RolesAllowed;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -66,6 +67,41 @@ public class ProductSalesPointService {
 			}
 		}
 		return updated;
+	}
+	
+	
+	@Path("/RemoveProductSalesPoint")
+	@DELETE
+	@RolesAllowed({AuthenticationFilter.MERCHANT})
+	@Produces(MediaType.APPLICATION_JSON)
+	public boolean removeProductSalesPoint(
+			@DefaultValue("") @QueryParam("sales_point_id") String salesPointId,
+			@DefaultValue("") @QueryParam("product_barcode") String productBarcode) throws Exception {
+		
+		final List<String> missingParameters = new ArrayList<String>();
+		
+		if (salesPointId.trim().equals("")) missingParameters.add("sales_point_id");
+		if (productBarcode.trim().equals("")) missingParameters.add("product_barcode");
+		if (missingParameters.size() != 0) {
+		    throw new WebApplicationException(
+		      Response.status(HttpURLConnection.HTTP_BAD_REQUEST)
+		        .entity("Missing parameters : " + missingParameters)
+		        .build()
+		    );
+		}
+		final boolean removed = Access.removeProductSalesPoint(salesPointId, productBarcode);
+		/*
+		final List<String> devicesIds = Access.getDevicesIdsForNotification(salesPointId, productBarcode);
+		final boolean removed = Access.removeProductSalesPoint(salesPointId, productBarcode);
+		if (removed) {
+			if (devicesIds != null) {
+				for (String deviceId : devicesIds) {
+					FcmNotifications.pushFCMNotification(deviceId, salesPointId, productBarcode, -1, -1, -1, -1);
+				}
+			}
+		}
+		*/
+		return removed;
 	}
 	
 

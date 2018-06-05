@@ -351,7 +351,7 @@ public class FragmentParameters extends Fragment {
                 Location places = googlePlaceDetails.getResult().getGeometry().getLocation();
                 LatLng userLatLng = new LatLng(places.getLat(), places.getLng());
 
-                SharedPreferences.Editor editor = fragmentBelongActivity.getSharedPreferences(Constants.SHARED_PREFERENCES_POSITION, MODE_PRIVATE).edit();
+                SharedPreferences.Editor editor = fragmentBelongActivity.getSharedPreferences(Constants.SHARED_PREFERENCES_USER_PREFERENCES, MODE_PRIVATE).edit();
                 editor.putString(Constants.SHARED_PREFERENCES_POSITION_LATITUDE, ""+userLatLng.latitude);
                 editor.putString(Constants.SHARED_PREFERENCES_POSITION_LONGITUDE, ""+userLatLng.longitude);
                 editor.apply();

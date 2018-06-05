@@ -241,12 +241,27 @@ public class Access {
 		for (String salesPointId : salesPointsIds) {
 			parameters.remove("salesPointId");
 			parameters.put("salesPointId", salesPointId);
-			productSalesPoint = session.selectOne("", parameters);
+			productSalesPoint = session.selectOne("QueriesProductSalesPoint.getProductSalesPointForPlaceAndProduct", parameters);
 			productSalesPointsList.add(productSalesPoint);
 		}
 		
 		session.close();
 		return productSalesPointsList;
+	}
+	
+	public static boolean removeProductSalesPoint(final String salesPointId, final String productBarcode) {
+		final SqlSession session = DBConnectionFactory.getNewSession();
+		final Map<String,Object> parameters = new HashMap<String,Object>();
+		
+		parameters.put("productBarcode", productBarcode);
+		parameters.put("salesPointId", salesPointId);
+		
+		final int rowsDeleted = session.delete("QueriesProductSalesPoint.removeProductSalesPoint", parameters);
+		
+		session.commit();
+		session.close();
+		
+		return rowsDeleted > 0;
 	}
 	
 	

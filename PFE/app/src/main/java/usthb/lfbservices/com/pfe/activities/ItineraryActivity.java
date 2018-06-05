@@ -113,18 +113,28 @@ public class ItineraryActivity extends FragmentActivity implements OnMapReadyCal
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
         mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+
+        SharedPreferences sharedPreferences = getSharedPreferences(Constants.SHARED_PREFERENCES_USER_PREFERENCES, MODE_PRIVATE);
+        String sLat = sharedPreferences.getString(Constants.SHARED_PREFERENCES_POSITION_LATITUDE,null);
+        String sLong = sharedPreferences.getString(Constants.SHARED_PREFERENCES_POSITION_LONGITUDE,null);
+        String sMapStyle = sharedPreferences.getString(Constants.MAP_STYLE, null);
+
+        if (sLat != null && sLong != null) {
+            double lat = Double.parseDouble(sLat);
+            double lon = Double.parseDouble(sLong);
+            defaultPosition = new LatLng(lat, lon);
+        }
         originMarker = mMap.addMarker(new MarkerOptions()
                 .position(defaultPosition)
                 .title(getResources().getString(R.string.start_point))
                 .icon(BitmapDescriptorFactory.fromResource(R.drawable.marker_blue)));
         origin = defaultPosition;
 
-        SharedPreferences preferences = getSharedPreferences(Constants.SHARED_PREFERENCES_POSITION, MODE_PRIVATE);
+        SharedPreferences preferences = getSharedPreferences(Constants.SHARED_PREFERENCES_USER_PREFERENCES, MODE_PRIVATE);
         String sUserLatitude = preferences.getString(Constants.SHARED_PREFERENCES_POSITION_LATITUDE, null);
         String sUserLongitude = preferences.getString(Constants.SHARED_PREFERENCES_POSITION_LONGITUDE, null);
-        String sMapStyle = getSharedPreferences(Constants.SHARED_PREFERENCES_USER_PREFERENCES, MODE_PRIVATE)
-                .getString(Constants.MAP_STYLE, null);
-        LatLng userPosition = null;
+
+        userPosition = null;
 
         if (sUserLatitude != null && sUserLongitude != null) {
             try {
@@ -385,8 +395,8 @@ public class ItineraryActivity extends FragmentActivity implements OnMapReadyCal
                                 .addOnSuccessListener(ItineraryActivity.this, new OnSuccessListener<android.location.Location>() {
                                     @Override
                                     public void onSuccess(android.location.Location location) {
-                                        depart.setText(getResources().getString(R.string.your_position));
                                         if (location != null) {
+                                            depart.setText(getResources().getString(R.string.your_position));
                                             userPosition =new LatLng(location.getLatitude(),location.getLongitude());
 
                                             SharedPreferences.Editor editor = getSharedPreferences(Constants.SHARED_PREFERENCES_POSITION, MODE_PRIVATE).edit();

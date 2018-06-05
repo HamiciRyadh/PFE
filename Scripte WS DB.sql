@@ -529,3 +529,22 @@ INSERT INTO public."ProductCaracteristic"(type_caracteristic_id, product_barcode
   (18, '18', 'Android'),
   (19, '18', '13 Mp'),
   (20, '18', '5 Mp');
+
+INSERT INTO public."TypeKeyword" (type_keyword_id, type_id, keyword) VALUES 
+  (0, 0, 'Laptop'),
+  (1, 0, 'pc'),
+  (2, 0, 'pc portable'),
+  (3, 0, 'ordinateur'),
+  (4, 0, 'netbook'),
+  (5, 0, 'notebook'),
+  (6, 0, 'probook'),
+  (7, 0, 'gamer'),
+  (8, 0, 'lifebook'),
+  (9, 0, 'informatique'),
+  (10, 4, 'smartphone'),
+  (11, 4, 'android'),
+  (12, 4, 'téléphone'),
+  (13, 4, 'telephone'),
+  (14, 4, 'portable'),
+  (15, 4, 'telephone portable'),
+  (16, 4, 'téléphone portable');

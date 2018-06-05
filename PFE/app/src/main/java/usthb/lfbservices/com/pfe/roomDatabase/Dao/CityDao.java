@@ -16,6 +16,8 @@ public interface CityDao {
     @Query("SELECT cityName FROM City WHERE wilayaId = :wilayaId ORDER BY cityId ASC")
     List<String> getAll(int wilayaId);
 
+    @Query("SELECT cityId FROM City WHERE cityName = :cityName")
+    int getCityIdByName(String cityName);
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insertAll(List<City> cities);

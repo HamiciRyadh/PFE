@@ -40,3 +40,30 @@ $updatepsp$ LANGUAGE plpgsql;
 
 CREATE TRIGGER updateProductSalesPoint
 AFTER UPDATE ON public."Product" FOR EACH ROW EXECUTE PROCEDURE updateProductSalesPoint();
+
+
+CREATE OR REPLACE FUNCTION removeProductSalesPoint() RETURNS TRIGGER AS $removepsp$
+    BEGIN
+  RAISE NOTICE 'BEGINNING';
+        IF (TG_OP = 'UPDATE') THEN
+            PERFORM * FROM http((
+            'DELETE',
+            'http://192.168.1.6:8080/PFE-EE/api/ProductSalesPoint/RemoveProductSalesPoint' ||
+            '?sales_point_id=' || 'ChIJgbWj2jyxjxIRTEiyXgwGVqA' ||
+            '&product_barcode=' || OLD.product_barcode,
+             ARRAY[http_header('Authorization','Basic bWVyY2hhbnRAbGZic2VydmljZXMuY29tOmFkbWlu')],
+             '',
+             'application/x-form-urlencoded'
+          )::http_request);
+            RAISE NOTICE 'GOOD END';
+            RETURN NEW;
+        END IF;
+        RAISE NOTICE 'BAD END';
+        RETURN NULL;
+    END;
+$removepsp$ LANGUAGE plpgsql;
+
+
+
+CREATE TRIGGER removeProductSalesPoint
+AFTER DELETE ON public."Product" FOR EACH ROW EXECUTE PROCEDURE removeProductSalesPoint();

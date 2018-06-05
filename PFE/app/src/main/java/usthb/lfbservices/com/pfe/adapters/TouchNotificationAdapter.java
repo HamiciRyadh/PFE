@@ -1,6 +1,8 @@
 package usthb.lfbservices.com.pfe.adapters;
 
 import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.PorterDuff;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
 import android.view.View;
@@ -104,7 +106,7 @@ public class TouchNotificationAdapter extends ItemTouchHelper.Callback {
                             int actionState, boolean isCurrentlyActive) {
 
         if (dX < 0) { // Swiping left
-            ((NotificationListAdapter.ViewHolder) viewHolder).viewBackground.setBackgroundResource(R.drawable.delete);
+            ((NotificationListAdapter.ViewHolder) viewHolder).viewBackground.setBackgroundColor(Color.parseColor("#FF2222"));
         }
 
         final View foregroundView = ((NotificationListAdapter.ViewHolder) viewHolder).viewForeground;

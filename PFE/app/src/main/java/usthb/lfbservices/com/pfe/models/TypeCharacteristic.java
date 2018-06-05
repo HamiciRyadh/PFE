@@ -30,16 +30,25 @@ public class TypeCharacteristic {
 
     static {
         typesCharacteristics.add (new TypeCharacteristic(1, 0, "CPU"));
-        typesCharacteristics.add (new TypeCharacteristic(2, 0, "Ecran"));
-        typesCharacteristics.add (new TypeCharacteristic(3, 0, "Résolution"));
+        typesCharacteristics.add (new TypeCharacteristic(2, 0, "Mémoire"));
+        typesCharacteristics.add (new TypeCharacteristic(3, 0, "RAM"));
         typesCharacteristics.add (new TypeCharacteristic(4, 0, "GPU"));
-        typesCharacteristics.add (new TypeCharacteristic(5, 0, "Batterie"));
-        typesCharacteristics.add (new TypeCharacteristic(6, 0, "Batterie"));
-        typesCharacteristics.add (new TypeCharacteristic(7, 0, "Autonomie"));
-        typesCharacteristics.add (new TypeCharacteristic(8, 0, "Système d'exploitattion"));
-        typesCharacteristics.add (new TypeCharacteristic(9, 0, "Webcam"));
-        typesCharacteristics.add (new TypeCharacteristic(10, 0, "Clavier"));
-
+        typesCharacteristics.add (new TypeCharacteristic(5, 0, "Résolution"));
+        typesCharacteristics.add (new TypeCharacteristic(6, 0, "Ecran"));
+        typesCharacteristics.add (new TypeCharacteristic(7, 0, "Batterie"));
+        typesCharacteristics.add (new TypeCharacteristic(8, 0, "Autonomie"));
+        typesCharacteristics.add (new TypeCharacteristic(9, 0, "Système d'exploitattion"));
+        typesCharacteristics.add (new TypeCharacteristic(10, 0, "Webcam"));
+        typesCharacteristics.add (new TypeCharacteristic(11, 0, "Clavier"));
+        typesCharacteristics.add (new TypeCharacteristic(12, 4, "Mémoire"));
+        typesCharacteristics.add (new TypeCharacteristic(13, 4, "RAM"));
+        typesCharacteristics.add (new TypeCharacteristic(14, 4, "Résolution"));
+        typesCharacteristics.add (new TypeCharacteristic(15, 4, "Ecran"));
+        typesCharacteristics.add (new TypeCharacteristic(16, 4, "Batterie"));
+        typesCharacteristics.add (new TypeCharacteristic(17, 4, "Autonomie"));
+        typesCharacteristics.add (new TypeCharacteristic(18, 4, "Système d\'exploitation"));
+        typesCharacteristics.add (new TypeCharacteristic(19, 4, "Caméra principale"));
+        typesCharacteristics.add (new TypeCharacteristic(20, 4, "Caméra secondaire"));
     }
 
     public static List<TypeCharacteristic> Data() {

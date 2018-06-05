@@ -6,6 +6,7 @@ import android.arch.persistence.room.Room;
 import android.arch.persistence.room.RoomDatabase;
 import android.content.Context;
 import android.support.annotation.NonNull;
+import android.util.Log;
 
 import java.util.concurrent.Executors;
 
@@ -37,7 +38,7 @@ import usthb.lfbservices.com.pfe.models.Wilaya;
                         Category.class,Type.class, Wilaya.class, City.class,
                         TypeCharacteristic.class, ProductCharacteristic.class,
                          Notification.class
-                        }, version = 1)
+                        }, version = 3)
 public abstract class AppRoomDatabase extends RoomDatabase {
 
     public abstract ProductSalesPointDao productSalesPointDao();
@@ -85,11 +86,17 @@ public abstract class AppRoomDatabase extends RoomDatabase {
                         Executors.newSingleThreadScheduledExecutor().execute(new Runnable() {
                             @Override
                             public void run() {
+                                Log.e("DAO", "INSERTED 0 TABLES");
                                 getInstance(context).wilayaDao().insertAll(Wilaya.Data());
+                                Log.e("DAO", "INSERTED 1 TABLES");
                                 getInstance(context).cityDao().insertAll(City.Data());
+                                Log.e("DAO", "INSERTED 2 TABLES");
                                 getInstance(context).categoryDao().insertAll(Category.Data());
+                                Log.e("DAO", "INSERTED 3 TABLES");
                                 getInstance(context).typeDao().insertAll(Type.Data());
+                                Log.e("DAO", "INSERTED 4 TABLES");
                                 getInstance(context).typeCharacteristicDao().insertAll(TypeCharacteristic.Data());
+                                Log.e("DAO", "INSERTED ALL TABLES");
                             }
                         });
                     }

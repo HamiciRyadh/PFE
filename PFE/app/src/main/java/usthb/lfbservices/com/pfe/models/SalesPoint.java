@@ -26,18 +26,18 @@ public class SalesPoint {
 	private byte[] image;
 	@Ignore
 	private String salesPointPhotoReference;
-	private String salesPointWilaya;
+	private int salesPointCity;
 	
     @Ignore
 	public SalesPoint(@NonNull String salesPointId, double salesPointLat, double salesPointLong, String salesPointName,
-                      String salesPointAddress, String salesPointWilaya){
+                      String salesPointAddress, int salesPointCity){
 		super();
 		this.salesPointId = salesPointId;
 		this.salesPointLat = salesPointLat;
 		this.salesPointLong = salesPointLong;
 		this.salesPointName = salesPointName;
 		this.salesPointAddress = salesPointAddress;
-		this.salesPointWilaya =salesPointWilaya;
+		this.salesPointCity = salesPointCity;
 
 	}
 	
@@ -58,7 +58,7 @@ public class SalesPoint {
 
 
     public SalesPoint(@NonNull String salesPointId, double salesPointLat, double salesPointLong, String salesPointName,
-                      String salesPointAddress, String salesPointWilaya,
+                      String salesPointAddress, int salesPointCity,
                       String salesPointPhoneNumber, String salesPointWebSite, double salesPointRating,
                       byte[] image){
         super();
@@ -67,7 +67,7 @@ public class SalesPoint {
         this.salesPointLong = salesPointLong;
         this.salesPointName = salesPointName;
         this.salesPointAddress = salesPointAddress;
-        this.salesPointWilaya =salesPointWilaya;
+        this.salesPointCity =salesPointCity;
 
         this.salesPointPhoneNumber = salesPointPhoneNumber;
         this.salesPointWebSite = salesPointWebSite;
@@ -156,12 +156,12 @@ public class SalesPoint {
 		this.salesPointRating = salesPointRating;
 	}
 
-	public String getSalesPointWilaya() {
-		return salesPointWilaya;
+	public int getSalesPointCity() {
+		return salesPointCity;
 	}
 
-	public void setSalesPointWilaya(String salesPointWilaya) {
-		this.salesPointWilaya = salesPointWilaya;
+	public void setSalesPointCity(int salesPointCity) {
+		this.salesPointCity = salesPointCity;
 	}
 
 	public LatLng getSalesPointLatLng() {

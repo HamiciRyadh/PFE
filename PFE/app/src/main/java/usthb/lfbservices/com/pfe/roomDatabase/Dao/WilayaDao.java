@@ -15,6 +15,8 @@ public interface WilayaDao {
     @Query("SELECT wilayaName FROM Wilaya ORDER BY wilayaId ASC")
     String[] getAll();
 
+    @Query("SELECT wilayaName FROM Wilaya WHERE wilayaId = (SELECT wilayaId FROM City WHERE cityId = :cityId)")
+    String getWilayaNameByCity(int cityId);
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insertAll(List<Wilaya> wilayas);

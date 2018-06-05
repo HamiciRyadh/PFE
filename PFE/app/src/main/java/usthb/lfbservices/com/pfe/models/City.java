@@ -14,7 +14,7 @@ import static android.arch.persistence.room.ForeignKey.CASCADE;
                         parentColumns = "wilayaId",
                         childColumns = "wilayaId",
                         onDelete = CASCADE),
-        primaryKeys = { "wilayaId", "cityId" })
+        primaryKeys = {"cityId" })
 
 public class City {
 
@@ -52,27 +52,27 @@ public class City {
         cities.add( new City(9,"Sidi moussa", 24));
         cities.add( new City(9,"Souhane",25 ));
         cities.add( new City(9,"Soumaa", 26));
-        cities.add( new City(16,"Ouled Fayet",1 ));
-        cities.add( new City(16,"Ain Banian", 2));
-        cities.add( new City(16,"Ain Naadja",3 ));
-        cities.add( new City(16,"Ain Taya",4 ));
-        cities.add( new City(16,"Alger Centre", 5));
-        cities.add( new City(16,"Bab el Oued", 6));
-        cities.add( new City(16,"Bab ezzouar",7 ));
-        cities.add( new City(16,"Bab hassen",8 ));
-        cities.add( new City(16,"Bachdjerrah",9 ));
-        cities.add( new City(16,"Baraki",10 ));
-        cities.add( new City(16,"Belouizdad", 11));
-        cities.add( new City(16,"Ben aknoun",12 ));
-        cities.add( new City(16,"Beni messous",13 ));
-        cities.add( new City(16,"Bir mourad rais", 14));
-        cities.add( new City(16,"Birkhadem", 15));
-        cities.add( new City(16,"Birtouta", 16));
-        cities.add( new City(16,"Ouled Fayet",17 ));
-        cities.add( new City(16,"Kouba",18 ));
-        cities.add( new City(16,"Hammamet",19 ));
-        cities.add( new City(16,"Hydra",20 ));
-        cities.add( new City(16,"Birkhadem",21 ));
+        cities.add( new City(16,"Ouled Fayet",27 ));
+        cities.add( new City(16,"Ain Banian", 28));
+        cities.add( new City(16,"Ain Naadja",29 ));
+        cities.add( new City(16,"Ain Taya",30 ));
+        cities.add( new City(16,"Alger Centre", 31));
+        cities.add( new City(16,"Bab el Oued", 32));
+        cities.add( new City(16,"Bab ezzouar",33 ));
+        cities.add( new City(16,"Bab hassen",34 ));
+        cities.add( new City(16,"Bachdjerrah",35 ));
+        cities.add( new City(16,"Baraki",36 ));
+        cities.add( new City(16,"Belouizdad", 37));
+        cities.add( new City(16,"Ben aknoun",38 ));
+        cities.add( new City(16,"Beni messous",39 ));
+        cities.add( new City(16,"Bir mourad rais", 40));
+        cities.add( new City(16,"Birkhadem", 41));
+        cities.add( new City(16,"Birtouta", 42));
+        cities.add( new City(16,"Ouled Fayet",43 ));
+        cities.add( new City(16,"Kouba",44 ));
+        cities.add( new City(16,"Hammamet",45 ));
+        cities.add( new City(16,"Hydra Alger",46 ));
+        cities.add( new City(16,"Birkhadem",47 ));
     }
 
     public static List<City> Data() {

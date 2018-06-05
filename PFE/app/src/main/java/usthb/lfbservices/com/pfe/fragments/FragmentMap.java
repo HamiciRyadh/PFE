@@ -165,23 +165,23 @@ public class FragmentMap extends Fragment  implements OnMapReadyCallback {
         Log.e(TAG, "onMapReady");
         mMap = googleMap;
         Singleton.getInstance().setMap(mMap);
-        SharedPreferences sharedPreferences = fragmentBelongActivity.getSharedPreferences(Constants.SHARED_PREFERENCES_POSITION, MODE_PRIVATE);
+        SharedPreferences sharedPreferences = fragmentBelongActivity.getSharedPreferences(Constants.SHARED_PREFERENCES_USER_PREFERENCES, MODE_PRIVATE);
         String sLat = sharedPreferences.getString(Constants.SHARED_PREFERENCES_POSITION_LATITUDE,null);
         String sLong = sharedPreferences.getString(Constants.SHARED_PREFERENCES_POSITION_LONGITUDE,null);
-        String sMapStyle = fragmentBelongActivity.getSharedPreferences(Constants.SHARED_PREFERENCES_USER_PREFERENCES, MODE_PRIVATE)
-                            .getString(Constants.MAP_STYLE, null);
+        String sMapStyle = sharedPreferences.getString(Constants.MAP_STYLE, null);
 
         if (sLat != null && sLong != null) {
             double lat = Double.parseDouble(sLat);
             double lon = Double.parseDouble(sLong);
-            userPosition = new LatLng(lat, lon);
+            defaultPosition = new LatLng(lat, lon);
         }
 
+        userPosition = defaultPosition;
         if (Utils.checkGPSPermission(fragmentBelongActivity)) {
             if (addMarker && userPosition != null) {
                 userMakerOptions = new MarkerOptions().
                         position(userPosition).
-                        title(getResources().getString(R.string.your_position)).
+                        title((userPosition == defaultPosition) ? getResources().getString(R.string.default_marker_title) : getResources().getString(R.string.your_position)).
                         icon(BitmapDescriptorFactory.fromResource(R.drawable.marker_blue));
 
                 userMarker = mMap.addMarker(userMakerOptions);
@@ -312,15 +312,15 @@ public class FragmentMap extends Fragment  implements OnMapReadyCallback {
                     if (sUserPosition != null) userPosition = sUserPosition;
                     if (userPosition != null) {
                         if (defaultMarker != null) defaultMarker.remove();
-                               if (userMarker != null) userMarker.setPosition(userPosition);
+                               if (userMarker != null) userMarker.setPosition((Utils.isGPSActivated(fragmentBelongActivity)) ? userPosition : defaultPosition);
                                else {
                                    userMarker = mMap.addMarker(new MarkerOptions().
-                                           position(userPosition).
-                                           title(getResources().getString((Utils.isNetworkAvailable(fragmentBelongActivity) ? R.string.your_position : R.string.last_known_position))).
+                                           position((Utils.isGPSActivated(fragmentBelongActivity)) ? userPosition : defaultPosition).
+                                           title(getResources().getString((Utils.isGPSActivated(fragmentBelongActivity) ? R.string.your_position : R.string.default_marker_title))).
                                            icon(BitmapDescriptorFactory.fromResource(R.drawable.marker_blue)));
                                }
 
-                        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(userPosition, FragmentMap.ZOOM_LEVEL));
+                        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom((Utils.isGPSActivated(fragmentBelongActivity)) ? userPosition : defaultPosition, FragmentMap.ZOOM_LEVEL));
                     } else {
                         if (userMarker != null) userMarker.remove();
                         defaultMarker = mMap.addMarker(new MarkerOptions().
@@ -435,8 +435,8 @@ public class FragmentMap extends Fragment  implements OnMapReadyCallback {
                                     if (userPosition != null) {
                                         if (userMarker != null) userMarker.setPosition(userPosition);
                                         else {
-                                            userMarker = mMap.addMarker(new MarkerOptions().position(userPosition)
-                                                    .title(getResources().getString(R.string.last_known_position))
+                                            userMarker = mMap.addMarker(new MarkerOptions().position((defaultPosition != null) ? defaultPosition : userPosition)
+                                                    .title(getResources().getString(R.string.default_marker_title))
                                                     .icon(BitmapDescriptorFactory.fromResource(R.drawable.marker_blue)));
                                         }
 
@@ -454,6 +454,16 @@ public class FragmentMap extends Fragment  implements OnMapReadyCallback {
             } else {
                 Log.e(TAG, "AddUserMarkerPosition: Else gps.");
                 if (userMarker != null) userMarker.remove();
+                SharedPreferences sharedPreferences = fragmentBelongActivity.getSharedPreferences(Constants.SHARED_PREFERENCES_USER_PREFERENCES, MODE_PRIVATE);
+                String sLat = sharedPreferences.getString(Constants.SHARED_PREFERENCES_POSITION_LATITUDE,null);
+                String sLong = sharedPreferences.getString(Constants.SHARED_PREFERENCES_POSITION_LONGITUDE,null);
+
+                if (sLat != null && sLong != null) {
+                    double lat = Double.parseDouble(sLat);
+                    double lon = Double.parseDouble(sLong);
+                    defaultPosition = new LatLng(lat, lon);
+                }
+
                 defaultMarker = mMap.addMarker(new MarkerOptions().position(defaultPosition)
                         .title(getResources().getString(R.string.default_marker_title))
                         .icon(BitmapDescriptorFactory.fromResource(R.drawable.marker_blue)));
@@ -462,6 +472,16 @@ public class FragmentMap extends Fragment  implements OnMapReadyCallback {
         } else {
             Log.e(TAG, "AddUserMarkerPosition: Else authorisation.");
             if (userMarker != null) userMarker.remove();
+            SharedPreferences sharedPreferences = fragmentBelongActivity.getSharedPreferences(Constants.SHARED_PREFERENCES_USER_PREFERENCES, MODE_PRIVATE);
+            String sLat = sharedPreferences.getString(Constants.SHARED_PREFERENCES_POSITION_LATITUDE,null);
+            String sLong = sharedPreferences.getString(Constants.SHARED_PREFERENCES_POSITION_LONGITUDE,null);
+
+            if (sLat != null && sLong != null) {
+                double lat = Double.parseDouble(sLat);
+                double lon = Double.parseDouble(sLong);
+                userPosition = new LatLng(lat, lon);
+            }
+
             defaultMarker = mMap.addMarker(new MarkerOptions().position(defaultPosition)
                     .title(getResources().getString(R.string.default_marker_title))
                     .icon(BitmapDescriptorFactory.fromResource(R.drawable.marker_blue)));
@@ -611,8 +631,10 @@ public class FragmentMap extends Fragment  implements OnMapReadyCallback {
                             temporarySalespointList = new ArrayList<>();
                             for (SalesPoint salesPoint : listsalesPoints) {
                                 for (int i = 0; i < mUserItemsVille.size(); i++) {
+                                    Log.e(TAG, " 614 : " + listVille[mUserItemsVille.get(i)] + " I : " + mUserItemsVille.get(i));
+
                                     String ville = listVille[mUserItemsVille.get(i)];
-                                    if (salesPoint.getSalesPointAddress().contains(ville)) {
+                                    if (salesPoint.getSalesPointCity() == db.cityDao().getCityIdByName(ville)) {
                                         temporarySalespointList.add(salesPoint);
                                     }
                                 }
@@ -820,9 +842,11 @@ public class FragmentMap extends Fragment  implements OnMapReadyCallback {
                             String element = listItemsWilaya[mUserItemsWilaya.get(i).intValue()];
 
                             if (element.equals("Alger")) {
+                                Log.e(TAG, "Alger");
                                 listItemsVille.addAll(Arrays.asList(getResources().getStringArray(R.array.Algiers_item)));
                             }
                             if (element.equals("Blida")) {
+                                Log.e(TAG, "Blida");
                                 listItemsVille.addAll(Arrays.asList(getResources().getStringArray(R.array.Blida_item)));
                             }
                         }
@@ -833,7 +857,7 @@ public class FragmentMap extends Fragment  implements OnMapReadyCallback {
                         final List<SalesPoint> listsalesPoints = Singleton.getInstance().getSalesPointList();
                         List<SalesPoint> temporarySalespointList;
 
-                        if ( mUserItemsWilaya.size() == 0 ||  mUserItemsWilaya.size() == listItemsWilaya.length) {
+                        if (mUserItemsWilaya.size() == 0 ||  mUserItemsWilaya.size() == listItemsWilaya.length) {
                             temporarySalespointList = Singleton.getInstance().getSalesPointList();
                         }
                         else {
@@ -841,12 +865,22 @@ public class FragmentMap extends Fragment  implements OnMapReadyCallback {
                             for (SalesPoint salesPoint : listsalesPoints) {
                                 for (int i = 0; i < mUserItemsWilaya.size(); i++) {
                                     String wilaya = listItemsWilaya[mUserItemsWilaya.get(i)];
-                                    if (salesPoint.getSalesPointWilaya().toUpperCase().contains(wilaya.toUpperCase())) {
-                                        temporarySalespointList.add(salesPoint);
-                                    } else {
-                                        for (String ville : listItemsVille) {
-                                            if (salesPoint.getSalesPointAddress().toUpperCase().contains(ville.toUpperCase())) {
-                                                temporarySalespointList.add(salesPoint);
+                                    Log.e(TAG, "WILAYAAA : " + wilaya);
+                                    Log.e(TAG, "CITYYY : " + salesPoint.getSalesPointCity());
+                                    String salesPointWilaya = db.wilayaDao().getWilayaNameByCity(salesPoint.getSalesPointCity());
+                                    if (salesPointWilaya == null) {
+                                        Log.e(TAG, "City : " + salesPoint.getSalesPointCity());
+                                        Log.e(TAG, "WILAYA NULL");
+                                    }
+                                    else {
+                                        Log.e(TAG, "WILAYAAA2 : " + salesPointWilaya);
+                                        if (salesPointWilaya.toUpperCase().contains(wilaya.toUpperCase())) {
+                                            temporarySalespointList.add(salesPoint);
+                                        } else {
+                                            for (String ville : listItemsVille) {
+                                                if (salesPoint.getSalesPointAddress().toUpperCase().contains(ville.toUpperCase())) {
+                                                    temporarySalespointList.add(salesPoint);
+                                                }
                                             }
                                         }
                                     }

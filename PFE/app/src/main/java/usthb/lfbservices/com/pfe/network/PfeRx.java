@@ -111,6 +111,8 @@ public class PfeRx {
                             }
                         });
 
+                        for (SalesPoint salesPoint : salesPoints) PfeRx.getPlaceDetails(activity, salesPoint.getSalesPointId());
+
                         Singleton.getInstance().setSalesPointList(salesPoints);
                         Singleton.getInstance().setProductSalesPointList(productSalesPoints);
 
@@ -355,7 +357,7 @@ public class PfeRx {
 
 
     public static void getPlaceDetails(@NonNull final Activity activity,
-                                       @NonNull final String salesPointId) {
+                                       @NonNull final String salesPointId/*,boolean fromRx*/) {
 
         final String apiKey = activity.getResources().getString(R.string.google_maps_key);
         pfeAPI.getPlaceDetails(apiKey, salesPointId)
@@ -409,13 +411,18 @@ public class PfeRx {
                             website = activity.getResources().getString(R.string.not_available);
                         result.setSalesPointWebSite(website);
 
+                        Log.e(TAG, "BEFORE CITY");
                         for (AddressComponents addressComponents : resultDetails.getAddressComponents()) {
                             for (String type : addressComponents.getTypes()) {
-                                if (type.contains("administrative_area_level")) {
-                                    result.setSalesPointWilaya(addressComponents.getLongName());
+                                if (type.contains("locality")) {
+                                    Log.e(TAG, "CITY : " + addressComponents.getLongName());
+                                    AppRoomDatabase db = AppRoomDatabase.getInstance(activity);
+                                    result.setSalesPointCity(db.cityDao().getCityIdByName(addressComponents.getLongName()));
+                                    Log.e(TAG, "CITY ID : " + db.cityDao().getCityIdByName(addressComponents.getLongName()));
                                 }
                             }
                         }
+                        Log.e(TAG, "After city");
 
                         final int size = salesPoints.size();
                         int correspondingSalesPoint = -1;
@@ -879,6 +886,8 @@ public class PfeRx {
                                                  @NonNull final Product product,
                                                  final boolean addToDatabase) {
 
+        Log.e(TAG, "AddToDb : " + addToDatabase);
+        Log.e(TAG, "ProductBarcode : " + product.getProductBarcode());
         pfeAPI.getProductCharacteristics(product.getProductBarcode())
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -907,8 +916,10 @@ public class PfeRx {
                             productCharacteristics.add(new ProductCharacteristic(typeCharacteristicId, product.getProductBarcode(), productCharacteristicValue));
                         }
                         if (addToDatabase) {
+                            Log.e(TAG, "Add to database");
                             db.productCharacteristicDao().insertAll(productCharacteristics);
                         } else {
+                            Log.e(TAG, "Testing activity");
                             if (activity instanceof DescProductFragment.FragmentDescriptionProductActions) {
                                 ((DescProductFragment.FragmentDescriptionProductActions)activity).displayProductCharacteristics(product, listProductsCharacteristics);
                             }

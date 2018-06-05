@@ -29,5 +29,11 @@
 		WHERE product_barcode  =  #{productBarcode} 
 			  AND sales_point_id = #{salesPointId}; 
 	</select>
+	
+	<delete id="removeProductSalesPoint">
+		DELETE FROM ${db.schema}."ProductSalesPoint" 
+		WHERE product_barcode  =  #{productBarcode} 
+			  AND sales_point_id = #{salesPointId}; 
+	</delete>
 
 </mapper>
