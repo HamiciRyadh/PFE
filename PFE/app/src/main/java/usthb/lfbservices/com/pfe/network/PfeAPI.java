@@ -37,7 +37,7 @@ public class PfeAPI {
     /**
      * The url of the Web Service.
      */
-    private static final String WEB_SERVICE_BASE_URL = "http://192.168.8.102:8080/PFE-EE/api/";
+    private static final String WEB_SERVICE_BASE_URL = "http://192.168.1.10:8080/PFE-EE/api/";
     /**
      * The url of the Google Maps API.
      */
