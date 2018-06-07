@@ -75,7 +75,7 @@ public class DescProductSalesPointFragment extends Fragment {
 
             if (Utils.isNetworkAvailable(fragmentBelongActivity)) {
                 final List<String> salesPointsIds = getListIds(productSalesPointsList);
-                PfeRx.getNewestProductSalesPointsInformations(fragmentBelongActivity, salesPointsIds);
+                PfeRx.getNewestProductSalesPointsInformations(fragmentBelongActivity, salesPointsIds, product.getProductBarcode());
             }
         }
 

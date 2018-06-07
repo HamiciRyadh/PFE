@@ -86,17 +86,11 @@ public abstract class AppRoomDatabase extends RoomDatabase {
                         Executors.newSingleThreadScheduledExecutor().execute(new Runnable() {
                             @Override
                             public void run() {
-                                Log.e("DAO", "INSERTED 0 TABLES");
                                 getInstance(context).wilayaDao().insertAll(Wilaya.Data());
-                                Log.e("DAO", "INSERTED 1 TABLES");
                                 getInstance(context).cityDao().insertAll(City.Data());
-                                Log.e("DAO", "INSERTED 2 TABLES");
                                 getInstance(context).categoryDao().insertAll(Category.Data());
-                                Log.e("DAO", "INSERTED 3 TABLES");
                                 getInstance(context).typeDao().insertAll(Type.Data());
-                                Log.e("DAO", "INSERTED 4 TABLES");
                                 getInstance(context).typeCharacteristicDao().insertAll(TypeCharacteristic.Data());
-                                Log.e("DAO", "INSERTED ALL TABLES");
                             }
                         });
                     }

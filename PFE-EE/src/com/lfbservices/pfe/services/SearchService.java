@@ -106,8 +106,8 @@ public class SearchService {
 		for (ProductSalesPoint productSalesPoint : listProductSalesPoints) {
 			salesPoint = GoogleAPI.details(productSalesPoint.getSalesPointId());
 			
-			if (salesPoint.getSalesPointAddress().toUpperCase().contains(wilaya.toUpperCase()) && 
-				salesPoint.getSalesPointAddress().toUpperCase().contains(city.toUpperCase())) {
+			if (salesPoint.getSalesPointName().toUpperCase().contains(wilaya.toUpperCase()) && 
+				salesPoint.getSalesPointName().toUpperCase().contains(city.toUpperCase())) {
 				//Si wilaya et city correspondent
 					if (positionSpecified) {
 						//Si la position a été spécifiée

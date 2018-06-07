@@ -148,7 +148,7 @@ public class GoogleAPI {
 			e.printStackTrace();
 		}
 		
-		return (new SalesPoint(salespointId, lat, lng, name, formatted_address, wilaya));
+		return (new SalesPoint(salespointId, lat, lng, name));
 
 	}
 
@@ -225,7 +225,7 @@ public class GoogleAPI {
 				e.printStackTrace();
 		}
 		
-		return (new SalesPoint(salespointId, phoneNumber, website, rating, salesPointPhotoReference));
+		return null;
 	}
 
 }

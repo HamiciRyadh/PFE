@@ -164,11 +164,13 @@ public interface PfeService {
     /**
      * Sends a GET request to retrieve a {@link List} of {@link ProductSalesPoint} representing the
      * newest informations about the products' prices and quantities.
-     * @param salesPointsIds A {@link List} of {@link String}.
+     * @param salesPointsIds A {@link List} of {@link ProductSalesPoint}.
+     * @param productBarcode A {@link Product#productBarcode}.
      * @return An {@link Observable} of a {@link List} of {@link ProductSalesPoint} representing the
      * newest informations about the products and sales points sent.
      */
     @GET("ProductSalesPoint/getNewestInformations")
-    Observable<List<ProductSalesPoint>> getNewestInformations(@Query("salesPointsIds") List<String> salesPointsIds);
+    Observable<List<ProductSalesPoint>> getNewestInformations(@Query("salesPointsIds") List<String> salesPointsIds,
+                                                              @Query("productBarcode") String productBarcode);
 
 }

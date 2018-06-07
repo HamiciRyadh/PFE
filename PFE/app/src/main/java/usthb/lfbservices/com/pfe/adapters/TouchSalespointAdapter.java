@@ -79,11 +79,11 @@ public class TouchSalespointAdapter extends ItemTouchHelper.Callback {
      */
     @Override
     public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
-        if (direction == ItemTouchHelper.END) { //DELETE
+        if (direction == ItemTouchHelper.START) { //DELETE
             Log.e("ffff", "END");
             mAdapter.onItemDismiss(viewHolder.getAdapterPosition(), ItemTouchHelper.END);
         }
-        if ( direction == ItemTouchHelper.START){ //NOTIFY
+        if ( direction == ItemTouchHelper.END){ //NOTIFY
             mAdapter.onItemDismiss(viewHolder.getAdapterPosition(), ItemTouchHelper.START);
         }
     }

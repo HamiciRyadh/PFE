@@ -25,29 +25,11 @@ public class SalesPoint {
 	private double salesPointLat;
     private double salesPointLong;
 	private String salesPointName;
-	private String salesPointAddress;
-	private String salesPointWilaya;
-	private String salesPointPhoneNumber;
-	private String salesPointWebSite; 
-	private double salesPointRating;
-	private String salesPointPhotoReference;
 	
-	//photo, les horaires d'ouvertures
+	
 	
 	public SalesPoint() {
 		
-	}
-	
-	public SalesPoint(String salesPointId, double salesPointLat, double salesPointLong, String salesPointName,
-			String salesPointAddress, String salesPointWilaya){
-		super();
-		this.salesPointId = salesPointId;
-		this.salesPointLat = salesPointLat;
-		this.salesPointLong = salesPointLong;
-		this.salesPointName = salesPointName;
-		this.salesPointAddress = salesPointAddress;
-		this.salesPointWilaya = salesPointWilaya;
-
 	}
 	
 	public SalesPoint(String salesPointId, double salesPointLat, double salesPointLong, String salesPointName){
@@ -59,17 +41,6 @@ public class SalesPoint {
 	}
 	
 	
-	public SalesPoint(String salesPointId, String salesPointPhoneNumber, String salesPointWebSite, double salesPointRating,
-			String salesPointPhotoReference) {
-		super();
-		this.salesPointId = salesPointId;
-		this.salesPointPhoneNumber = salesPointPhoneNumber;
-		this.salesPointWebSite = salesPointWebSite;
-		this.salesPointRating = salesPointRating;
-		this.salesPointPhotoReference = salesPointPhotoReference;
-	}
-
-
 	public String getSalesPointId() {
 		return salesPointId;
 	}
@@ -108,67 +79,6 @@ public class SalesPoint {
 	public void setSalesPointName(String salesPointName) {
 		this.salesPointName = salesPointName;
 	}
-
-
-	public String getSalesPointAddress() {
-		return salesPointAddress;
-	}
-
-
-	public void setSalesPointAddress(String salesPointAddress) {
-		this.salesPointAddress = salesPointAddress;
-	}
-
-
-	public String getSalesPointPhoneNumber() {
-		return salesPointPhoneNumber;
-	}
-
-
-	public void setSalesPointPhoneNumber(String salesPointPhoneNumber) {
-		this.salesPointPhoneNumber = salesPointPhoneNumber;
-	}
-
-
-	public String getSalesPointWebSite() {
-		return salesPointWebSite;
-	}
-
-
-	public void setSalesPointWebSite(String salesPointWebSite) {
-		this.salesPointWebSite = salesPointWebSite;
-	}
-
-
-	public double getSalesPointRating() {
-		return salesPointRating;
-	}
-
-
-	public void setSalesPointRating(double salesPointRating) {
-		this.salesPointRating = salesPointRating;
-	}
-
-
-	public String getSalesPointPhotoReference() {
-		return salesPointPhotoReference;
-	}
-
-
-	public void setSalesPointPhotoReference(String salesPointPhotoReference) {
-		this.salesPointPhotoReference = salesPointPhotoReference;
-	}
-
-
-	public String getSalesPointWilaya() {
-		return salesPointWilaya;
-	}
-
-
-	public void setSalesPointWilaya(String salesPointWilaya) {
-		this.salesPointWilaya = salesPointWilaya;
-	}
-	
 	
 	
 }

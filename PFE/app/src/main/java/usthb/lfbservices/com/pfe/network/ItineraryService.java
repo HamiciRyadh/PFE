@@ -13,6 +13,8 @@ import usthb.lfbservices.com.pfe.itinerary.place.GooglePlaceDetails;
  */
 
 public interface ItineraryService {
+
+    //TODO: Documentation
     @GET("directions/json")
     Call<GoogleDirections> getDistanceDuration(@Query("key") String apiKey,
                                                @Query("units") String units,
@@ -20,17 +22,20 @@ public interface ItineraryService {
                                                @Query("destination") String destination,
                                                @Query("mode") String mode);
 
+    //TODO: Documentation
     @GET("place/autocomplete/json")
     Call<GoogleAutocompleteResponse> getAutoCompleteSearchResults(@Query("key") String apiKey,
                                                                   @Query("input") String searchTerm,
                                                                   @Query("location") String location,
                                                                   @Query("radius") long radius);
 
+    //TODO: Documentation
     @GET("place/details/json")
     Call<GooglePlaceDetails> getLatLng(@Query("key") String apiKey,
                                        @Query("placeid") String placeId);
 
 
+    //TODO: Documentation
     @GET("place/details/json?sensor=false")
     Observable<GooglePlaceDetails> getPlaceDetails(@Query("key") String apiKey,
                                                    @Query("placeid") String placeId);

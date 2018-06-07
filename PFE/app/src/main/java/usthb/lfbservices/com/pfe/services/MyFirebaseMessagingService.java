@@ -38,8 +38,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
     private Notification notification;
 
     /**
-     * Called when a message is received.
-     *
+     * Called when a message is received, it extracts the parameters and shows a notification.
      * @param remoteMessage Object representing the message received from Firebase Cloud Messaging.
      */
     @Override
@@ -87,7 +86,9 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
     }
 
     /**
-     * Create and show a notification containing the received FCM message.
+     * Create and show a notification containing the received FCM message and prepares a pending
+     * intent so that when the user clicks on the notification, it will take him to the
+     * {@link DescSalesPointActivity}.
      * @param messageBody FCM message body received.
      */
     private void sendNotification(final String messageBody) {

@@ -37,7 +37,7 @@ public class PfeAPI {
     /**
      * The url of the Web Service.
      */
-    private static final String WEB_SERVICE_BASE_URL = "http://192.168.1.6:8080/PFE-EE/api/";
+    private static final String WEB_SERVICE_BASE_URL = "http://192.168.8.102:8080/PFE-EE/api/";
     /**
      * The url of the Google Maps API.
      */
@@ -262,25 +262,28 @@ public class PfeAPI {
     /**
      * Operates a network call to get the newest informations about a group of {@link Product} and
      * their associated {@link SalesPoint}.
-     * @param salesPointsIds A {@link List} of {@link String}.
+     * @param salesPointsIds A {@link List} of {@link ProductSalesPoint}.
+     * @param productBarcode A {@link Product#productBarcode}.
      * @return An {@link Observable} of a {@link List} of {@link ProductSalesPoint} representing the
      * newest informations about the products and sales points sent.
      */
-    public Observable<List<ProductSalesPoint>> getNewestInformations(final List<String> salesPointsIds) {
-        return pfeService.getNewestInformations(salesPointsIds);
+    public Observable<List<ProductSalesPoint>> getNewestInformations(final List<String> salesPointsIds, final String productBarcode) {
+        return pfeService.getNewestInformations(salesPointsIds, productBarcode);
     }
 
-
+    //TODO: Documentation
     public Call<GoogleDirections> getDistanceDuration(final String apiKey, final String units, final String origin,
                                                       final String destination, final String mode) {
         return itineraryService.getDistanceDuration(apiKey, units, origin, destination, mode);
     }
 
+    //TODO:Documentation
     public Call<GoogleAutocompleteResponse> getAutoCompleteSearchResults(final String apiKey, final String searchTerm,
                                                                          final String location, final long radius) {
         return itineraryService.getAutoCompleteSearchResults(apiKey, searchTerm, location, radius);
     }
 
+    //TODO: Documentation
     public Call<GooglePlaceDetails> getLatLng(final String apiKey, final String placeid) {
         return itineraryService.getLatLng(apiKey, placeid);
     }
@@ -314,11 +317,5 @@ public class PfeAPI {
      */
     public Observable<List<String>> getSearchPropositions(final String query) {
         return pfeService.getSearchPropositions(query);
-    }
-
-
-    //TODO : NEW mais à modifier ! envoyer aussi la liste des points de vente actuelle
-    public Observable<List<ProductSalesPoint>> getProductSalesPoint(final String productBarcode) {
-        return pfeService.getProductSalesPoint(productBarcode);
     }
 }

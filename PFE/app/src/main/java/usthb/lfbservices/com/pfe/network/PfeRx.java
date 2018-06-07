@@ -76,6 +76,12 @@ public class PfeRx {
      */
     private static PfeAPI pfeAPI = PfeAPI.getInstance();
 
+    /**
+     * Operates a network call to get the {@link SalesPoint} and {@link ProductSalesPoint} corresponding
+     * to the selected product.
+     * @param activity The current {@link Activity}.
+     * @param productBarcode A {@link Product#productBarcode}.
+     */
     public static void searchFromProductBarcode(@NonNull final Activity activity,
                                                 @NonNull final String productBarcode) {
         final ProgressDialog progressDialog = new ProgressDialog(activity, R.style.AppTheme_Dark_Dialog);
@@ -87,6 +93,11 @@ public class PfeRx {
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Observer<Result>() {
+
+                    /**
+                     * Adds the {@link Disposable} of this network call to the {@link DisposableManager}.
+                     * @param d The {@link Disposable} corresponding to this network call.
+                     */
                     @Override
                     public void onSubscribe(Disposable d) {
                         Log.e(TAG, "SearchFromProductBarcode : onSubscribe");
@@ -94,6 +105,11 @@ public class PfeRx {
                         progressDialog.setMessage(activity.getResources().getString(R.string.retrieving_data));
                     }
 
+                    /**
+                     * Adds to the map markers representing the sales points of the selected product
+                     * and initializes the marker's on click listener and the showButton's on click
+                     * listener.
+                     */
                     @Override
                     public void onNext(Result result) {
                         Log.e(TAG, "SearchFromproductBarcode : onNext");
@@ -124,7 +140,12 @@ public class PfeRx {
                         if (listSalesPoints != null) listSalesPoints.setAdapter(salesPointsAdapter1);
 
                         final GoogleMap map = Singleton.getInstance().getMap();
+
                         if (map != null) {
+                            /**
+                             * Clears the map and extracts from the {@link SharedPreferences}, if
+                             * possible, the last known position of the user.
+                             */
                             map.clear();
                             LatLngBounds.Builder builder = new LatLngBounds.Builder();
 
@@ -141,6 +162,9 @@ public class PfeRx {
                                 }
                             }
 
+                            /**
+                             * Adds a marker for the user's position.
+                             */
                             if (activity instanceof FragmentMap.MapActions) {
                                 FragmentMap fragmentMap = ((FragmentMap.MapActions)activity).getActivityFragmentMap();
                                 if (fragmentMap != null) {
@@ -148,6 +172,9 @@ public class PfeRx {
                                 }
                             }
 
+                            /**
+                             * Adds the resulting {@link SalesPoint} to the map.
+                              */
                             ProductSalesPoint productSalesPointTemps = new ProductSalesPoint();
                             int nbMarkers = 0;
 
@@ -171,6 +198,9 @@ public class PfeRx {
                                 hashMap.put(marker.getPosition(), productSalesPointTemps);
                                 nbMarkers++;
                             }
+                            /**
+                             * Determines the appropriate level of zoom.
+                             */
                             if (nbMarkers > 0) {
                                 if (nbMarkers == 1) {
                                     CameraUpdate cu = CameraUpdateFactory.newLatLngZoom((LatLng)hashMap.keySet().toArray()[0], FragmentMap.ZOOM_LEVEL);
@@ -194,6 +224,13 @@ public class PfeRx {
                                 Toast.makeText(activity, activity.getResources().getString(R.string.no_corresponding_sales_point), Toast.LENGTH_LONG).show();
                             }
 
+                            /**
+                             * Initializes the map so that when a marker is clicked, if it represents
+                             * a {@link SalesPoint}, the camera will move to center it and a bottom
+                             * sheet with the {@link ProductSalesPoint} informations will appear,
+                             * it will also offer the user the possibility to add this result to
+                             * the favorite or to subscribe to its notifications feed.
+                             */
                             map.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
                                 @Override
                                 public boolean onMarkerClick(Marker marker) {
@@ -220,6 +257,12 @@ public class PfeRx {
                             });
                         }
 
+                        /**
+                         * Initializes the showList button so that when clicked, a list of {@link ProductSalesPoint}
+                         * will be showed to the user, and when an element of that list is selected,
+                         * the list will disappear and the user will be gided to the corresponding
+                         * sales point.
+                         */
                         if (showList != null) {
                             showList.setVisibility(View.VISIBLE);
                             showList.setOnClickListener(new View.OnClickListener() {
@@ -268,6 +311,10 @@ public class PfeRx {
                         }
                     }
 
+                    /**
+                     * Dismisses the progress dialog, logs the error and shows the user a {@link Toast}
+                     * message to tell him that an error occurred.
+                     */
                     @Override
                     public void onError(Throwable e) {
                         Log.e(TAG, "SearchFromProductBarcode : onError " + e.toString());
@@ -283,12 +330,13 @@ public class PfeRx {
                 });
     }
 
-
-    //TODO: Faire en sorte d'afficher par pages ==> en plus de la requête de base, une autre requête
-    //qui ne sera exécutée qu'une seule fois qui calculera le nombre total de résultats possible
-    //afin de déterminer le nombre de pages de résultats, faire pareil avec catégories
+    /**
+     * Operates a network call to get the products corresponding to the search query.
+     * @param activity The current {@link Activity}.
+     * @param searchString A search query.
+     */
     public static void searchFromQuery(@NonNull final Activity activity,
-                                      @NonNull final String searchString) {
+                                       @NonNull final String searchString) {
 
         final ArrayList<Product> products = new ArrayList<>();
         final ProductsAdapter productsAdapter = new ProductsAdapter(activity, R.layout.list_item_products, products);
@@ -297,12 +345,21 @@ public class PfeRx {
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Observer<List<Product>>() {
+
+                    /**
+                     * Adds the {@link Disposable} of this network call to the {@link DisposableManager}.
+                     * @param d The {@link Disposable} corresponding to this network call.
+                     */
                     @Override
                     public void onSubscribe(Disposable d) {
                         Log.e(TAG, "SearchFromQuery : onSubscribe");
                         DisposableManager.add(d);
                     }
 
+                    /**
+                     * Adds the {@link List} of {@link Product} resulting from this network call
+                     * to the {@link Singleton} and displays it in the {@link usthb.lfbservices.com.pfe.fragments.ProductsFragment}.
+                     */
                     @Override
                     public void onNext(List<Product> products) {
                         Log.e(TAG, "SearchFromQuery : onNext");
@@ -354,22 +411,38 @@ public class PfeRx {
                 });
     }
 
-
-
+    /**
+     * Operates a network call to get the detailed informations of a {@link SalesPoint}.
+     * @param activity The current {@link Activity}.
+     * @param salesPointId A {@link SalesPoint#salesPointId}.
+     */
     public static void getPlaceDetails(@NonNull final Activity activity,
-                                       @NonNull final String salesPointId/*,boolean fromRx*/) {
+                                       @NonNull final String salesPointId) {
 
         final String apiKey = activity.getResources().getString(R.string.google_maps_key);
         pfeAPI.getPlaceDetails(apiKey, salesPointId)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Observer<GooglePlaceDetails>() {
+
+                    /**
+                     * Adds the {@link Disposable} of this network call to the {@link DisposableManager}.
+                     * @param d The {@link Disposable} corresponding to this network call.
+                     */
                     @Override
                     public void onSubscribe(Disposable d) {
                         Log.e(TAG, "GetPlaceDetails : onSubscribe");
                         DisposableManager.add(d);
                     }
 
+                    /**
+                     * Extracts the useful sales point's informations and adds them to the correct
+                     * instance of {@link SalesPoint} of the {@link Singleton} and if the calling
+                     * {@link Activity} is an instance of {@link BottomSheetDataSetter} then calls
+                     * the {@link BottomSheetDataSetter#setBottomSheetDataDetails(SalesPoint)} method
+                     * and if it is an instance of {@link DescSalesPointActivity} calls the
+                     * {@link DescSalesPointActivity#initViews(SalesPoint, boolean)} method.
+                     */
                     @Override
                     public void onNext(GooglePlaceDetails googlePlaceDetails) {
                         Log.e(TAG, "GetPlaceDetails : onNext");
@@ -462,10 +535,8 @@ public class PfeRx {
      * Searches for the Products corresponding to the specified Category, displays the results
      * if there are any, or an appropriate message in the case where there are no corresponding
      * results or an error occurred.
-     *
      * @param activity The activity in which to display the results of the network call, or the
      *                 appropriate message.
-     *                 //@param layoutResourceId The layout id used by{@link ProductsAdapter} the Adapter to display the results.
      * @param category The Category id used for the network call to filter the Products.
      */
 
@@ -481,7 +552,7 @@ public class PfeRx {
                     /**
                      * This method is called before we start the network call.
                      * Activates the PorgressBar to show the user that there is a background
-                     * activity.
+                     * activity and adds the {@link Disposable} of this network call to the {@link DisposableManager}.
                      */
                     @Override
                     public void onSubscribe(Disposable d) {
@@ -564,6 +635,13 @@ public class PfeRx {
                 });
     }
 
+    /**
+     * Operates a network call to check if the user is registered and shows an indeterminate progress
+     * bar.
+     * @param activity The current {@link Activity}.
+     * @param mailAddress The user's mail address.
+     * @param password The user's password.
+     */
     public static void connect(@NonNull final Activity activity,
                                @NonNull final String mailAddress,
                                @NonNull final String password) {
@@ -578,6 +656,11 @@ public class PfeRx {
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Observer<Boolean>() {
+
+                    /**
+                     * Adds the {@link Disposable} of this network call to the {@link DisposableManager}.
+                     * @param d The {@link Disposable} corresponding to this network call.
+                     */
                     @Override
                     public void onSubscribe(Disposable d) {
                         Log.e(TAG, "Connect : onSubscribe");
@@ -585,6 +668,10 @@ public class PfeRx {
                         progressDialog.setMessage(activity.getResources().getString(R.string.checking_informations));
                     }
 
+                    /**
+                     * If the user exists adds him mail address and password to the {@link SharedPreferences}
+                     * and redirect him to the {@link MainActivity}.
+                     */
                     @Override
                     public void onNext(Boolean exists) {
                         Log.e(TAG, "Connect : onNext");
@@ -609,6 +696,10 @@ public class PfeRx {
                         }
                     }
 
+                    /**
+                     * Dismisses the progress bar, logs the error and shows a {@link Snackbar} to
+                     * tell the user that an error occurred and give him the possibility to retry.
+                     */
                     @Override
                     public void onError(Throwable e) {
                         Log.e(TAG, "Connect : onError " + e.toString());
@@ -633,6 +724,12 @@ public class PfeRx {
     }
 
 
+    /**
+     * Operates a network call to register the user and show an indeterminate progress bar.
+     * @param activity The current {@link Activity}.
+     * @param mailAddress The user's mail address
+     * @param password The user's password.
+     */
     public static void register(@NonNull final Activity activity,
                                 @NonNull final String mailAddress,
                                 @NonNull final String password) {
@@ -647,6 +744,11 @@ public class PfeRx {
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Observer<Boolean>() {
+
+                    /**
+                     * Adds the {@link Disposable} of this network call to the {@link DisposableManager}.
+                     * @param d The {@link Disposable} corresponding to this network call.
+                     */
                     @Override
                     public void onSubscribe(Disposable d) {
                         Log.e(TAG, "Register : onSubscribe");
@@ -654,6 +756,10 @@ public class PfeRx {
                         progressDialog.setMessage(activity.getResources().getString(R.string.registering_informations));
                     }
 
+                    /**
+                     * If the user was successfully registered, adds his mail address and passwords
+                     * to the {@link SharedPreferences} and redirects him to the {@link MainActivity}.
+                     */
                     @Override
                     public void onNext(Boolean registered) {
                         Log.e(TAG, "Register : onNext");
@@ -674,11 +780,14 @@ public class PfeRx {
                             activity.startActivity(intent);
                             activity.finish();
                         } else {
-                            //TODO:Error message for mail address
                             Toast.makeText(activity, activity.getResources().getString(R.string.mail_address_used), Toast.LENGTH_LONG).show();
                         }
                     }
 
+                    /**
+                     * Logs the error message, dismisses the progress bar and shows a {@link Snackbar}
+                     * to tell the user that the network call failed and offers him to retry.
+                     */
                     @Override
                     public void onError(Throwable e) {
                         Log.e(TAG, "Register : onError " + e.toString());
@@ -694,6 +803,9 @@ public class PfeRx {
                                 .show();
                     }
 
+                    /**
+                     * Dismisses the progress bar.
+                     */
                     @Override
                     public void onComplete() {
                         Log.e(TAG, "Register : onComplete");
@@ -702,7 +814,11 @@ public class PfeRx {
                 });
     }
 
-
+    /**
+     * Operates a network call to add this device's Firebase token id in the system's database to
+     * the devices associated with the currently logged user.
+     * @param deviceId The device's Firebase token id.
+     */
     private static void setFirebaseTokenId(@NonNull final String deviceId) {
         pfeAPI.setFirebaseTokenId(deviceId)
                 .subscribeOn(Schedulers.io())
@@ -730,7 +846,12 @@ public class PfeRx {
                 });
     }
 
-
+    /**
+     * Operates a network call to update the value of this device's Firebase token id in the
+     * system's database.
+     * @param previousDeviceId The previous value of this device's Firebase token id.
+     * @param newDeviceId The new value of this device's Firebase token id.
+     */
     public static void updateFirebaseTokenId(@NonNull final String previousDeviceId,
                                              @NonNull final String newDeviceId) {
         pfeAPI.updateFirebaseTokenId(previousDeviceId, newDeviceId)
@@ -759,7 +880,10 @@ public class PfeRx {
                 });
     }
 
-
+    /**
+     * Operates a network call to remove this device's Firebase token id from the system's database.
+     * @param deviceId The device's Firebase token id.
+     */
     public static void removeFirebaseTokenId(@NonNull final String deviceId) {
         pfeAPI.removeFirebaseTokenId(deviceId)
                 .subscribeOn(Schedulers.io())
@@ -787,16 +911,26 @@ public class PfeRx {
                 });
     }
 
-
+    /**
+     * Operates a network call to add this user to the notifications feed of a given {@link Product} and {@link SalesPoint}.
+     * @param salesPointId A {@link SalesPoint#salesPointId}.
+     * @param productBarcode A {@link Product#productBarcode}.
+     */
     public static void addToNotificationsList(@NonNull final String salesPointId,
                                               @NonNull final String productBarcode) {
         pfeAPI.addToNotificationsList(salesPointId, productBarcode)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Observer<Boolean>() {
+
+                    /**
+                     * Adds the {@link Disposable} of this network call to the {@link DisposableManager}.
+                     * @param d The {@link Disposable} corresponding to this network call.
+                     */
                     @Override
                     public void onSubscribe(Disposable d) {
                         Log.e(TAG, "addToNotificationsList : onSubscribe");
+                        DisposableManager.add(d);
                     }
 
                     @Override
@@ -816,13 +950,22 @@ public class PfeRx {
                 });
     }
 
-
+    /**
+     * Operates a network call to remove this user from the notifications feed of a given {@link Product} and {@link SalesPoint}.
+     * @param salesPointId A {@link SalesPoint#salesPointId}.
+     * @param productBarcode A {@link Product#productBarcode}.
+     */
     public static void removeFromNotificationsList(@NonNull final String salesPointId,
                                                    @NonNull final String productBarcode) {
         pfeAPI.removeFromNotificationsList(salesPointId, productBarcode)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Observer<Boolean>() {
+
+                    /**
+                     * Adds the {@link Disposable} of this network call to the {@link DisposableManager}.
+                     * @param d The {@link Disposable} corresponding to this network call.
+                     */
                     @Override
                     public void onSubscribe(Disposable d) {
                         Log.e(TAG, "removeFromNotificationsList : onSubscribe");
@@ -845,7 +988,11 @@ public class PfeRx {
                 });
     }
 
-
+    /**
+     * Operates a network call to get the detailed informations of a {@link Product}.
+     * @param activity The current {@link Activity}.
+     * @param productSalesPoint A {@link ProductSalesPoint}.
+     */
     public static void getProductDetails(@NonNull final Activity activity,
                                          @NonNull final ProductSalesPoint productSalesPoint) {
 
@@ -853,12 +1000,22 @@ public class PfeRx {
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Observer<Product>() {
+
+                    /**
+                     * Adds the {@link Disposable} of this network call to the {@link DisposableManager}.
+                     * @param d The {@link Disposable} corresponding to this network call.
+                     */
                     @Override
                     public void onSubscribe(Disposable d) {
                         Log.e(TAG, "GetProductDetails : onSubscribe");
                         DisposableManager.add(d);
                     }
 
+                    /**
+                     * Checks whether or not the {@link Product} resulting from this network call
+                     * exists in the database, if it doesn't, it will insert it. After that it will
+                     * make a second network call to get this product's characteristics.
+                     */
                     @Override
                     public void onNext(Product product) {
                         Log.e(TAG, "GetProductDetails : onNext : " + product);
@@ -881,23 +1038,40 @@ public class PfeRx {
                 });
     }
 
-
+    /**
+     * Operates a network call to get the characteristics of a {@link Product}.
+     * @param activity The current {@link Activity}.
+     * @param product A{@link Product}.
+     * @param addToDatabase A boolean to know whether or not it will insert the results in the database.
+     */
     public static void getProductCharacteristics(@NonNull final Activity activity,
                                                  @NonNull final Product product,
                                                  final boolean addToDatabase) {
 
-        Log.e(TAG, "AddToDb : " + addToDatabase);
-        Log.e(TAG, "ProductBarcode : " + product.getProductBarcode());
         pfeAPI.getProductCharacteristics(product.getProductBarcode())
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Observer<List<KeyValue>>() {
+
+                    /**
+                     * Adds the {@link Disposable} of this network call to the {@link DisposableManager}.
+                     * @param d The {@link Disposable} corresponding to this network call.
+                     */
                     @Override
                     public void onSubscribe(Disposable d) {
                         Log.e(TAG, "getProductCharacteristics : onSubscribe");
                         DisposableManager.add(d);
                     }
 
+                    /**
+                     * Creates a {@link List} of {@link ProductCharacteristic} from the {@link List}
+                     * of {@link KeyValue} resulting from this network call and tests the value of the
+                     * boolean addToDatabase passed in parameter to this method, if it is set to true
+                     * then it will add the list of characteristics to the database, and if it is false
+                     * then if the calling activity is an instance of {@link DescProductFragment.FragmentDescriptionProductActions}
+                     * then it will call the {@link DescProductFragment.FragmentDescriptionProductActions#displayProductCharacteristics(Product, List)}
+                     * method to display the results.
+                     */
                     @Override
                     public void onNext(List<KeyValue> listProductsCharacteristics) {
                         Log.e(TAG, "getProductCharacteristics : onNext");
@@ -938,7 +1112,12 @@ public class PfeRx {
                 });
     }
 
-
+    /**
+     * Operates a network call to get the appropriate search propositions.
+     * @param activity The current {@link Activity}.
+     * @param query The current search query.
+     * @param cursorAdapter The {@link CursorAdapter} of the current {@link android.support.v7.widget.SearchView}.
+     */
     public static void getSearchPropositions(@NonNull final Activity activity,
                                              @NonNull final String query,
                                              @NonNull final CursorAdapter cursorAdapter) {
@@ -946,6 +1125,12 @@ public class PfeRx {
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Observer<List<String>>() {
+
+                    /**
+                     * Disposes of the previous instance of this network call if it exists and
+                     * adds the {@link Disposable} of this network call to the {@link Singleton}.
+                     * @param d The {@link Disposable} corresponding to this network call.
+                     */
                     @Override
                     public void onSubscribe(Disposable d) {
                         Log.e(TAG, "getSearchPropositions : onSubscribe");
@@ -954,6 +1139,13 @@ public class PfeRx {
                         Singleton.getInstance().setSearchPropositionDisposable(d);
                     }
 
+                    /**
+                     * Create a {@link MatrixCursor} from the {@link List} of {@link String} resulting
+                     * from this network call and representing the autocomplete propositions and updates
+                     * the adapter of the {@link android.support.v7.widget.SearchView} with the new cursor.
+                     * @param propositions A {@link List} of {@link String} representing the autocomplete
+                     *                     propositions.
+                     */
                     @Override
                     public void onNext(List<String> propositions) {
                         Log.e(TAG, "getSearchPropositions : onNext");
@@ -979,20 +1171,36 @@ public class PfeRx {
                 });
     }
 
-
-
+    /**
+     * Operates a network call to update the informations of the {@link ProductSalesPoint} of a {@link Product}
+     * stored in the database.
+     * @param activity The current {@link Activity}.
+     * @param salesPointsIds A {@link List} of {@link SalesPoint#salesPointId}.
+     * @param productBarcode A {@link Product#productBarcode}.
+     */
     public static void getNewestProductSalesPointsInformations(@NonNull final Activity activity,
-                                                               @NonNull final List<String> salesPointsIds) {
-        pfeAPI.getNewestInformations(salesPointsIds)
+                                                               @NonNull final List<String> salesPointsIds,
+                                                               @NonNull final String productBarcode) {
+        pfeAPI.getNewestInformations(salesPointsIds, productBarcode)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Observer<List<ProductSalesPoint>>() {
+
+                    /**
+                     * Adds the {@link Disposable} of this network call to the {@link DisposableManager}.
+                     * @param d The {@link Disposable} corresponding to this network call.
+                     */
                     @Override
                     public void onSubscribe(Disposable d) {
                         Log.e(TAG, "getNewestProductSalesPointsInformations : onSubscribe");
                         DisposableManager.add(d);
                     }
 
+                    /**
+                     * Updates the database with the {@link List} of {@link ProductSalesPoint}
+                     * resulting from this network call to the database.
+                     * @param productSalesPoints A {@link List} of {@link ProductSalesPoint}.
+                     */
                     @Override
                     public void onNext(List<ProductSalesPoint> productSalesPoints) {
                         Log.e(TAG, "getNewestProductSalesPointsInformations : onNext");
